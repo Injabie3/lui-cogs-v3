@@ -80,11 +80,16 @@ class Catgirl_beta:
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    #[p]nyaa changelog
+    #[p]nyaa about
     @_nyaa.command(pass_context=True, no_pm=True)
-    async def changelog(self, ctx):
-        """Displays the current changelog for this module."""
-        await self.bot.say("Lui - Catgirl embeds\nA work in progress still\nTo do:\nGet a RNG (DONE)\nGet a JSON to save catgirl embed links! (WIP)")
+    async def about(self, ctx):
+        """Displays information about this module"""
+        embed = discord.Embed()
+        embed.add_field(name="Name", value="Catgirl Module")
+        embed.add_field(name="Author", value="@Injabie3#1660")
+        embed.add_field(name="Initial Version Date", value="2017-02-11")
+        embed.add_field(name="Description", value="See https://github.com/Injabie3/lui-cogs for more info")
+        await self.bot.say(content="",embed=embed)
 
     #[p]nyaa numbers
     @_nyaa.command(pass_context=True, no_pm=True)
