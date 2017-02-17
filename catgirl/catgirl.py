@@ -5,11 +5,14 @@ from cogs.utils.dataIO import dataIO
 import random #Used for selecting random catgirls
 
 #Global variables
-JSON_key = "catgirls" #Key for JSON files.
+JSON_mainKey = "catgirls" #Key for JSON files.
+JSON_imageURLKey = "url" #Key for URL
+JSON_isPixiv = "is_pixiv"
+JSON_pixivID = "id"
 
 def checkFiles():
     """Used to initialize an empty database at first startup"""
-    base = { JSON_key : ["https://cdn.awwni.me/utpd.jpg"] }
+    base = { JSON_mainKey : [{ JSON_imageURLKey :"https://cdn.awwni.me/utpd.jpg" , "id" : "null", "is_pixiv" : False}] }
 	
     f = "data/catgirl/links-web.json"
     if not dataIO.is_valid_json(f):
@@ -19,12 +22,12 @@ def checkFiles():
     f = "data/catgirl/links-localx10.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-localx10.json...")
-        dataIO.save_json(f, { JSON_key : []})
+        dataIO.save_json(f, { JSON_mainKey : []})
 		
     f = "data/catgirl/links-local.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-local.json...")
-        dataIO.save_json(f, { JSON_key : []})
+        dataIO.save_json(f, { JSON_mainKey : []})
 			
 class Catgirl_beta:
     """Display cute nyaas~"""
@@ -44,17 +47,17 @@ class Catgirl_beta:
         self.pictures_web = dataIO.load_json(self.filepath_web)   
         
         #Custom key which holds an array of catgirl filenames/paths
-        self.JSON_key = "catgirls"
+        self.JSON_mainKey = "catgirls"
         
 		#Prepend local listings with domain name.
-        for x in range(0,len(self.pictures_local[JSON_key])):
-            self.pictures_local[JSON_key][x] = "https://nyan.injabie3.moe/p/" + self.pictures_local[JSON_key][x]
-        for x in range(0,len(self.pictures_localx10[JSON_key])):
-            self.pictures_localx10[JSON_key][x] = "http://injabie3.x10.mx/p/" + self.pictures_localx10[JSON_key][x]
+        for x in range(0,len(self.pictures_local[JSON_mainKey])):
+            self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nyan.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
+        for x in range(0,len(self.pictures_localx10[JSON_mainKey])):
+            self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey] = "http://injabie3.x10.mx/p/" + self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey]
 
 
-        self.catgirls_local = self.pictures_local[JSON_key]
-        self.catgirls = self.pictures_local[JSON_key] + self.pictures_web[JSON_key] + self.pictures_localx10[JSON_key]
+        self.catgirls_local = self.pictures_local[JSON_mainKey]
+        self.catgirls = self.pictures_local[JSON_mainKey] + self.pictures_web[JSON_mainKey] + self.pictures_localx10[JSON_mainKey]
 
     def __init__(self, bot):
         self.bot = bot
@@ -69,9 +72,10 @@ class Catgirl_beta:
         embed = discord.Embed()
         embed.colour = discord.Colour.red()
         embed.title = "Catgirl"
-        embed.url = randCatgirl
-        embed.set_image(url=randCatgirl)
-
+        embed.url = randCatgirl[JSON_imageURLKey]
+        if randCatgirl[JSON_isPixiv]:
+            embed.add_field(name="Pixiv",value="http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+        embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
     @commands.group(name="nyaa", pass_context=True, no_pm=True)
@@ -112,8 +116,10 @@ class Catgirl_beta:
         embed = discord.Embed()
         embed.colour = discord.Colour.red()
         embed.title = "Catgirl"
-        embed.url = randCatgirl
-        embed.set_image(url=randCatgirl)
+        embed.url = randCatgirl[JSON_imageURLKey]
+        if randCatgirl[JSON_isPixiv]:
+            embed.add_field(name="Pixiv",value="http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+        embed.set_image(url=randCatgirl[JSON_imageURLKey])
 
         await self.bot.say("",embed=embed)
 
@@ -123,7 +129,7 @@ class Catgirl_beta:
         """Debug to see if list is okay"""
         msg = "Debug Mode\n```"
         for x in range(0,len(self.catgirls)):
-            msg += self.catgirls[x] + "\n"
+            msg += self.catgirls[x][JSON_imageURLKey] + "\n"
             if len(msg) > 900:
                msg += "```"
                await self.bot.say(msg)
