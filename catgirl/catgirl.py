@@ -2,29 +2,36 @@ import discord
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
+import os #Used to create folder at first load.
 import random #Used for selecting random catgirls
 
 #Global variables
 JSON_mainKey = "catgirls" #Key for JSON files.
 JSON_imageURLKey = "url" #Key for URL
-JSON_isPixiv = "is_pixiv"
-JSON_pixivID = "id"
+JSON_isPixiv = "is_pixiv" #Key that specifies if image is from pixiv. If true, pixivID should be set.
+JSON_pixivID = "id" #Key for Pixiv ID, used to create URL to pixiv image page, if applicable.
+saveFolder = "data/lui-cogs/catgirl/" #Path to save folder.
+
+def checkFolder():
+    if not os.path.exists(saveFolder):
+        print("Creating data/kanna folder...")
+        os.makedirs(saveFolder)
 
 def checkFiles():
     """Used to initialize an empty database at first startup"""
     base = { JSON_mainKey : [{ JSON_imageURLKey :"https://cdn.awwni.me/utpd.jpg" , "id" : "null", "is_pixiv" : False}] }
 	
-    f = "data/catgirl/links-web.json"
+    f = saveFolder + "links-web.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-web.json...")
         dataIO.save_json(f, base)
 		
-    f = "data/catgirl/links-localx10.json"
+    f = saveFolder + "links-localx10.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-localx10.json...")
         dataIO.save_json(f, { JSON_mainKey : []})
 		
-    f = "data/catgirl/links-local.json"
+    f = saveFolder + "links-local.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-local.json...")
         dataIO.save_json(f, { JSON_mainKey : []})
@@ -36,11 +43,11 @@ class Catgirl_beta:
     def refreshDatabase(self):
         """Refreshes the JSON files"""
         #Local catgirls allow for prepending predefined domain, if you have a place where you're hosting your own catgirls.
-        self.filepath_local = "data/catgirl/links-local.json"
-        self.filepath_localx10 = "data/catgirl/links-localx10.json"
+        self.filepath_local = saveFolder + "links-local.json"
+        self.filepath_localx10 = saveFolder + "links-localx10.json"
 		
 		#Web catgirls will take on full URLs.
-        self.filepath_web = "data/catgirl/links-web.json"
+        self.filepath_web = saveFolder + "links-web.json"
 		
         self.pictures_local = dataIO.load_json(self.filepath_local)
         self.pictures_localx10 = dataIO.load_json(self.filepath_localx10)
@@ -61,6 +68,7 @@ class Catgirl_beta:
 
     def __init__(self, bot):
         self.bot = bot
+        checkFolder()
         checkFiles()
         self.refreshDatabase()
 		
@@ -140,5 +148,6 @@ class Catgirl_beta:
 
 
 def setup(bot):
+    checkFolder()
     checkFiles() #Make sure we have a local database!
     bot.add_cog(Catgirl_beta(bot))
