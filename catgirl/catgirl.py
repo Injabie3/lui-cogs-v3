@@ -14,7 +14,7 @@ saveFolder = "data/lui-cogs/catgirl/" #Path to save folder.
 
 def checkFolder():
     if not os.path.exists(saveFolder):
-        print("Creating data/kanna folder...")
+        print("Creating " + saveFolder + " folder...")
         os.makedirs(saveFolder)
 
 def checkFiles():
@@ -82,7 +82,8 @@ class Catgirl_beta:
         embed.title = "Catgirl"
         embed.url = randCatgirl[JSON_imageURLKey]
         if randCatgirl[JSON_isPixiv]:
-            embed.add_field(name="Pixiv",value="http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
@@ -126,7 +127,8 @@ class Catgirl_beta:
         embed.title = "Catgirl"
         embed.url = randCatgirl[JSON_imageURLKey]
         if randCatgirl[JSON_isPixiv]:
-            embed.add_field(name="Pixiv",value="http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
 
         await self.bot.say("",embed=embed)
