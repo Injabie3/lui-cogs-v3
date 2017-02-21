@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3",
+    "INSTALL_MSG" : "Kanna module was installed.",
+    "NAME" : "Kanna_beta",
+    "SHORT" : "Displays a random Kanna image from a local database.",
+    "DESCRIPTION" : "Displays a random Kanna image from a local database.  Based off of the catgirl module."
+}
