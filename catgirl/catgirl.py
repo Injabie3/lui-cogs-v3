@@ -84,6 +84,8 @@ class Catgirl_beta:
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+        if "character" in randCatgirl:
+            embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
@@ -98,10 +100,12 @@ class Catgirl_beta:
     async def about(self, ctx):
         """Displays information about this module"""
         embed = discord.Embed()
+        embed.title = "About this module"
         embed.add_field(name="Name", value="Catgirl Module")
         embed.add_field(name="Author", value="@Injabie3#1660")
         embed.add_field(name="Initial Version Date", value="2017-02-11")
-        embed.add_field(name="Description", value="See https://github.com/Injabie3/lui-cogs for more info")
+        embed.add_field(name="Description", value="A module to display pseudo-random catgirl images.  Image links are stored in the local database, separated into different lists (depending on if they are hosted locally or on another domain).  See https://github.com/Injabie3/lui-cogs for more info.")
+        embed.set_footer(text="lui-cogs/catgirl")
         await self.bot.say(content="",embed=embed)
 
     #[p]nyaa numbers
@@ -129,6 +133,8 @@ class Catgirl_beta:
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+        if "character" in randCatgirl:
+            embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
 
         await self.bot.say("",embed=embed)
