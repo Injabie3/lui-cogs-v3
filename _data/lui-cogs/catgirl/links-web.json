@@ -1,38 +1,191 @@
 {
 	"catgirls" : [
-		{ "url" : "https://cdn.awwni.me/utpd.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/HCwJf54.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/KzjVQ40.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/iDObbeI.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/kvSDgO5.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/zn2eWw6.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/RdtA5dq.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/Z3qJZlX.gif", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://cdn.awwni.me/so6c.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/dBaDUug.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/02cC5kz.gif", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/M03Ix1B.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/ezQTxBf.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://cdn.awwni.me/r3y0.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/EXjJlgw.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/uZFl3DO.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/1dfZucc.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/z3nsrdW.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/bPhD8d5.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/hwSjWFE.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/a8dWXcV.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/XjVEzI8.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/0kvD7oX.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/gIrJ0Vn.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/BLaaHvI.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/FehxiRK.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/j2eKd6A.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/ZAO4Rzf.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/5ARnUU0.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "https://i.imgur.com/zOTwlWN.png", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/C2vYKff.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/r3RDPX3.jpg", "id" : null, "is_pixiv" : false },
-		{ "url" : "http://i.imgur.com/cQyTx95.jpg", "id" : null, "is_pixiv" : false },
-		{"url" : "https://49.media.tumblr.com/91623e2f800bd090e3ee777a8b288b71/tumblr_nkj49zlasf1rhrl68o1_500.gif", " id" : null, "is_pixiv" : false },
-		{"url" : "https://68.media.tumblr.com/07cbd2500cb30575b87b267353abfef6/tumblr_ok55k1dt2y1sz111so1_540.gif", " id" : null, "is_pixiv" : false }]
+		{
+			"url" : "https://cdn.awwni.me/utpd.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/HCwJf54.jpg",
+			"character" : "Hakase, Nichijou",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/KzjVQ40.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/iDObbeI.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/kvSDgO5.jpg",
+			"character" : "Nakano Azusa, K-ON!",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/zn2eWw6.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/RdtA5dq.png",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/Z3qJZlX.gif",
+			"character" : "Nakano Azusa, K-ON!",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://cdn.awwni.me/so6c.jpg",
+			"character" : "Ellen Baker",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/dBaDUug.jpg",
+			"character" : "Kujo Karen, Kiniro Mosaic",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/02cC5kz.gif",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/M03Ix1B.png",
+			"character" : "Chocola and Vanilla, NEKOPARA",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/ezQTxBf.jpg",
+			"character" : "NEKOPARA",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://cdn.awwni.me/r3y0.png",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/EXjJlgw.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/uZFl3DO.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/1dfZucc.png",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/z3nsrdW.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/bPhD8d5.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/hwSjWFE.jpg",
+			"character" : "Anastasia, iDOLM@STER Cinderella Girls",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/a8dWXcV.png",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/XjVEzI8.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/0kvD7oX.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/gIrJ0Vn.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/BLaaHvI.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/FehxiRK.jpg",
+			"character" : "Nishikino Maki and Hoshizora Rin, Love Live! school idol project",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/j2eKd6A.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/ZAO4Rzf.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/5ARnUU0.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://i.imgur.com/zOTwlWN.png",
+			"character" : "Narumi Nakuru, Mayo Chiki",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/C2vYKff.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/r3RDPX3.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://i.imgur.com/cQyTx95.jpg",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://49.media.tumblr.com/91623e2f800bd090e3ee777a8b288b71/tumblr_nkj49zlasf1rhrl68o1_500.gif",
+			"character" : "Chocola and Vanilla, NEKOPARA",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "https://68.media.tumblr.com/07cbd2500cb30575b87b267353abfef6/tumblr_ok55k1dt2y1sz111so1_540.gif",
+			"character" : "Chocola and Vanilla, NEKOPARA",
+			"id" : null,
+			"is_pixiv" : false
+		}
+	]
 }

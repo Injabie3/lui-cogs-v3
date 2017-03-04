@@ -1,69 +1,504 @@
 {
+	"comment" : "This list holds all catgirl images stored on https://nyan.injabie3.moe/p/",
     "catgirls" : [
-        {"url" : "29380901.jpg", "id" : "29380901", "is_pixiv" : true},
-        {"url" : "32130456_p0.jpg", "id" : "32130456", "is_pixiv" : true},
-        {"url" : "35751417_p0.jpg", "id" : "35751417", "is_pixiv" : true},
-        {"url" : "36919305_p0.jpg", "id" : "36919305", "is_pixiv" : true},
-        {"url" : "40796315_p0.jpg", "id" : "40796315", "is_pixiv" : true},
-        {"url" : "41988699_p0.jpg", "id" : "41988699", "is_pixiv" : true},
-        {"url" : "42997147_p0.jpg", "id" : "42997147", "is_pixiv" : true},
-        {"url" : "43460271_p0.jpg", "id" : "43460271", "is_pixiv" : true},
-        {"url" : "43797580_p0.jpg", "id" : "43797580", "is_pixiv" : true},
-        {"url" : "51384688_p0.jpg", "id" : "51384688", "is_pixiv" : true},
-        {"url" : "55532559_p0.png", "id" : "55532559", "is_pixiv" : true},
-		{"url" : "LYihdaY.jpg", "id" : null, "is_pixiv" : false},
-        {"url" : "60108325_p0.jpg", "id" : "60108325", "is_pixiv" : true},
-        {"url" : "57916708_p0.png", "id" : "57916708", "is_pixiv" : true},
-        {"url" : "61355328_p0.jpg", "id" : "61355328", "is_pixiv" : true},
-        {"url" : "46603873_p0.jpg", "id" : "46603873", "is_pixiv" : true},
-        {"url" : "46865424_p0.jpg", "id" : "46865424", "is_pixiv" : true},
-        {"url" : "48031387_p0.jpg", "id" : "48031387", "is_pixiv" : true},
-        {"url" : "46838370_p0.png", "id" : "46838370", "is_pixiv" : true},
-        {"url" : "48541062_p0.jpg", "id" : "48541062", "is_pixiv" : true},
-        {"url" : "50745813_p0.jpg", "id" : "50745813", "is_pixiv" : true},
-        {"url" : "427453_385299848160991_251099221581055_1392088_912092037_n.jpg", "id" : null, "is_pixiv" : false},
-        {"url" : "412623_366923176672178_198722176825613_1154353_504142030_o.jpg", "id" : null, "is_pixiv" : false},
-        {"url" : "6599f9e1341bc4c2beea0ea4c4ca1e79.jpg", "id" : null, "is_pixiv" : false},
-        {"url" : "37766477.jpg", "id" : "37766477", "is_pixiv" : true},
-		{"url" : "40484869.jpg", "id" : "40484869", "is_pixiv" : true},
-        {"url" : "49281446_p0.png", "id" : "49281446", "is_pixiv" : true},
-        {"url" : "53457316_p0.jpg", "id" : "53457316", "is_pixiv" : true},
-		{"url" : "Asada.Shino.full.1434466.jpg", "id" : null, "is_pixiv" : false},
-        {"url" : "45067913.jpg", "id" : "45067913", "is_pixiv" : true},
-        {"url" : "5477855.png", "id" : "5477855", "is_pixiv" : true},
-		{"url" : "49971419_p2_master1200.jpg", "id" : "49971419", "is_pixiv" : true},
-        {"url" : "51718727_p0.png", "id" : "51718727", "is_pixiv" : true},
-        {"url" : "52796537_p0.png", "id" : "52796537", "is_pixiv" : true},
-        {"url" : "50834482_p0.png", "id" : "50834482", "is_pixiv" : true},
-        {"url" : "48915221_p0.png", "id" : "48915221", "is_pixiv" : true},
-        {"url" : "49971419_p0_master1200.jpg", "id" : "49971419", "is_pixiv" : true},
-        {"url" : "55605900_p0.jpg", "id" : "55605900", "is_pixiv" : true},
-        {"url" : "60181824_p0.png", "id" : "60181824", "is_pixiv" : true},
-		{"url" : "61439246_p0.png", "id" : "61439246", "is_pixiv" : true},
-		{"url" : "61400112_p0.png", "id" : "61400112", "is_pixiv" : true},
-		{"url" : "61048318_p1_master1200.jpg", "id" : "61048318", "is_pixiv" : true},
-		{"url" : "60631364_p0.png", "id" : "60631364", "is_pixiv" : true},
-		{"url" : "60246153_p0.png", "id" : "60246153", "is_pixiv" : true},
-		{"url" : "59819032_p0.jpg", "id" : "59819032", "is_pixiv" : true},
-		{"url" : "59968947_p0.jpg", "id" : "59968947", "is_pixiv" : true},
-		{"url" : "61466602_p0.jpg", "id" : "61466602", "is_pixiv" : true},
-		{"url" : "61449293_p0.jpg", "id" : "61449293", "is_pixiv" : true},
-		{"url" : "61450692_p0.jpg", "id" : "61450692", "is_pixiv" : true},
-		{"url" : "61304332_p0.png", "id" : "61304332", "is_pixiv" : true},
-		{"url" : "61455603_p0.png", "id" : "61455603", "is_pixiv" : true},
-		{"url" : "60727765_p0.png", "id" : "60727765", "is_pixiv" : true},
-		{"url" : "54207682_p0.png", "id" : "54207682", "is_pixiv" : true},
-		{"url" : "33724932_p2.jpg", "id" : "33724932", "is_pixiv" : true},
-		{"url" : "56940288_p0.png", "id" : "56940288", "is_pixiv" : true},
-		{"url" : "59744468_p0.jpg", "id" : "59744468", "is_pixiv" : true},
-		{"url" : "46917991_p0.png", "id" : "46917991", "is_pixiv" : true},
-		{"url" : "57304078_p0.png", "id" : "57304078", "is_pixiv" : true},
-		{"url" : "55621663_p0.jpg", "id" : "55621663", "is_pixiv" : true},
-		{"url" : "55382552_p3.png", "id" : "55382552", "is_pixiv" : true},
-		{"url" : "53474504_p0.jpg", "id" : "53474504", "is_pixiv" : true},
-		{"url" : "54191467_p0.png", "id" : "54191467", "is_pixiv" : true},
-		{"url" : "51662663_p0.jpg", "id" : "51662663", "is_pixiv" : true},
-		{"url" : "42395901_p0.jpg", "id" : "42395901", "is_pixiv" : true},
-		{"url" : "61538563_p0.jpg", "id" : "61538563", "is_pixiv" : true}
+        {
+			"url" : "29380901.jpg",
+			"character" : "Original Character",
+			"id" : "29380901",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "32130456_p0.jpg",
+			"character" : "Original Character",
+			"id" : "32130456",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "35751417_p0.jpg",
+			"character" : "天音ぽるん, Original Character",
+			"id" : "35751417",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "36919305_p0.jpg",
+			"id" : "36919305",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "40796315_p0.jpg",
+			"character" : "Original Character",
+			"id" : "40796315",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "41988699_p0.jpg",
+			"character" : "Original Character",
+			"id" : "41988699",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "42997147_p0.jpg",
+			"character" : "Original Character",
+			"id" : "42997147",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "43460271_p0.jpg",
+			"character" : "Original Character",
+			"id" : "43460271",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "43797580_p0.jpg",
+			"character" : "Original Character",
+			"id" : "43797580",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "51384688_p0.jpg",
+			"character" : "Original Character",
+			"id" : "51384688",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "55532559_p0.png",
+			"character" : "Original Character",
+			"id" : "55532559",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "LYihdaY.jpg",
+			"id" : null, 
+			"is_pixiv" : false},
+		
+        {
+			"url" : "60108325_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60108325",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "57916708_p0.png",
+			"character" : "Rem, Re:zero",
+			"id" : "57916708",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "61355328_p0.jpg",
+			"character" : "Rem, Re:zero",
+			"id" : "61355328",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "46603873_p0.jpg",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "46603873",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "46865424_p0.jpg",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "46865424",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "48031387_p0.jpg",
+			"character" : "First years, Love Live! school idol project",
+			"id" : "48031387",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "46838370_p0.png",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "46838370",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "48541062_p0.jpg",
+			"character" : "Julie Sigtuna, Absolute Duo",
+			"id" : "48541062",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "50745813_p0.jpg",
+			"character" : "Hoshimiya Ichigo, Aikatsu!",
+			"id" : "50745813",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "427453_385299848160991_251099221581055_1392088_912092037_n.jpg",
+			"character" : "Nakano Azusa, K-ON!",
+			"id" : null, 
+			"is_pixiv" : false},
+		
+        {
+			"url" : "412623_366923176672178_198722176825613_1154353_504142030_o.jpg",
+			"character" : "Kaname Madoka and Akemi Homura, Puella Magi Madoka Magica",
+			"id" : null, 
+			"is_pixiv" : false},
+		
+        {
+			"url" : "6599f9e1341bc4c2beea0ea4c4ca1e79.jpg",
+			"id" : null, 
+			"is_pixiv" : false},
+		
+        {
+			"url" : "37766477.jpg",
+			"character" : "Original Character",
+			"id" : "37766477",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "40484869.jpg",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "40484869",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "49281446_p0.png",
+			"character" : "Maekawa Miku and Hoshizora Rin, iM@S CG and Love Live!",
+			"id" : "49281446",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "53457316_p0.jpg",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "53457316",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "Asada.Shino.full.1434466.jpg",
+			"character" :"Asada Shino, Sword Art Online",
+			"id" : null,
+			"is_pixiv" : false},
+        {
+			"url" : "45067913.jpg",
+			"character" : "Ayano Keiko, Sword Art Online",
+			"id" : "45067913",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "5477855.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "5477855",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "49971419_p2_master1200.jpg",
+			"id" : "49971419",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "51718727_p0.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "51718727",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "52796537_p0.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "52796537",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "50834482_p0.png",
+			"character" : "Hoshizora Rin and Maekawa Miku, Love Live! and iM@S CG",
+			"id" : "50834482",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "48915221_p0.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "48915221",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "49971419_p0_master1200.jpg",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "49971419",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "55605900_p0.jpg",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "55605900",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "60181824_p0.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "60181824",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61439246_p0.png",
+			"character" : "Original Character",
+			"id" : "61439246",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61400112_p0.png",
+			"id" : "61400112",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61048318_p1_master1200.jpg",
+			"id" : "61048318",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60631364_p0.png",
+			"id" : "60631364",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60246153_p0.png",
+			"character" : "Frandle Scarlet, Touhou",
+			"id" : "60246153",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59819032_p0.jpg",
+			"character" : "Nishikino Maki, Love Live! school idol project",
+			"id" : "59819032",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59968947_p0.jpg",
+			"id" : "59968947",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61466602_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61466602",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61449293_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61449293",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61450692_p0.jpg",
+			"character" : "Kisaragi, Kantai Collection",
+			"id" : "61450692",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61304332_p0.png",
+			"character" : "Original Character",
+			"id" : "61304332",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61455603_p0.png",
+			"character" : "Original Character",
+			"id" : "61455603",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60727765_p0.png",
+			"character" : "Original Character",
+			"id" : "60727765",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "54207682_p0.png",
+			"character" : "Original Character",
+			"id" : "54207682",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "33724932_p2.jpg",
+			"id" : "33724932",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56940288_p0.png",
+			"character" : "Nishikino Maki, Love Live! school idol project",
+			"id" : "56940288",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59744468_p0.jpg",
+			"character" : "ChiMaMe-tai, Gochuumon wa Usagi desu ka?",
+			"id" : "59744468",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "46917991_p0.png",
+			"character" : "Original Character",
+			"id" : "46917991",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57304078_p0.png",
+			"character" : "Original Character",
+			"id" : "57304078",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55621663_p0.jpg",
+			"character" : "Chocola and Vanilla, NEKOPARA",
+			"id" : "55621663",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55382552_p3.png",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "55382552",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "53474504_p0.jpg",
+			"character" : "Maekawa Miku, iDOLM@STER Cinderella Girls",
+			"id" : "53474504",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "54191467_p0.png",
+			"character" : "Original Character",
+			"id" : "54191467",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "51662663_p0.jpg",
+			"character" : "Original Character",
+			"id" : "51662663",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "42395901_p0.jpg",
+			"character" : "リリー，コロネ，ソーニャ， Original Characters",
+			"id" : "42395901",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61538563_p0.jpg",
+			"id" : "61538563",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61575360_p0.jpg",
+			"character" : "Yazawa Nico and Nishikino Maki, Love Live! school idol project",
+			"id" : "61575360",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61586026_p0.png",
+			"character" : "Yazawa Nico and Nishikino Maki, Love Live! school idol project",
+			"id" : "61586026",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61589608_p0.jpg",
+			"character" : "Kamui Kanna, Kobayashi-san Chi no Maid Dragon",
+			"id" : "61589608",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61671718_p0.png",
+			"character" : "Original Character",
+			"id" : "61671718",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61627632_p0.png",
+			"character" : "Cyan, SHOW BY ROCK",
+			"id" : "61627632",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61606829_p0.jpg",
+			"character" : "IA, Vocaloid",
+			"id" : "61606829",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61591523_p0.png",
+			"character" : "Tojo Karen, Kiniro Mosaic",
+			"id" : "61591523",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61591113_p0.png",
+			"character" : "Original Character",
+			"id" : "61591113",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61588275_p0.jpg",
+			"character" : "Furutani Himawari and Omuro Sakurako, Yuru Yuri",
+			"id" : "61588275",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61587038_p0.png",
+			"character" : "Original Character",
+			"id" : "61587038",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61582530_p0.jpg",
+			"character" : "チョコミント， Original Character",
+			"id" : "61582530",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61576250_p0.jpg",
+			"character" : "Minami Kotori, Love Live! school idol project",
+			"id" : "61576250",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61569203_p0.png",
+			"id" : "61569203",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61499055_p0.jpg",
+			"character" : "Haruna, Kantai Collection",
+			"id" : "61499055",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61494168_p0.png",
+			"character" : "Sakurauchi Riko, Love Live! Sunshine!!",
+			"id" : "61494168",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56926503_p1.jpg",
+			"character" : "Emilia, Re Zero",
+			"id" : "56926503",
+			"is_pixiv" : true
+		}	,
+		{
+			"url" : "61738414_p0.jpg",
+			"character" : "Misono Senri, Daitoshokan no Hitsujikai",
+			"id" : "61738414",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61680548_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61680548",
+			"is_pixiv" : true,
+		},
+		{
+			"url" : "61436404_p0.png",
+			"character" : "Original Character",
+			"id" : "61436404",
+			"is_pixiv" : true,
+		},
+		{
+			"url" : "61297270_p0.jpg",
+			"character" : "Fubuki, Kantai Collection",
+			"id" : "61297270",
+			"is_pixiv" : true,
+		}
+		
 	]
 }

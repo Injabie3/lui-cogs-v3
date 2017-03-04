@@ -1,3 +1,60 @@
 {
-    "kanna" : []
+	"comment" : "This list holds all Kanna images stored on https://nyan.injabie3.moe/p/",
+    "kanna" : [
+	{
+		"id" : "61534053",
+		"is_pixiv" : true,
+		"url" : "61534053_p0.jpg"
+	},
+	{
+		"id" : null,
+		"is_pixiv" : false,
+		"url" : "1487836215834.gif"
+	},
+	{
+		"url" : "61589608_p0.jpg",
+		"id" : "61589608",
+		"is_pixiv" : true
+	},
+	{
+		"url" : "ezgif-3-286bf75ec1.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "ezgif-3-41d54789cf.md.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "tumblr_om5f4tvcHX1thzx08o1_400.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "tumblr_om57jjnycb1qz64n4o1_540.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "tumblr_okp3lm6jsG1v7zswmo1_500.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "9h9r6Rm.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "502.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "kannasits.gif",
+		"id" : null,
+		"is_pixiv" : false,
+	}
+	]
 }
