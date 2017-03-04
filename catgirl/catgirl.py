@@ -84,6 +84,7 @@ class Catgirl_beta:
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
@@ -133,6 +134,7 @@ class Catgirl_beta:
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])

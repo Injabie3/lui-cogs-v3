@@ -83,7 +83,8 @@ class Kanna_beta:
             embed.title = "Kanna"
             embed.url = randKanna[JSON_imageURLKey]
             if randKanna[JSON_isPixiv]:
-                embed.add_field(name="Pixiv",value="http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randKanna[JSON_pixivID])
+                source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randKanna[JSON_pixivID])
+                embed.add_field(name="Pixiv",value=source)
             embed.set_image(url=randKanna[JSON_imageURLKey])
             await self.bot.say("",embed=embed)
 
