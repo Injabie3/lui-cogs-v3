@@ -69,8 +69,8 @@
 		{
 			"url" : "LYihdaY.jpg",
 			"id" : null, 
-			"is_pixiv" : false},
-		
+			"is_pixiv" : false
+		},
         {
 			"url" : "60108325_p0.jpg",
 			"character" : "Original Character",
@@ -129,15 +129,15 @@
 			"url" : "427453_385299848160991_251099221581055_1392088_912092037_n.jpg",
 			"character" : "Nakano Azusa, K-ON!",
 			"id" : null, 
-			"is_pixiv" : false},
-		
+			"is_pixiv" : false
+		},
         {
 			"url" : "412623_366923176672178_198722176825613_1154353_504142030_o.jpg",
 			"character" : "Kaname Madoka and Akemi Homura, Puella Magi Madoka Magica",
 			"id" : null, 
-			"is_pixiv" : false},
-		
-        {
+			"is_pixiv" : false
+		},
+		{
 			"url" : "6599f9e1341bc4c2beea0ea4c4ca1e79.jpg",
 			"id" : null, 
 			"is_pixiv" : false},
@@ -474,7 +474,7 @@
 			"character" : "Emilia, Re Zero",
 			"id" : "56926503",
 			"is_pixiv" : true
-		}	,
+		},
 		{
 			"url" : "61738414_p0.jpg",
 			"character" : "Misono Senri, Daitoshokan no Hitsujikai",
@@ -485,19 +485,19 @@
 			"url" : "61680548_p0.jpg",
 			"character" : "Original Character",
 			"id" : "61680548",
-			"is_pixiv" : true,
+			"is_pixiv" : true
 		},
 		{
 			"url" : "61436404_p0.png",
 			"character" : "Original Character",
 			"id" : "61436404",
-			"is_pixiv" : true,
+			"is_pixiv" : true
 		},
 		{
 			"url" : "61297270_p0.jpg",
 			"character" : "Fubuki, Kantai Collection",
 			"id" : "61297270",
-			"is_pixiv" : true,
+			"is_pixiv" : true
 		}
 		
 	]
