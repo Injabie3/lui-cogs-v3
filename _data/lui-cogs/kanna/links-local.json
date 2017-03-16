@@ -55,6 +55,27 @@
 		"url" : "kannasits.gif",
 		"id" : null,
 		"is_pixiv" : false
+	},
+	{
+		"url" : "kannaruns.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "kannahugs.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "kannaeats.gif",
+		"id" : null,
+		"is_pixiv" : false
+	},
+	{
+		"url" : "kannaeats2.gif",
+		"id" : null,
+		"is_pixiv" : false
 	}
+	
 	]
 }

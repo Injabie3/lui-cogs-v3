@@ -126,12 +126,6 @@
 			"is_pixiv" : true
 		},
         {
-			"url" : "427453_385299848160991_251099221581055_1392088_912092037_n.jpg",
-			"character" : "Nakano Azusa, K-ON!",
-			"id" : null, 
-			"is_pixiv" : false
-		},
-        {
 			"url" : "412623_366923176672178_198722176825613_1154353_504142030_o.jpg",
 			"character" : "Kaname Madoka and Akemi Homura, Puella Magi Madoka Magica",
 			"id" : null, 
@@ -498,7 +492,485 @@
 			"character" : "Fubuki, Kantai Collection",
 			"id" : "61297270",
 			"is_pixiv" : true
+		},
+		{
+			"url" : "61818399_p0.jpg",
+			"character" : "Hatsune Miku, Vocaloid",
+			"id" : "61818399",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61784409_p0.png",
+			"character" : "Minami Kotori, Love Live! school idol project",
+			"id" : "61784409",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61764381_p0.png",
+			"id" : "61764381",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61749296_p0.png",
+			"character" : "Original Character",
+			"id" : "61749296",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61604344_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61604344",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61170981_p0.png",
+			"character" : "ショコラ, Original Character",
+			"id" : "61170981",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61143623_p0.png",
+			"character" : "Hibiki, Kantai Collection",
+			"id" : "61143623",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60975519_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60975519",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60966496_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60966496",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60938931_p0.jpg",
+			"character" : "Tedeza Rize, Gochuumon wa Usagi desu ka?",
+			"id" : "60938931",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60922534_p0.jpg",
+			"character" : "Ryuuhou, Kantai Collection",
+			"id" : "60922534",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60920059_p0.png",
+			"character" : "Original Character",
+			"id" : "60920059",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60892037_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60892037",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57305687_p0.jpg",
+			"character" : "Original Character",
+			"id" : "57305687",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61881723_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61881723",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60808294_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60808294",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61735071_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61735071",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61862170_p0.png",
+			"character" : "Original Character",
+			"id" : "61862170",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60824245_p0.png",
+			"character" : "Original Character",
+			"id" : "60824245",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61890886_p0.jpg",
+			"character" : "Original Character",
+			"id" : "61890886",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61892046_p0.png",
+			"character" : "Original Character",
+			"id" : "61892046",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60723560_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60723560",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60702703_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60702703",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60659263_p0.jpg",
+			"character" : "Rem, Re Zero",
+			"id" : "60659263",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60612962_p0.png",
+			"character" : "Maekawa Miku, The iDOLM@STER Cinderella Girls",
+			"id" : "60612962",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60610435_p0.png",
+			"character" : "Original Character",
+			"id" : "60610435",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60562466_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60562466",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60561920_p0.png",
+			"character" : "Suzuya, Kantai Collection",
+			"id" : "60561920",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60524708_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60524708",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60513073_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60513073",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60446625_p0.png",
+			"id" : "60446625",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60442851_p0.jpg",
+			"character" : "アメリ, Original Character",
+			"id" : "60442851",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60416631_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60416631",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60418891_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60418891",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60401182_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60401182",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60374747_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60374747",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60299919_p0.png",
+			"character" : "Original Characters",
+			"id" : "60299919",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60123514_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60123514",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61925779_p0.png",
+			"character" : "Sonoda Umi, Love Live! school idol project",
+			"id" : "61925779",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61883735_p0.png",
+			"character" : "Serval, Kemono Friends",
+			"id" : "61883735",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59986465_p0.png",
+			"character" : "Original Character",
+			"id" : "59986465",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59968647_p0.png",
+			"id" : "59968647",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59943924_p0.jpg",
+			"character" : "Original Character",
+			"id" : "59943924",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59927510_p0.jpg",
+			"character" : "Watanabe You and Tsushima Yoshiko, Love Live! Sunshine!!",
+			"id" : "59927510",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59912018_p0.png",
+			"character" : "Original Character",
+			"id" : "59912018",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59888327_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "59888327",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59883090_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "59883090",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59761845_p0.jpg",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "59761845",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60301280_p0.jpg",
+			"character" : "Original Character",
+			"id" : "60301280",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59144746_p0.jpg",
+			"character" : "Kafuu Chino, Gochuumon wa Usagi desu ka?",
+			"id" : "59144746",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "58861743_p0.png",
+			"character" : "Kafuu Chino, Gochuumon wa Usagi desu ka?",
+			"id" : "58861743",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61492676_p0.png",
+			"character" : "Original Character",
+			"id" : "61492676",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61640017_p0.png",
+			"character" : "Original Character",
+			"id" : "61640017",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59351074_p0.png",
+			"character" : "Original Character",
+			"id" : "59351074",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55434269_p0.png",
+			"character" : "Original Character",
+			"id" : "55434269",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55517473_p0.jpg",
+			"character" : "Original Character",
+			"id" : "55517473",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61544409_p0.png",
+			"character" : "Original Character",
+			"id" : "61544409",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61509366_p0.jpg",
+			"id" : "61509366",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61447060_p0.png",
+			"character" : "Original Characters (beware the trap)",
+			"id" : "61447060",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "58835009_p0.jpg",
+			"character" : "Hibiki, Kantai Collection",
+			"id" : "58835009",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "58779553_p0.png",
+			"character" : "Rem, Re Zero",
+			"id" : "58779553",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57278472_p0.jpg",
+			"character" : "Freyja Wion, Macross Delta",
+			"id" : "57278472",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56461718_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "56461718",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56310621_p0.jpg",
+			"character" : "Original Character",
+			"id" : "56310621",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56034227_p0.jpg",
+			"character" : "Original Character (beware the trap)",
+			"id" : "56034227",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55798958_p0.jpg",
+			"id" : "55798958",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55553879_p0.png",
+			"character" : "Original Character",
+			"id" : "55553879",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55232838_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "55232838",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "58816351_p0.png",
+			"character" : "Original Character",
+			"id" : "58816351",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "60379919_p0.png",
+			"character" : "Original Character",
+			"kitsune" : true,
+			"id" : "60379919",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59652188_p0.png",
+			"character" : "Original Characters",
+			"kitsune" : true,
+			"id" : "59652188",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "51816801_p0.jpg",
+			"character" : "Original Character",
+			"id" : "51816801",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "50355629_p0.jpg",
+			"character" : "Original Character",
+			"id" : "50355629",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "50302879_p0.jpg",
+			"character" : "Cyan, SHOW BY ROCK!",
+			"id" : "50302879",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "50057588_p0.jpg",
+			"character" : "Original Character",
+			"id" : "50057588",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59730146_p0.jpg",
+			"character" : "Hibiki, Kantai Collection",
+			"id" : "59730146",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59223518_p0.png",
+			"character" : "ショコラ, Original Character",
+			"id" : "59223518",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59717756_p0.jpg",
+			"character" : "Watanabe You, Love Live! Sunshine!!",
+			"id" : "59717756",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "59695608_p0.png",
+			"character" : "Tama, Kantai Collection",
+			"id" : "59695608",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "58097381_p0.jpg",
+			"character" : "Original Character",
+			"kitsune" : true,
+			"id" : "58097381",
+			"is_pixiv" : true
 		}
-		
+
 	]
 }
