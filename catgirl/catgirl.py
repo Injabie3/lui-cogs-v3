@@ -13,6 +13,7 @@ JSON_pixivID = "id" #Key for Pixiv ID, used to create URL to pixiv image page, i
 saveFolder = "data/lui-cogs/catgirl/" #Path to save folder.
 
 def checkFolder():
+    """Used to create the data folder at first startup"""
     if not os.path.exists(saveFolder):
         print("Creating " + saveFolder + " folder...")
         os.makedirs(saveFolder)
@@ -82,47 +83,51 @@ class Catgirl_beta:
         embed.title = "Catgirl"
         embed.url = randCatgirl[JSON_imageURLKey]
         if randCatgirl[JSON_isPixiv]:
-            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            source = "[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
         #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
-    @commands.group(name="nyaa", pass_context=True, no_pm=True)
+    @commands.group(name="nyaa", pass_context=True, no_pm=False)
     async def _nyaa(self, ctx):
         """Help menu for catgirls"""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
     #[p]nyaa about
-    @_nyaa.command(pass_context=True, no_pm=True)
+    @_nyaa.command(pass_context=True, no_pm=False)
     async def about(self, ctx):
         """Displays information about this module"""
+        customAuthor = "[{}]({})".format("@Injabie3#1660","https://injabie3.moe/")
         embed = discord.Embed()
         embed.title = "About this module"
         embed.add_field(name="Name", value="Catgirl Module")
-        embed.add_field(name="Author", value="@Injabie3#1660")
+        embed.add_field(name="Author", value=customAuthor)
         embed.add_field(name="Initial Version Date", value="2017-02-11")
         embed.add_field(name="Description", value="A module to display pseudo-random catgirl images.  Image links are stored in the local database, separated into different lists (depending on if they are hosted locally or on another domain).  See https://github.com/Injabie3/lui-cogs for more info.")
         embed.set_footer(text="lui-cogs/catgirl")
         await self.bot.say(content="",embed=embed)
 
     #[p]nyaa numbers
-    @_nyaa.command(pass_context=True, no_pm=True)
+    @_nyaa.command(pass_context=True, no_pm=False)
     async def numbers(self, ctx):
-        """Displays the number of catgirls on file."""
+        """Displays the number of catgirls in the database."""
         await self.bot.say("There are " + str(len(self.catgirls)) + " catgirls available at the moment, hopefully more to come!")
 
-    #[p]nyaa refresh
-    @_nyaa.command(pass_context=True, no_pm=True)
+    #[p]nyaa refresh - Also allow for refresh in a DM to the bot.
+    @_nyaa.command(pass_context=True, no_pm=False)
     async def refresh(self, ctx):
         """Refreshes the internal database of catgirls."""
         self.refreshDatabase()
         await self.bot.say("List reloaded. There are " + str(len(self.catgirls)) + " catgirls available.")
-
-    @_nyaa.command(pass_context=True, no_pm=True)
+    
+    #[p]nyaa local
+    @_nyaa.command(pass_context=True, no_pm=False)
     async def local(self):
         """Displays a random, cute catgirl from the local database."""
 
@@ -134,15 +139,16 @@ class Catgirl_beta:
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
         #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
-
         await self.bot.say("",embed=embed)
 
     #[p] nyaa debug
-    @_nyaa.command(pass_context=True, no_pm=True)
+    @_nyaa.command(pass_context=True, no_pm=False)
     async def debug(self, ctx):
         """Debug to see if list is okay"""
         msg = "Debug Mode\n```"
@@ -158,6 +164,6 @@ class Catgirl_beta:
 
 
 def setup(bot):
-    checkFolder()
-    checkFiles() #Make sure we have a local database!
+    checkFolder()   #Make sure the data folder exists!
+    checkFiles()    #Make sure we have a local database!
     bot.add_cog(Catgirl_beta(bot))

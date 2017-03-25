@@ -72,7 +72,7 @@ class Kanna_beta:
     #@commands.command(name="kanna")
     #async def _kanna(self):
 
-    @commands.group(name="kanna", pass_context=True, no_pm=True)
+    @commands.group(name="kanna", pass_context=True, no_pm=False)
     async def _kanna(self, ctx):
         """Displays a random, cute kanna :3"""
         if ctx.invoked_subcommand is None:
@@ -85,17 +85,20 @@ class Kanna_beta:
             if randKanna[JSON_isPixiv]:
                 source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randKanna[JSON_pixivID])
                 embed.add_field(name="Pixiv",value=source)
+                customFooter = "ID: " + randKanna[JSON_pixivID]
+                embed.set_footer(text=customFooter)
             embed.set_image(url=randKanna[JSON_imageURLKey])
             await self.bot.say("",embed=embed)
 
     #[p]kanna about
-    @_kanna.command(pass_context=True, no_pm=True)
+    @_kanna.command(pass_context=True, no_pm=False)
     async def about(self, ctx):
         """Displays information about this module"""
+        customAuthor = "[{}]({})".format("@Injabie3#1660","https://injabie3.moe/")
         embed = discord.Embed()
         embed.title = "About this module"
         embed.add_field(name="Name", value="Kanna Module")
-        embed.add_field(name="Author", value="@Injabie3#1660")
+        embed.add_field(name="Author", value=customAuthor)
         embed.add_field(name="Initial Version Date", value="2017-02-20")
         embed.add_field(name="Description", value="Literally a copy of the Catgirl Module, except for Kanna images only. See https://github.com/Injabie3/lui-cogs for more info")
         embed.set_footer(text="lui-cogs/kanna")
@@ -103,20 +106,20 @@ class Kanna_beta:
         
 
     #[p]kanna numbers
-    @_kanna.command(pass_context=True, no_pm=True)
+    @_kanna.command(pass_context=True, no_pm=False)
     async def numbers(self, ctx):
         """Displays the number of Kanna images on file."""
         await self.bot.say("There are " + str(len(self.kanna)) + " Kanna images available at the moment!")
 
     #[p]kanna refresh
-    @_kanna.command(pass_context=True, no_pm=True)
+    @_kanna.command(pass_context=True, no_pm=False)
     async def refresh(self, ctx):
         """Refreshes the internal database of Kanna images."""
         self.refreshDatabase()
         await self.bot.say("List reloaded. There are " + str(len(self.kanna)) + " Kanna images available.")
 
     #[p] kanna debug
-    @_kanna.command(pass_context=True, no_pm=True)
+    @_kanna.command(pass_context=True, no_pm=False)
     async def debug(self, ctx):
         """Debug to see if list is okay"""
         msg = "Debug Mode\n```"
@@ -132,6 +135,6 @@ class Kanna_beta:
 
 
 def setup(bot):
-    checkFolder()
-    checkFiles() #Make sure we have a local database!
+    checkFolder()	#Make sure the data folder exists!
+    checkFiles()	#Make sure we have a local database!
     bot.add_cog(Kanna_beta(bot))
