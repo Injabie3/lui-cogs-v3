@@ -834,6 +834,7 @@
 		{
 			"url" : "61447060_p0.png",
 			"character" : "Original Characters (beware the trap)",
+			"trap" : true,
 			"id" : "61447060",
 			"is_pixiv" : true
 		},
@@ -870,6 +871,7 @@
 		{
 			"url" : "56034227_p0.jpg",
 			"character" : "Original Character (beware the trap)",
+			"trap" : true,
 			"id" : "56034227",
 			"is_pixiv" : true
 		},
@@ -1160,6 +1162,7 @@
 		{
 			"url" : "58870033_p0.png",
 			"character" : "Felix, Re Zero (huehuehue)",
+			"trap" : true,
 			"id" : "58870033",
 			"is_pixiv" : true
 		},
@@ -1178,6 +1181,7 @@
 		{
 			"url" : "58730601_p0.jpg",
 			"character" : "Felix, Re Zero (kek)",
+			"trap" : true,
 			"id" : "58730601",
 			"is_pixiv" : true
 		},
@@ -1337,7 +1341,109 @@
 			"character" : "Rem, Re Zero",
 			"id" : "57161720",
 			"is_pixiv" : true
-		}
+		},
+		{
+			"url" : "62162976_p0.png",
+			"character" : "Original Character",
+			"id" : "62162976",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "62144413_p0.jpg",
+			"character" : "9S and 2B, NieR:Automata",
+			"id" : "62144413",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61593100_p0.png",
+			"character" : "Original Character",
+			"id" : "61593100",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "61082722_p0.png",
+			"character" : "Original Character",
+			"kitsune" : true,
+			"id" : "61082722",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "62207672_p0.png",
+			"character" : "Original Character",
+			"id" : "62207672",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "62182752_p0.jpg",
+			"character" : "Original Character",
+			"id" : "62182752",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57249548_p0.jpg",
+			"character" : "Original",
+			"id" : "57249548",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57249548_p1.jpg",
+			"character" : "Original",
+			"id" : "57249548",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57185531_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "57185531",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57102356_p0.png",
+			"id" : "57102356",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "57010608_p0.png",
+			"character" : "Original Character",
+			"id" : "57010608",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56906185_p0.jpg",
+			"character" : "Original Characters",
+			"id" : "56906185",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56904146_p0.jpg",
+			"character" : "Rem, Re Zero",
+			"id" : "56904146",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56894092_p0.png",
+			"character" : "Chen, Touhou",
+			"id" : "56894092",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "56831047_p0.png",
+			"character" : "Nishizumi Miho, Girls und Panzer",
+			"id" : "56831047",
+			"is_pixiv" : true
+		},
+		{
+			"url" : "55162593_p0.png",
+			"character" : "Original Character",
+			"id" : "55162593",
+			"is_pixiv" : true
+		},
+        {
+			"url" : "46626175_p0.png",
+			"character" : "Hoshizora Rin, Love Live! school idol project",
+			"id" : "46626175",
+			"is_pixiv" : true
+		} 
 
 	]
 }
