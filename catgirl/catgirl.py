@@ -52,15 +52,21 @@ class Catgirl_beta:
 		
         self.pictures_local = dataIO.load_json(self.filepath_local)
         self.pictures_localx10 = dataIO.load_json(self.filepath_localx10)
-        self.pictures_web = dataIO.load_json(self.filepath_web)   
-        
+        self.pictures_web = dataIO.load_json(self.filepath_web)
+
+        self.catgirls_local_trap = [];
+
         #Custom key which holds an array of catgirl filenames/paths
         self.JSON_mainKey = "catgirls"
         
 		#Prepend local listings with domain name.
         for x in range(0,len(self.pictures_local[JSON_mainKey])):
             self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nekomimi.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
+
+            if ("trap" in self.pictures_local[JSON_mainKey][x]) and (self.pictures_local[JSON_mainKey][x]['trap'] is True):
+                self.catgirls_local_trap.append(self.pictures_local[JSON_mainKey][x])
             #self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nyan.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
+
         for x in range(0,len(self.pictures_localx10[JSON_mainKey])):
             self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey] = "http://injabie3.x10.mx/p/" + self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey]
 
@@ -96,7 +102,7 @@ class Catgirl_beta:
 
     @commands.group(name="nyaa", pass_context=True, no_pm=False)
     async def _nyaa(self, ctx):
-        """Help menu for catgirls"""
+        """Catgirls galore! \o/"""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
@@ -136,6 +142,27 @@ class Catgirl_beta:
         embed = discord.Embed()
         embed.colour = discord.Colour.red()
         embed.title = "Catgirl"
+        embed.url = randCatgirl[JSON_imageURLKey]
+        if randCatgirl[JSON_isPixiv]:
+            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
+        if "character" in randCatgirl:
+            embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
+        embed.set_image(url=randCatgirl[JSON_imageURLKey])
+        await self.bot.say("",embed=embed)
+
+    #[p]nyaa trap
+    @_nyaa.command(pass_context=True, no_pm=False)
+    async def trap(self):
+        """Say no more fam, gotchu covered ;)"""
+
+        randCatgirl = random.choice(self.catgirls_local_trap)
+        embed = discord.Embed()
+        embed.colour = discord.Colour.red()
+        embed.title = "Nekomimi"
         embed.url = randCatgirl[JSON_imageURLKey]
         if randCatgirl[JSON_isPixiv]:
             source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
