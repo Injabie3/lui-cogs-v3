@@ -7,6 +7,7 @@ import random #Used for selecting random catgirls
 
 #Global variables
 JSON_mainKey = "catgirls" #Key for JSON files.
+JSON_catboyKey = "catboys" #Key containing other images.
 JSON_imageURLKey = "url" #Key for URL
 JSON_isPixiv = "is_pixiv" #Key that specifies if image is from pixiv. If true, pixivID should be set.
 JSON_pixivID = "id" #Key for Pixiv ID, used to create URL to pixiv image page, if applicable.
@@ -50,10 +51,12 @@ class Catgirl_beta:
 		#Web catgirls will take on full URLs.
         self.filepath_web = saveFolder + "links-web.json"
 		
+		#Catgirls
         self.pictures_local = dataIO.load_json(self.filepath_local)
         self.pictures_localx10 = dataIO.load_json(self.filepath_localx10)
         self.pictures_web = dataIO.load_json(self.filepath_web)
-
+		
+		#Trap (kek)
         self.catgirls_local_trap = [];
 
         #Custom key which holds an array of catgirl filenames/paths
@@ -67,12 +70,14 @@ class Catgirl_beta:
                 self.catgirls_local_trap.append(self.pictures_local[JSON_mainKey][x])
             #self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nyan.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
 
+		#Prepend hosted listings with domain name.
         for x in range(0,len(self.pictures_localx10[JSON_mainKey])):
             self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey] = "http://injabie3.x10.mx/p/" + self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey]
 
 
         self.catgirls_local = self.pictures_local[JSON_mainKey]
         self.catgirls = self.pictures_local[JSON_mainKey] + self.pictures_web[JSON_mainKey] + self.pictures_localx10[JSON_mainKey]
+        self.catboys = self.pictures_web[JSON_catboyKey]
 
     def __init__(self, bot):
         self.bot = bot
@@ -80,7 +85,7 @@ class Catgirl_beta:
         checkFiles()
         self.refreshDatabase()
 		
-        
+    #[p]catgirl
     @commands.command(name="catgirl")
     async def _catgirl(self):
         """Displays a random, cute catgirl :3"""
@@ -100,9 +105,30 @@ class Catgirl_beta:
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
+    #[p]catboy
+    @commands.command(name="catboy")
+    async def _catboy(self):
+        """This command says it all (database still WIP)"""
+
+        randCatboy = random.choice(self.catboys)
+        embed = discord.Embed()
+        embed.colour = discord.Colour.red()
+        embed.title = "Catboy"
+        embed.url = randCatboy[JSON_imageURLKey]
+        if randCatboy[JSON_isPixiv]:
+            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatboy[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatboy[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
+        if "character" in randCatboy:
+            embed.add_field(name="Info",value=randCatboy["character"], inline=False)
+        embed.set_image(url=randCatboy[JSON_imageURLKey])
+        await self.bot.say("",embed=embed)		
+
     @commands.group(name="nyaa", pass_context=True, no_pm=False)
     async def _nyaa(self, ctx):
-        """Catgirls galore! \o/"""
+        """Nekomimi universe! \o/"""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
@@ -120,18 +146,38 @@ class Catgirl_beta:
         embed.set_footer(text="lui-cogs/catgirl")
         await self.bot.say(content="",embed=embed)
 
+	#[p]nyaa catgirl
+    @_nyaa.command(pass_context=True, no_pm=False)
+    async def catgirl(self):
+        """Displays a random, cute catgirl :3"""
+        randCatgirl = random.choice(self.catgirls)
+        embed = discord.Embed()
+        embed.colour = discord.Colour.red()
+        embed.title = "Catgirl"
+        embed.url = randCatgirl[JSON_imageURLKey]
+        if randCatgirl[JSON_isPixiv]:
+            source = "[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
+        if "character" in randCatgirl:
+            embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
+        embed.set_image(url=randCatgirl[JSON_imageURLKey])
+        await self.bot.say("",embed=embed)
+		
     #[p]nyaa numbers
     @_nyaa.command(pass_context=True, no_pm=False)
     async def numbers(self, ctx):
-        """Displays the number of catgirls in the database."""
-        await self.bot.say("There are " + str(len(self.catgirls)) + " catgirls available at the moment, hopefully more to come!")
+        """Displays the number of images in the database."""
+        await self.bot.say("There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.")
 
     #[p]nyaa refresh - Also allow for refresh in a DM to the bot.
     @_nyaa.command(pass_context=True, no_pm=False)
     async def refresh(self, ctx):
-        """Refreshes the internal database of catgirls."""
+        """Refreshes the internal database of nekomimi images."""
         self.refreshDatabase()
-        await self.bot.say("List reloaded. There are " + str(len(self.catgirls)) + " catgirls available.")
+        await self.bot.say("List reloaded. There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.")
     
     #[p]nyaa local
     @_nyaa.command(pass_context=True, no_pm=False)
@@ -175,10 +221,31 @@ class Catgirl_beta:
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
         await self.bot.say("",embed=embed)
 
+    #[p]nyaa catboy
+    @_nyaa.command(pass_context=True, no_pm=False)
+    async def catboy(self):
+        """This command says it all (database still WIP)"""
+
+        randCatboy = random.choice(self.catboys)
+        embed = discord.Embed()
+        embed.colour = discord.Colour.red()
+        embed.title = "Catboy"
+        embed.url = randCatboy[JSON_imageURLKey]
+        if randCatboy[JSON_isPixiv]:
+            source="[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatboy[JSON_pixivID])
+            embed.add_field(name="Pixiv",value=source)
+            customFooter = "ID: " + randCatboy[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
+        if "character" in randCatboy:
+            embed.add_field(name="Info",value=randCatboy["character"], inline=False)
+        embed.set_image(url=randCatboy[JSON_imageURLKey])
+        await self.bot.say("",embed=embed)
+
     #[p] nyaa debug
     @_nyaa.command(pass_context=True, no_pm=False)
     async def debug(self, ctx):
-        """Debug to see if list is okay"""
+        """Debug to see if list is OK.  USE ONLY IN A DM!"""
         msg = "Debug Mode\n```"
         for x in range(0,len(self.catgirls)):
             msg += self.catgirls[x][JSON_imageURLKey] + "\n"
