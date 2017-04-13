@@ -2,16 +2,14 @@ import discord
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
-import aiohttp #probably wont need
-import requests #probably wont need
 import asyncio
 import feedparser
 from datetime import datetime
-from urllib import request
+from urllib import request #TODO: use aiohttp instead
 from bs4 import BeautifulSoup
 
 """
-Cogs Purpose: To be able to hook up any RSS feed to the bot and Post it in a channel
+Cogs Purpose: To be able to hook up any RSS feed(s) to the bot and post it in a channel
 Requirements: 
     - sudo pip install bs4
     - sudo pip install feedparser
@@ -37,13 +35,13 @@ def check_filesystem():
     folders = ("data/rss")
     for folder in folders:
         if not os.path.exists(folder):
-            print("RSS Cog: Creating folder: " + folder + " ...")
+            print("RSS: Creating folder: " + folder + " ...")
             os.makedirs(folder)
             
     files = ("data/rss/config.json", "data/rss/feeds.json")
     for file in files:
         if not os.path.exists(file):
-            print("RSS Cog: Creating file: " + file + " ...")
+            print("RSS: Creating file: " + file + " ...")
           
             if "feeds" in file:
                 #build a default feeds.json
@@ -59,6 +57,7 @@ def check_filesystem():
                 dict = {}
                 dict['post_channel'] = "change_me"
                 dict['rss_feed_urls'] = ["change_me"]
+                dict['check_interval'] = 3600 #default to checking every hour
                 dataIO.save_json("data/rss/config.json",dict)
 
 #---------------------------------------------------------------------------------------------#                
@@ -67,25 +66,25 @@ class RSSFeed(object):
         self.settings = dataIO.load_json("data/rss/config.json")
         self.bot = bot
         self.rss_feed_urls = self.settings['rss_feed_urls']
+        self.check_interval = self.settings['check_interval']
         self.channel_id = self.settings['post_channel']
-#---------------------------------------------------------------------------------------------#   
-    # searching for time based feed updates instead of content based feed updates
-    def _is_new_item(self,latest_post_time,item_post_time):
+        
+#---------------------------------------------------------------------------------------------#
+    def _is_new_item(self,latest_post_time, item_post_time):
         return latest_post_time < item_post_time
         
 #---------------------------------------------------------------------------------------------#   
-    def _get_latest_post_time(self,feed_items):
+    def _get_latest_post_time(self, feed_items):
         published_times = []
         for item in feed_items:
             published_times.append(date2epoch(item['published']))
-        return max(published_times)
+        if published_times:
+            return max(published_times)
+        else:
+            return None #lets be explicit :)
         
 #---------------------------------------------------------------------------------------------#   
-    def _get_xml(self,rss_url):
-        return requests.get(rss_url).text
-        
-#---------------------------------------------------------------------------------------------#   
-    def _get_feed(self,rss_url,channel,index=None): 
+    def _get_feed(self, rss_url, channel, index=None): 
         
         if channel is None:
             print("RSS: Can't find channel, Bot is not yet logged in.")
@@ -108,83 +107,82 @@ class RSSFeed(object):
         news = []
         feed = feedparser.parse(rss_url)
         
-        ### testing ###
-        xml_res = self._get_xml(rss_url)
-        feedie = feedparser.parse(xml_res)
-        dataIO.save_json("data/rss/feedie-test.json",feedie['items'])
-        ### ###
-        
-        #does nothing important, will remove soon
-        dataIO.save_json("data/rss/feeds-all.json",feed['items'])
-        
         for item in feed['items']:
-           
             item_post_time = date2epoch(item['published'])
-            if self._is_new_item(latest_post_time,item_post_time):
-                
+            if self._is_new_item(latest_post_time, item_post_time):
                 dict = {}
                 dict['title'] = item['title']
                 dict['link'] = item['link']
                 dict['published'] = item['published']
                 dict['summary'] = item['summary']
+                dict['url'] = rss_url
                 news.append(dict)
                 
-                print("RSS: new item in feed...")
         if len(news) == 0:
-            print("RSS: no new items in feed...")
-        print("----------------")
+            print("RSS: no new items in feed {}".format(str(index)))
+        else:
+            print("RSS: {} new items in feed {}".format(len(news), str(index)))
         
         latest_post_time = self._get_latest_post_time(feed['items'])
-        feeds['feeds'][index]['latest_post_time'] = latest_post_time #feeds['feeds'][0]['latest_post_time']
-        dataIO.save_json("data/rss/feeds.json",feeds)
+        if latest_post_time is not None:
+            feeds['feeds'][index]['latest_post_time'] = latest_post_time
+        dataIO.save_json("data/rss/feeds.json", feeds)
         
         return news
         
 #---------------------------------------------------------------------------------------------#       
     async def _rss(self):
         """ Checks for rss updates periodically and posts any new content to the specific channel"""
-        rss_delay = 30
-        
-        print("RSS: Scanning Feed(s)")
         
         while self == self.bot.get_cog("RSSFeed"):
+            print("------------------------------------")
+            print("RSS: scanning feed(s) for updates...")
+            print("------------------------------------")
+            
             post_channel = self.bot.get_channel(self.channel_id)
             updates = []
             idx = 0
             
             for feed_url in self.rss_feed_urls:
-                feed_updates = self._get_feed(feed_url,post_channel,index=idx)
+                feed_updates = self._get_feed(feed_url, post_channel, index=idx)
                 updates += feed_updates
                 idx += 1
             
             #reversed so updates display from latest to earliest, since they are appended earliest to latest
             for item in reversed(updates): 
                 embed = discord.Embed()
-                embed.colour = discord.Colour.green()
+                embed.colour = discord.Colour.orange()
                 embed.title = item['title']
                 embed.url = item['link']
                 
-                page = request.urlopen(item['link']).read()
-                soup = BeautifulSoup(page,"html.parser")
-                image_url = soup.find("meta", property="og:image")['content']
-                embed.set_image(url=image_url)
+                page = request.urlopen(item['link']).read() #TODO: use aiohttp instead
+                soup = BeautifulSoup(page, "html.parser")
+                try:
+                    image_url = soup.find("meta", property="og:image")['content']
+                    embed.set_image(url=image_url)
+                except KeyError:
+                    pass
                 
                 #ugly, but want a nicer "human readable" date
                 formatted_date = epoch2date(date2epoch(item['published']))
-                embed.add_field(name="Date Published",value=formatted_date,inline=False)
-                embed.add_field(name="Summary",value=item['summary'],inline=False)
+                embed.add_field(name="Date Published", value=formatted_date, inline=False)
                 
-                print("RSS: Sending update to channel :D!")
+                html2text = BeautifulSoup(item['summary'], "html.parser").get_text()
+                embed.add_field(name="Summary", value=html2text, inline=False)
+                
+                footer_text = "This update is from {}".format(item['url'])
+                embed.set_footer(text=footer_text, icon_url="https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Feed-icon.svg/1200px-Feed-icon.svg.png")
+                
                 await self.bot.send_message(post_channel, embed=embed,content="")
-                
-            await asyncio.sleep(rss_delay)
+                await asyncio.sleep(0.5)
+            
+            await asyncio.sleep(self.check_interval)
             
 #---------------------------------------------------------------------------------------------# 
 def setup(bot):
     #check_filesystem()
     rss_obj = RSSFeed(bot)
-    loop = asyncio.get_event_loop()
-    loop.create_task(rss_obj._rss())
     bot.add_cog(rss_obj)
+    bot.loop.create_task(rss_obj._rss())
 
 #---------------------------------------------------------------------------------------------#
