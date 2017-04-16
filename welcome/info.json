@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3#1660",
+    "INSTALL_MSG" : "The welcome module was installed. Run [p]welcome to see the commands.",
+    "NAME" : "Welcome_beta",
+    "SHORT" : "Sends a welcome DM to new server members on join. Has additional requirements.",
+    "DESCRIPTION" : "Sends a welcome DM to new server members on join.  Sends as a rich embed, with configurable title and description. Requires the check utility from https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils"
+}
