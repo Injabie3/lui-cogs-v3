@@ -21,23 +21,29 @@ def checkFolder():
 
 def checkFiles():
     """Used to initialize an empty database at first startup"""
-    base = { JSON_mainKey : [{ JSON_imageURLKey :"https://cdn.awwni.me/utpd.jpg" , "id" : "null", "is_pixiv" : False}] }
-	
+    base = { JSON_mainKey : [{ JSON_imageURLKey :"https://cdn.awwni.me/utpd.jpg" , "id" : "null", "is_pixiv" : False}], JSON_catboyKey : [] }
+    empty = { JSON_mainKey : [], JSON_catboyKey : [] }
+    
     f = saveFolder + "links-web.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-web.json...")
         dataIO.save_json(f, base)
-		
+        
     f = saveFolder + "links-localx10.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-localx10.json...")
-        dataIO.save_json(f, { JSON_mainKey : []})
-		
+        dataIO.save_json(f, empty)
+        
     f = saveFolder + "links-local.json"
     if not dataIO.is_valid_json(f):
         print("Creating default catgirl links-local.json...")
-        dataIO.save_json(f, { JSON_mainKey : []})
-			
+        dataIO.save_json(f, empty)
+        
+    f = saveFolder + "links-pending.json"
+    if not dataIO.is_valid_json(f):
+        print("Creating default catgirl links-pending.json...")
+        dataIO.save_json(f, empty)
+            
 class Catgirl_beta:
     """Display cute nyaas~"""
 
@@ -47,22 +53,26 @@ class Catgirl_beta:
         #Local catgirls allow for prepending predefined domain, if you have a place where you're hosting your own catgirls.
         self.filepath_local = saveFolder + "links-local.json"
         self.filepath_localx10 = saveFolder + "links-localx10.json"
-		
-		#Web catgirls will take on full URLs.
+        
+        #Web catgirls will take on full URLs.
         self.filepath_web = saveFolder + "links-web.json"
-		
-		#Catgirls
+
+        #List of pending catgirls waiting to be added.
+        self.filepath_pending = saveFolder + "links-pending.json"
+        
+        #Catgirls
         self.pictures_local = dataIO.load_json(self.filepath_local)
         self.pictures_localx10 = dataIO.load_json(self.filepath_localx10)
         self.pictures_web = dataIO.load_json(self.filepath_web)
-		
-		#Trap (kek)
+        self.pictures_pending = dataIO.load_json(self.filepath_pending)
+        
+        #Trap (kek)
         self.catgirls_local_trap = [];
 
         #Custom key which holds an array of catgirl filenames/paths
         self.JSON_mainKey = "catgirls"
         
-		#Prepend local listings with domain name.
+        #Prepend local listings with domain name.
         for x in range(0,len(self.pictures_local[JSON_mainKey])):
             self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nekomimi.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
 
@@ -70,21 +80,24 @@ class Catgirl_beta:
                 self.catgirls_local_trap.append(self.pictures_local[JSON_mainKey][x])
             #self.pictures_local[JSON_mainKey][x][JSON_imageURLKey] = "https://nyan.injabie3.moe/p/" + self.pictures_local[JSON_mainKey][x][JSON_imageURLKey]
 
-		#Prepend hosted listings with domain name.
+        #Prepend hosted listings with domain name.
         for x in range(0,len(self.pictures_localx10[JSON_mainKey])):
             self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey] = "http://injabie3.x10.mx/p/" + self.pictures_localx10[JSON_mainKey][x][JSON_imageURLKey]
-
+        
+        for x in range(0, len(self.pictures_local[JSON_catboyKey])):
+            self.pictures_local[JSON_catboyKey][x][JSON_imageURLKey] = "http://nekomimi.injabie3.moe/p/b/" + self.pictures_local[JSON_catboyKey][x][JSON_imageURLKey]
 
         self.catgirls_local = self.pictures_local[JSON_mainKey]
         self.catgirls = self.pictures_local[JSON_mainKey] + self.pictures_web[JSON_mainKey] + self.pictures_localx10[JSON_mainKey]
-        self.catboys = self.pictures_web[JSON_catboyKey]
-
+        self.catboys = self.pictures_local[JSON_catboyKey] + self.pictures_web[JSON_catboyKey] + self.catgirls_local_trap
+        self.pending = self.pictures_pending[JSON_mainKey]
+        
     def __init__(self, bot):
         self.bot = bot
         checkFolder()
         checkFiles()
         self.refreshDatabase()
-		
+        
     #[p]catgirl
     @commands.command(name="catgirl")
     async def _catgirl(self):
@@ -103,7 +116,13 @@ class Catgirl_beta:
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
 
     #[p]catboy
     @commands.command(name="catboy")
@@ -124,7 +143,13 @@ class Catgirl_beta:
         if "character" in randCatboy:
             embed.add_field(name="Info",value=randCatboy["character"], inline=False)
         embed.set_image(url=randCatboy[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)		
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
 
     @commands.group(name="nyaa", pass_context=True, no_pm=False)
     async def _nyaa(self, ctx):
@@ -146,7 +171,7 @@ class Catgirl_beta:
         embed.set_footer(text="lui-cogs/catgirl")
         await self.bot.say(content="",embed=embed)
 
-	#[p]nyaa catgirl
+    #[p]nyaa catgirl
     @_nyaa.command(pass_context=True, no_pm=False)
     async def catgirl(self):
         """Displays a random, cute catgirl :3"""
@@ -164,20 +189,26 @@ class Catgirl_beta:
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)
-		
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
+        
     #[p]nyaa numbers
     @_nyaa.command(pass_context=True, no_pm=False)
     async def numbers(self, ctx):
         """Displays the number of images in the database."""
-        await self.bot.say("There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.")
+        await self.bot.say("There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.\n - **" + str(len(self.pictures_pending[JSON_mainKey])) + "** pending images.")
 
     #[p]nyaa refresh - Also allow for refresh in a DM to the bot.
     @_nyaa.command(pass_context=True, no_pm=False)
     async def refresh(self, ctx):
         """Refreshes the internal database of nekomimi images."""
         self.refreshDatabase()
-        await self.bot.say("List reloaded. There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.")
+        await self.bot.say("List reloaded.  There are:\n - **" + str(len(self.catgirls)) + "** catgirls available.\n - **" + str(len(self.catboys)) + "** catboys available.\n - **" + str(len(self.pictures_pending[JSON_mainKey])) + "** pending images.")
     
     #[p]nyaa local
     @_nyaa.command(pass_context=True, no_pm=False)
@@ -198,7 +229,13 @@ class Catgirl_beta:
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
 
     #[p]nyaa trap
     @_nyaa.command(pass_context=True, no_pm=False)
@@ -219,12 +256,18 @@ class Catgirl_beta:
         if "character" in randCatgirl:
             embed.add_field(name="Info",value=randCatgirl["character"], inline=False)
         embed.set_image(url=randCatgirl[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
 
     #[p]nyaa catboy
     @_nyaa.command(pass_context=True, no_pm=False)
     async def catboy(self):
-        """This command says it all (database still WIP)"""
+        """Displays a random, cute catboy :3"""
 
         randCatboy = random.choice(self.catboys)
         embed = discord.Embed()
@@ -240,13 +283,19 @@ class Catgirl_beta:
         if "character" in randCatboy:
             embed.add_field(name="Info",value=randCatboy["character"], inline=False)
         embed.set_image(url=randCatboy[JSON_imageURLKey])
-        await self.bot.say("",embed=embed)
+        try:
+            await self.bot.say("",embed=embed)
+        except Exception as e:
+            await self.bot.say("Please try again.")
+            print("Catgirl exception:")
+            print(e)
+            print("==========")
 
     #[p] nyaa debug
     @_nyaa.command(pass_context=True, no_pm=False)
     async def debug(self, ctx):
         """Debug to see if list is OK.  USE ONLY IN A DM!"""
-        msg = "Debug Mode\n```"
+        msg = "Debug Mode\nCatgirls:\n```"
         for x in range(0,len(self.catgirls)):
             msg += self.catgirls[x][JSON_imageURLKey] + "\n"
             if len(msg) > 900:
@@ -255,8 +304,53 @@ class Catgirl_beta:
                msg = "```"
         msg += "```"
         await self.bot.say(msg)
+        
+        msg = "Catboys:\n```"
+        for x in range(0,len(self.catboys)):
+            msg += self.catboys[x][JSON_imageURLKey] + "\n"
+            if len(msg) > 900:
+               msg += "```"
+               await self.bot.say(msg)
+               msg = "```"
+        msg += "```"
+        await self.bot.say(msg)
         #await self.bot.say("This feature is disabled.")
+    
+    #[p]nyaa add
+    @_nyaa.command(pass_context=True, no_pm=True)
+    async def add(self, ctx, link: str, description: str=""):
+        """
+        Add a catgirl image to the pending database.
+        Will be screened before it is added to the global list. WIP
+        
+        link          The full URL to an image, use \" \" around the link.
+        description   Description of character (optional)
+        """
+    
+        temp = {}
+        temp["url"] = link
+        temp["character"] = description
+        temp["submitter"] = ctx.message.author.name
+        temp["id"] = None
+        temp["is_pixiv"] = False
+        
+    
+        self.pictures_pending[JSON_mainKey].append(temp)
+        dataIO.save_json(self.filepath_pending, self.pictures_pending)
 
+        #Get owner ID.
+        owner = discord.utils.get(self.bot.get_all_members(),id=self.bot.settings.owner)
+                              
+        try:
+            await self.bot.send_message(owner, "New catgirl image is pending approval. Please check the list!")
+        except discord.errors.InvalidArgument:
+            await self.bot.say("Added, but could not notify owner.")
+        else:
+            await self.bot.say("Added, notified and pending approval. :ok_hand:")
+                
+        
+            
+        
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
