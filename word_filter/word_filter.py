@@ -8,11 +8,14 @@ import asyncio
 from threading import Lock
 import os
 import re
+import random
 
 """
 Cog Purpose: 
     - To filter words in a more smart/useful way then simply detecting and deleting a message
 """
+
+colour = discord.Colour
 
 def check_filesystem():
 
@@ -35,6 +38,7 @@ class WordFilter(object):
         self.bot = bot
         self.lock = Lock()
         self.filters = dataIO.load_json("data/word_filter/filter.json")
+        self.colours = [colour.purple(),colour.red(),colour.blue(),colour.orange(),colour.green()]
     
     def _update_filters(self, new_obj):
         self.lock.acquire()
@@ -149,8 +153,9 @@ class WordFilter(object):
             await self.bot.delete_message(n_msg)
         else:
             await self.bot.delete_message(msg)
-            filter_notify = "{0.author.mention} was filtered! Message was: \n{1}".format(msg,filtered_msg)
-            await self.bot.send_message(msg.channel,filter_notify)
+            filter_notify = "{0.author.mention} was filtered! Message was: \n".format(msg)
+            embed = discord.Embed(colour=random.choice(self.colours),description="{0.author.name}#{0.author.discriminator}: {1}".format(msg,filtered_msg))
+            await self.bot.send_message(msg.channel,filter_notify,embed=embed)
             
     def _filter_word(self, word, string):
         regex = r'\b{}\b'.format(word)
