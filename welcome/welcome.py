@@ -78,19 +78,19 @@ class Welcome_beta:
             print("Server Welcome: Could not send message, make sure the server has a title and message set!")
             print(errorMsg)
             if self.settings[newUser.server.id][self.key_welcomeLogEnabled]:
-                await self.bot.send_message(self.bot.get_channel(self.settings[newUser.server.id][self.key_welcomeLogChannel]), ":bangbang: ``Server Welcome:`` User <@" + newUser.id + "> (" + newUser.id + ") has joined.  Could not send DM!")
+                await self.bot.send_message(self.bot.get_channel(self.settings[newUser.server.id][self.key_welcomeLogChannel]), ":bangbang: ``Server Welcome:`` User " + newUser.name + "#" + newUser.discriminator + " (" + newUser.id + ") has joined.  Could not send DM!")
                 await self.bot.send_message(self.bot.get_channel(self.settings[newUser.server.id][self.key_welcomeLogChannel]), errorMsg)
         else:
             if self.settings[newUser.server.id][self.key_welcomeLogEnabled]:
-                await self.bot.send_message(self.bot.get_channel(self.settings[newUser.server.id][self.key_welcomeLogChannel]), ":o: ``Server Welcome:`` User <@" + newUser.id + "> (" + newUser.id + ") has joined.  DM sent.")
-                print("Server Welcome: User" + newUser.name + "#" + newUser.discriminator + " (" + newUser.id + ") has joined.  DM sent.")
+                await self.bot.send_message(self.bot.get_channel(self.settings[newUser.server.id][self.key_welcomeLogChannel]), ":o: ``Server Welcome:`` User {0.name}#{0.discriminator} ({0.id}) has joined.  DM sent.".format(newUser))
+                print("Server Welcome: User {0.name}#{0.discriminator} ({0.id}) has joined.  DM sent.".format(newUser))
 
     #The async function that is triggered on member leave.
     async def log_server_leave(self, leaveUser):
         """Logs the server leave to a channel, if enabled."""
         if self.settings[leaveUser.server.id][self.key_leaveLogEnabled]:
-            await self.bot.send_message(self.bot.get_channel(self.settings[leaveUser.server.id][self.key_leaveLogChannel]), ":x: ``Server Leave  :`` User <@" + leaveUser.id + "> (" + leaveUser.id + ") has left the server.")
-            print("Server Leave: User " + leaveUser.name + "#" + leaveUser.discriminator + " (" + leaveUser.id + ") has left the server.")
+            await self.bot.send_message(self.bot.get_channel(self.settings[leaveUser.server.id][self.key_leaveLogChannel]), ":x: ``Server Leave  :`` User {0.name}#{0.discriminator} ({0.id}) has left the server.".format(leaveUser))
+            print("Server Leave  : User {0.name}#{0.discriminator} ({0.id}) has left the server.".format(leaveUser))
     
     ####################
     # MESSAGE COMMANDS #
