@@ -124,15 +124,19 @@ class WordFilter(object):
         else:
             await self.bot.send_message(user, "Sorry you have no filtered words in **{}**".format(guild_name))
     
-    async def check_words(self, msg):
+    async def check_words(self, msg, new_msg=None):
         if isinstance(msg.channel,discord.PrivateChannel) or msg.server.id not in list(self.filters):
             return
         
         guild_id = msg.server.id
         filtered_words = self.filters[guild_id]
-        original_msg = msg.content
+        if new_msg:
+            check_msg = new_msg.content
+        else:
+            check_msg = msg.content
+        original_msg = check_msg
         filtered_msg = original_msg
-        one_word = self._is_one_word(msg.content)
+        one_word = self._is_one_word(check_msg)
         
         for word in filtered_words:
             filtered_msg = self._filter_word(word,filtered_msg)
@@ -174,4 +178,5 @@ def setup(bot):
     check_filesystem()
     filter = WordFilter(bot)
     bot.add_listener(filter.check_words, 'on_message')
+    bot.add_listener(filter.check_words, 'on_message_edit')
     bot.add_cog(filter)
