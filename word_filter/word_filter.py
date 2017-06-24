@@ -99,7 +99,7 @@ class WordFilter(object):
     @word_filter.command(name="list", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def list_filter(self, ctx):
-        """List filtered words, NOTE: do this in a channel outside of the viewing public"""
+        """List filtered words in raw format, NOTE: do this in a channel outside of the viewing public"""
         guild_id = ctx.message.server.id
         guild_name = ctx.message.server.name
         user = ctx.message.author
@@ -109,6 +109,9 @@ class WordFilter(object):
             return
         
         if len(self.filters[guild_id]) > 0:
+            display = []
+            for n in range(0, len(self.filters[guild_id])):
+                display.append("`"+self.filters[guild_id][n]+"`")
             # msg = ""
             # for word in self.filters[guild_id]:
                 # msg += word
@@ -117,7 +120,7 @@ class WordFilter(object):
             # embed = discord.Embed(title=title,description=msg,colour=discord.Colour.red())
             # await self.bot.send_message(user,embed=embed)
             
-            p = Pages(self.bot,message=ctx.message,entries=self.filters[guild_id])
+            p = Pages(self.bot,message=ctx.message,entries=display)
             p.embed.title = "Filtered words for: **{}**".format(guild_name)
             p.embed.colour = discord.Colour.red()
             await p.paginate()
