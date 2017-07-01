@@ -25,7 +25,7 @@ def check_filesystem():
             print("Word Filter: Creating folder: {} ...".format(folder))
             os.makedirs(folder)
             
-    files = ["data/word_filter/filter.json"]
+    files = ["data/word_filter/filter.json", "data/word_filter/settings.json"]
     for file in files:
         if not os.path.exists(file):
             #build a default filter.json
@@ -37,8 +37,13 @@ class WordFilter(object):
     def __init__(self, bot):
         self.bot = bot
         self.lock = Lock()
+        self.lock_settings = Lock()
         self.filters = dataIO.load_json("data/word_filter/filter.json")
+        self.settings = dataIO.load_json("data/word_filter/settings.json")
         self.colours = [colour.purple(),colour.red(),colour.blue(),colour.orange(),colour.green()]
+        
+        #JSON keys for settings:
+        self.key_toggleMod = "toggleMod"
     
     def _update_filters(self, new_obj):
         self.lock.acquire()
@@ -47,6 +52,14 @@ class WordFilter(object):
             self.filters = dataIO.load_json("data/word_filter/filter.json")
         finally:
             self.lock.release()
+    
+    def _update_settings(self, new_obj):
+        self.lock_settings.acquire()
+        try:
+            dataIO.save_json("data/word_filter/settings.json", new_obj)
+            self.settings = dataIO.load_json("data/word_filter/settings.json")
+        finally:
+            self.lock_settings.release()
             
     @commands.group(name="word_filter", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
@@ -72,9 +85,9 @@ class WordFilter(object):
         if word not in self.filters[guild_id]:
             self.filters[guild_id].append(word)
             self._update_filters(self.filters)
-            await self.bot.send_message(user,"`Word Filter:` **{0}** added to the filter in the guild **{1}**".format(word,guild_name))
+            await self.bot.send_message(user,"`Word Filter:` `{0}` was added to the filter in the guild **{1}**".format(word,guild_name))
         else:
-            await self.bot.send_message(user,"`Word Filter:` The word **{0}** is already in the filter for guild **{1}**".format(word,guild_name))
+            await self.bot.send_message(user,"`Word Filter:` The word `{0}` is already in the filter for guild **{1}**".format(word,guild_name))
         
     @word_filter.command(name="remove", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
@@ -89,12 +102,12 @@ class WordFilter(object):
             return
         
         if len(self.filters[guild_id]) == 0 or word not in self.filters[guild_id]:
-            await self.bot.send_message(user,"`Word Filter:` The word **{0}** is not in the filter for guild **{1}**".format(word,guild_name))
+            await self.bot.send_message(user,"`Word Filter:` The word `{0}` is not in the filter for guild **{1}**".format(word,guild_name))
             return
         else:
             self.filters[guild_id].remove(word)
             self._update_filters(self.filters)
-            await self.bot.send_message(user,"`Word Filter:` **{0}** removed from the filter in the guild **{1}**".format(word,guild_name))
+            await self.bot.send_message(user,"`Word Filter:` `{0}` removed from the filter in the guild **{1}**".format(word,guild_name))
     
     @word_filter.command(name="list", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
@@ -127,9 +140,49 @@ class WordFilter(object):
         else:
             await self.bot.send_message(user, "Sorry you have no filtered words in **{}**".format(guild_name))
     
+    @word_filter.command(name="togglemod", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def toggle_mod(self, ctx):
+        """Toggle global override of filters for server admins/mods."""
+        self._update_settings(self.settings)
+        try:
+            if self.settings[ctx.message.author.server.id][self.key_toggleMod] is True:
+                self.settings[ctx.message.author.server.id][self.key_toggleMod] = False
+                set = False
+            else:
+                self.settings[ctx.message.author.server.id][self.key_toggleMod] = True
+                set = True
+        except:
+            if ctx.message.author.server.id not in self.settings:
+                self.settings[ctx.message.author.server.id] = {}
+            self.settings[ctx.message.author.server.id][self.key_toggleMod] = True
+            set = True
+        self._update_settings(self.settings)
+        if set:
+            await self.bot.say(":white_check_mark: Word Filter: Moderators (and higher) **will not be** filtered.")
+        else:
+            await self.bot.say(":negative_squared_cross_mark: Word Filter: Moderators (and higher) **will be** filtered.")
+        
+        self._update_settings(self.settings)
+
+    
     async def check_words(self, msg, new_msg=None):
+        mod_role = self.bot.settings.get_server_mod(msg.server).lower()
+        admin_role = self.bot.settings.get_server_admin(msg.server).lower()
+        
+        #Filter only configured servers, not private DMs.
         if isinstance(msg.channel,discord.PrivateChannel) or msg.server.id not in list(self.filters):
             return
+        
+        #Check if mod or admin, and do not filter if togglemod is enabled.
+        try:
+            if self.settings[msg.author.server.id][self.key_toggleMod] is True:
+                for x in range(0, len(msg.author.roles)):
+                    if msg.author.roles[x].name.lower() == mod_role or msg.author.roles[x].name.lower() == admin_role:
+                        return
+        except Exception as e: #Most likely key error, so ignore.
+            print(e)
+            pass
         
         guild_id = msg.server.id
         filtered_words = self.filters[guild_id]
