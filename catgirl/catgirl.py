@@ -10,7 +10,9 @@ JSON_mainKey = "catgirls" #Key for JSON files.
 JSON_catboyKey = "catboys" #Key containing other images.
 JSON_imageURLKey = "url" #Key for URL
 JSON_isPixiv = "is_pixiv" #Key that specifies if image is from pixiv. If true, pixivID should be set.
+JSON_isSeiga = "is_seiga"
 JSON_pixivID = "id" #Key for Pixiv ID, used to create URL to pixiv image page, if applicable.
+JSON_seigaID = "id"
 saveFolder = "data/lui-cogs/catgirl/" #Path to save folder.
 
 def checkFolder():
@@ -107,10 +109,15 @@ class Catgirl_beta:
         embed.colour = discord.Colour.red()
         embed.title = "Catgirl"
         embed.url = randCatgirl[JSON_imageURLKey]
-        if randCatgirl[JSON_isPixiv]:
+        if JSON_isPixiv in randCatgirl and randCatgirl[JSON_isPixiv]:
             source = "[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
             customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        if JSON_isSeiga in randCatgirl and randCatgirl[JSON_isSeiga]:
+            source = "[{}]({})".format("Original Source","http://seiga.nicovideo.jp/seiga/im"+randCatgirl[JSON_seigaID])
+            embed.add_field(name="Nico Nico Seiga",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_seigaID]
             embed.set_footer(text=customFooter)
         #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
@@ -180,10 +187,15 @@ class Catgirl_beta:
         embed.colour = discord.Colour.red()
         embed.title = "Catgirl"
         embed.url = randCatgirl[JSON_imageURLKey]
-        if randCatgirl[JSON_isPixiv]:
+        if JSON_isPixiv in randCatgirl and randCatgirl[JSON_isPixiv]:
             source = "[{}]({})".format("Original Source","http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+randCatgirl[JSON_pixivID])
             embed.add_field(name="Pixiv",value=source)
             customFooter = "ID: " + randCatgirl[JSON_pixivID]
+            embed.set_footer(text=customFooter)
+        if JSON_isSeiga in randCatgirl and randCatgirl[JSON_isSeiga]:
+            source = "[{}]({})".format("Original Source","http://seiga.nicovideo.jp/seiga/im"+randCatgirl[JSON_seigaID])
+            embed.add_field(name="Nico Nico Seiga",value=source)
+            customFooter = "ID: " + randCatgirl[JSON_seigaID]
             embed.set_footer(text=customFooter)
         #Implemented the following with the help of http://stackoverflow.com/questions/1602934/check-if-a-given-key-already-exists-in-a-dictionary
         if "character" in randCatgirl:
