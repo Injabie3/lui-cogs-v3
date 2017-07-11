@@ -128,6 +128,7 @@ class Catgirl_beta:
         except Exception as e:
             await self.bot.say("Please try again.")
             print("Catgirl exception:")
+            print(randCatgirl)
             print(e)
             print("==========")
 
@@ -155,6 +156,7 @@ class Catgirl_beta:
         except Exception as e:
             await self.bot.say("Please try again.")
             print("Catgirl exception:")
+            print(randCatboy)
             print(e)
             print("==========")
 
@@ -206,6 +208,7 @@ class Catgirl_beta:
         except Exception as e:
             await self.bot.say("Please try again.")
             print("Catgirl exception:")
+            print(randCatgirl)
             print(e)
             print("==========")
         
@@ -246,6 +249,7 @@ class Catgirl_beta:
         except Exception as e:
             await self.bot.say("Please try again.")
             print("Catgirl exception:")
+            print(randCatgirl)
             print(e)
             print("==========")
 
