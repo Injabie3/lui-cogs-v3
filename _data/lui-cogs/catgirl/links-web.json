@@ -176,6 +176,26 @@
 			"character" : "Chocola and Vanilla, NEKOPARA",
 			"id" : null,
 			"is_pixiv" : false
+		},
+        {
+            "character" : "Emilia, Re Zero",
+            "id" : null,
+            "is_pixiv" : false,
+            "submitter" : "sedruk",
+            "url" : "https://i1.wp.com/animeguiden.dk/wp-content/uploads/2016/12/2016-11-12-09.31.05.jpg?w=850&ssl=1"
+        }
+	],
+	"catboys" : [
+		{
+			"url" : "http://i.imgur.com/472DDP7.png",
+			"character" : "Aion, SHOW BY ROCK",
+			"id" : null,
+			"is_pixiv" : false
+		},
+		{
+			"url" : "http://data.whicdn.com/images/42047119/original.gif",
+			"id" : null,
+			"is_pixiv" : false
 		}
 	]
 }
