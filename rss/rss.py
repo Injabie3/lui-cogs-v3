@@ -2,7 +2,12 @@ import discord
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
+# DEBUG
+import os
+os.environ['PYTHONASYNCIODEBUG'] = '1'
+# DEBUG
 import asyncio
+import aiohttp
 import feedparser
 from datetime import datetime
 from urllib import request #TODO: use aiohttp instead
@@ -35,13 +40,13 @@ def check_filesystem():
     folders = ("data/rss")
     for folder in folders:
         if not os.path.exists(folder):
-            print("RSS: Creating folder: " + folder + " ...")
+            print("RSS: Creating folder: {} ...".format(folder))
             os.makedirs(folder)
             
     files = ("data/rss/config.json", "data/rss/feeds.json")
     for file in files:
         if not os.path.exists(file):
-            print("RSS: Creating file: " + file + " ...")
+            print("RSS: Creating file: {} ...".format(file))
           
             if "feeds" in file:
                 #build a default feeds.json
@@ -82,12 +87,23 @@ class RSSFeed(object):
             return max(published_times)
         else:
             return None #lets be explicit :)
-        
+
+#---------------------------------------------------------------------------------------------#
+    @commands.group(name="rss", pass_context=True, no_pm=True)
+    async def _rss(self, ctx):
+        """Utilities for the RSS cog"""
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+
+#---------------------------------------------------------------------------------------------#            
+    @_rss.command(pass_context=True, no_pm=True)
+    async def setinterval(self,ctx):
+        """Set the interval for rss to scan for updates"""
+        pass
 #---------------------------------------------------------------------------------------------#   
     def _get_feed(self, rss_url, channel, index=None): 
         
         if channel is None:
-            print("RSS: Can't find channel, Bot is not yet logged in.")
             return []
         
         feeds = dataIO.load_json("data/rss/feeds.json")
@@ -128,6 +144,9 @@ class RSSFeed(object):
             feeds['feeds'][index]['latest_post_time'] = latest_post_time
         dataIO.save_json("data/rss/feeds.json", feeds)
         
+        #Heartbeat
+        dataIO.save_json("data/rss/timestamp.json","{}")
+        
         return news
         
 #---------------------------------------------------------------------------------------------#       
@@ -143,6 +162,9 @@ class RSSFeed(object):
             updates = []
             idx = 0
             
+            if post_channel is None:
+                print("RSS: Can't find channel, Bot is not yet logged in.")
+            
             for feed_url in self.rss_feed_urls:
                 feed_updates = self._get_feed(feed_url, post_channel, index=idx)
                 updates += feed_updates
@@ -155,12 +177,15 @@ class RSSFeed(object):
                 embed.title = item['title']
                 embed.url = item['link']
                 
-                page = request.urlopen(item['link']).read() #TODO: use aiohttp instead
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(item['link']) as resp:
+                        page = await resp.text()
+                
                 soup = BeautifulSoup(page, "html.parser")
                 try:
                     image_url = soup.find("meta", property="og:image")['content']
                     embed.set_image(url=image_url)
-                except KeyError:
+                except (KeyError, TypeError):
                     pass
                 
                 #ugly, but want a nicer "human readable" date
@@ -171,12 +196,22 @@ class RSSFeed(object):
                 embed.add_field(name="Summary", value=html2text, inline=False)
                 
                 footer_text = "This update is from {}".format(item['url'])
-                embed.set_footer(text=footer_text, icon_url="https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Feed-icon.svg/1200px-Feed-icon.svg.png")
+                rss_image = "https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Feed-icon.svg/1200px-Feed-icon.svg.png"
+                embed.set_footer(text=footer_text, icon_url=rss_image)
                 
-                await self.bot.send_message(post_channel, embed=embed,content="")
-                await asyncio.sleep(0.5)
-            
-            await asyncio.sleep(self.check_interval)
+                #Keep this in a try block in case of Discord's explicit filter.
+                try:
+                    await self.bot.send_message(post_channel, embed=embed)
+                except Exception as error:
+                    print ("RSS exception:")
+                    print (error)
+                    print ("==========")
+                
+            try:
+                await asyncio.sleep(self.check_interval)
+            except asyncio.CancelledError as e:              
+                print("borked")                        
+                raise e
             
 #---------------------------------------------------------------------------------------------# 
 def setup(bot):
