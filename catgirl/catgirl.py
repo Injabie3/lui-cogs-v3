@@ -101,9 +101,12 @@ class Catgirl_beta:
         self.refreshDatabase()
         
     #[p]catgirl
-    @commands.command(name="catgirl")
-    async def _catgirl(self):
+    @commands.command(name="catgirl", pass_context=True)
+    async def _catgirl(self, ctx):
         """Displays a random, cute catgirl :3"""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
+
         randCatgirl = random.choice(self.catgirls)
         embed = discord.Embed()
         embed.colour = discord.Colour.red()
@@ -133,9 +136,11 @@ class Catgirl_beta:
             print("==========")
 
     #[p]catboy
-    @commands.command(name="catboy")
-    async def _catboy(self):
+    @commands.command(name="catboy", pass_context=True)
+    async def _catboy(self, ctx):
         """This command says it all (database still WIP)"""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
 
         randCatboy = random.choice(self.catboys)
         embed = discord.Embed()
@@ -182,8 +187,11 @@ class Catgirl_beta:
 
     #[p]nyaa catgirl
     @_nyaa.command(pass_context=True, no_pm=False)
-    async def catgirl(self):
+    async def catgirl(self, ctx):
         """Displays a random, cute catgirl :3"""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
+
         randCatgirl = random.choice(self.catgirls)
         embed = discord.Embed()
         embed.colour = discord.Colour.red()
@@ -227,8 +235,10 @@ class Catgirl_beta:
     
     #[p]nyaa local
     @_nyaa.command(pass_context=True, no_pm=False)
-    async def local(self):
+    async def local(self, ctx):
         """Displays a random, cute catgirl from the local database."""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
 
         randCatgirl = random.choice(self.catgirls_local)
         embed = discord.Embed()
@@ -255,8 +265,10 @@ class Catgirl_beta:
 
     #[p]nyaa trap
     @_nyaa.command(pass_context=True, no_pm=False)
-    async def trap(self):
+    async def trap(self, ctx):
         """Say no more fam, gotchu covered ;)"""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
 
         randCatgirl = random.choice(self.catgirls_local_trap)
         embed = discord.Embed()
@@ -282,8 +294,10 @@ class Catgirl_beta:
 
     #[p]nyaa catboy
     @_nyaa.command(pass_context=True, no_pm=False)
-    async def catboy(self):
+    async def catboy(self, ctx):
         """Displays a random, cute catboy :3"""
+        #Send typing indicator, useful for when Discord explicit filter is on.
+        await self.bot.send_typing(ctx.message.channel)
 
         randCatboy = random.choice(self.catboys)
         embed = discord.Embed()
