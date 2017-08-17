@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
+import asyncio #Used for task loop.
 import os #Used to create folder at first load.
-import random #Used for selecting random catgirls
+import random #Used for selecting random catgirls.
 
 #Global variables
 JSON_mainKey = "catgirls" #Key for JSON files.
@@ -379,9 +380,18 @@ class Catgirl_beta:
                 
         
             
-        
+    async def _randomize(self):
+        """Shuffles images in the list."""
+        while self:
+            print("Catgirl: Shuffling lists...")
+            random.shuffle(self.catgirls)
+            random.shuffle(self.catboys)
+            random.shuffle(self.catgirls_local)
+            await asyncio.sleep(300)
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
     checkFiles()    #Make sure we have a local database!
-    bot.add_cog(Catgirl_beta(bot))
+    nyanko = Catgirl_beta(bot)
+    bot.add_cog(nyanko)
+    bot.loop.create_task(nyanko._randomize())
