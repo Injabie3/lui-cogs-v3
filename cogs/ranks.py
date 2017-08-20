@@ -4,6 +4,10 @@ from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
 import os #Used to create folder at first load.
 
+# Requires checks utility from:
+# https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils
+from .utils import checks
+
 #Global variables
 saveFolder = "data/lui-cogs/ranks/" #Path to save folder.
 
@@ -34,20 +38,58 @@ class Ranks_beta:
     #Class constructor
     def __init__(self, bot):
         self.bot = bot
-        
         checkFiles()
         checkFolder()
-        
-    @commands.group(name="ranks", pass_context=True, no_pm=False)
+    
+    ############
+    # COMMANDS #
+    ############
+    
+    @commands.group(name="ranks", pass_context=True, no_pm=True)
     async def _ranks(self, ctx):
         """Guild rank management system"""
+        #Display the help context menu
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
     
-    @_ranks.command(name="test")
+    #[p]rank check
+    @_ranks.command(name="check", pass_context=True, no_pm=True)
+    async def _ranks_check(self, ctx):
+        """Check your rank in the server."""
+        #Execute a MySQL query to order and check.
+        pass
+        
+    #[p]rank leaderboard
+    @_ranks.command(name="leaderboard", pass_context=True, no_pm=True)
+    async def _ranks_leaderboard(self, ctx):
+        """Show the server ranking leaderboard"""
+        #Execute a MySQL query to order and check.
+        pass
+    
+    #######################
+    # COMMANDS - SETTINGS #
+    #######################
+    #Ideally would be nice have this replaced by a web admin panel. 
+
+    #[p]rank settings
+    @_ranks.group(name="settings", pass_context=True, no_pm=True)
+    @checks.serverowner()
+    async def _settings(self, ctx, ctx2):
+        """Ranking system settings.  Only server admins should see this."""
+        if ctx2.invoked_subcommand is None:
+            await send_cmd_help(ctx2)
+    
+    #[p]rank settings test
+    @_settings.command(name="test")
     async def _test(self):
+        """Test"""
         await self.bot.say("test")
     
+    
+    ####################
+    # HELPER FUNCTIONS #
+    ####################
+
     def addPoints(userID):
         """Add rank points between 0 and MAX_POINTS to the user"""
         # Invoke the MySQL query to update the user.
