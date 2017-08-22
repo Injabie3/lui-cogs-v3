@@ -195,7 +195,15 @@ class WordFilter(object):
         one_word = self._is_one_word(check_msg)
         
         for word in filtered_words:
-            filtered_msg = self._filter_word(word,filtered_msg)
+            try:
+                filtered_msg = self._filter_word(word,filtered_msg)
+            except Exception as e:
+                print("Word Filter exception:")
+                print(e)
+                print(word)
+                print(filtered_msg)
+                print("==========")
+            
             
         all_filtered = self._is_all_filtered(filtered_msg)
         
@@ -215,7 +223,18 @@ class WordFilter(object):
             
     def _filter_word(self, word, string):
         regex = r'\b{}\b'.format(word)
-        stars = '*'*len(word)
+        
+        # Replace the offending string with the correct number of stars.  Note that this only considers the length of the first time
+        # an offending string is found with the current regex.  It will replace every string found with this regex with the number of
+        # stars corresponding to the first offending string.
+        
+        try:
+            number = len(re.search(regex,string).group(0))
+        except:
+            # Nothing to replace, return original string
+            return string
+        
+        stars = '*'*number
         repl = "{0}{1}{0}".format('`',stars)
         return re.sub(regex,repl,string,flags=re.IGNORECASE)
     
