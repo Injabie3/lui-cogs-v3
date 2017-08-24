@@ -229,7 +229,7 @@ class WordFilter(object):
         # stars corresponding to the first offending string.
         
         try:
-            number = len(re.search(regex,string).group(0))
+            number = len(re.search(regex,string,flags=re.IGNORECASE).group(0))
         except:
             # Nothing to replace, return original string
             return string
