@@ -3,6 +3,7 @@ from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
 import os #Used to create folder at first load.
+import MySQLdb
 
 # Requires checks utility from:
 # https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils
@@ -40,6 +41,10 @@ class Ranks_beta:
         self.bot = bot
         checkFiles()
         checkFolder()
+        self.settings = dataIO.load_json(saveFolder + 'settings.json')
+        
+        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
+        cursor = db.cursor()
     
     ############
     # COMMANDS #
@@ -74,17 +79,63 @@ class Ranks_beta:
     #[p]rank settings
     @_ranks.group(name="settings", pass_context=True, no_pm=True)
     @checks.serverowner()
-    async def _settings(self, ctx, ctx2):
+    async def _settings(self, ctx):
         """Ranking system settings.  Only server admins should see this."""
-        if ctx2.invoked_subcommand is None:
-            await send_cmd_help(ctx2)
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+            
     
     #[p]rank settings test
-    @_settings.command(name="test")
-    async def _test(self):
+    @_settings.command(name="test", pass_context=True)
+    async def _settings_test(self):
         """Test"""
         await self.bot.say("test")
+        
+    #[p]rank settings cooldown
+    @_settings.command(name="cooldown", pass_context=True)
+    async def _settings_cooldown(self, ctx, seconds: int):
+        """Set the cooldown required between XP gains (in seconds)"""
+        if seconds is None:
+            await self.bot.say("Please enter a cooldown time in seconds!")
+            return
+        
+        self.settings["cooldown"] = seconds
+        await self.bot.say("Cooldown set to {0}".format(seconds))
+            
     
+    #[p]rank settings setup
+    @_settings.command(name="setup", pass_context=True)
+    @checks.serverowner()
+    async def _settings_setup(self, ctx):
+        """Perform first time set up."""
+        await self.bot.say("MySQL Set up:\nWhat is the host you wish to connect to?")
+        host = await self.bot.wait_for_message(timeout=30, author=ctx.message.author, channel=ctx.message.channel)
+        
+        if host is None:
+            await self.bot.say("No response received, not setting anything!")
+            return
+        
+        await self.bot.say("What is the username you want to use to connect?")
+        username = await self.bot.wait_for_message(timeout=30, author=ctx.message.author, channel=ctx.message.channel)
+        
+        if username is None:
+            await self.bot.say("No response received, not setting anything!")
+            return
+        
+        await self.bot.say("What is the password you want to use to connect?  You can use a dummy password and manually change it in the JSON config later.")
+        password = await self.bot.wait_for_message(timeout=30, author=ctx.message.author, channel=ctx.message.channel)
+        
+        if password is None:
+            await self.bot.say("No response received, not setting anything!")
+            return
+        
+        # Save settings
+        self.settings["mysql_host"] = host.content
+        self.settings["mysql_username"] = username.content
+        self.settings["mysql_password"] = password.content
+        
+        dataIO.save_json(saveFolder + 'settings.json', self.settings)
+        await self.bot.say("Settings saved.")
     
     ####################
     # HELPER FUNCTIONS #
