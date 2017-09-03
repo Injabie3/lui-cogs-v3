@@ -43,8 +43,8 @@ class Ranks_beta:
     #Class constructor
     def __init__(self, bot):
         self.bot = bot
-        checkFiles()
         checkFolder()
+        checkFiles()
         self.settings = dataIO.load_json(saveFolder + 'settings.json')
         self.lastspoke = dataIO.load_json(saveFolder + 'lastspoke.json')
         
@@ -111,7 +111,7 @@ class Ranks_beta:
         await self.bot.say("Cooldown set to {0} seconds.".format(self.settings["cooldown"]))
             
     
-    #[p]rank settings setup
+    #[p]rank settings dbsetup
     @_settings.command(name="dbsetup", pass_context=True)
     @checks.serverowner()
     async def _settings_dbsetup(self, ctx):
@@ -190,6 +190,9 @@ class Ranks_beta:
         #  - Return.
         
         timestamp = message.timestamp.timestamp()
+        
+        if message.author.bot is True:
+            return
         
         try:
             # If the time does not exceed COOLDOWN, return and do nothing.
