@@ -150,7 +150,7 @@ class Ranks_beta:
     # HELPER FUNCTIONS #
     ####################
 
-    def addPoints(self, userID):
+    def addPoints(self, guildID, userID):
         """Add rank points between 0 and MAX_POINTS to the user"""
         try:
             pointsToAdd = random.randint(0, self.settings["maxPoints"])
@@ -160,7 +160,7 @@ class Ranks_beta:
             
         db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
         cursor = db.cursor()
-        fetch = cursor.execute("SELECT xp from renbot.xp WHERE userid = {0}".format(userID))
+        fetch = cursor.execute("SELECT xp from renbot.xp WHERE userid = {0} and guildid = {1}".format(userID, guildID))
         
         currentXP = 0
         
@@ -170,7 +170,7 @@ class Ranks_beta:
         else: # New user
             currentXP = pointsToAdd
         
-        cursor.execute("REPLACE INTO renbot.xp (userid, xp) VALUES ({0}, {1})".format(userID,currentXP))
+        cursor.execute("REPLACE INTO renbot.xp (userid, guildid, xp) VALUES ({0}, {1}, {2})".format(userID, guildID, currentXP))
         db.commit()
         cursor.close()
         db.close()
@@ -207,7 +207,7 @@ class Ranks_beta:
                 self.lastspoke[message.server.id][message.author.id] = {}
             self.lastspoke[message.server.id][message.author.id]["timestamp"] = timestamp
 
-        self.addPoints(message.author.id)
+        self.addPoints(message.server.id, message.author.id)
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
