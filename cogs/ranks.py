@@ -3,7 +3,8 @@ from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
 import os #Used to create folder at first load.
-import MySQLdb
+import MySQLdb # The use of MySQL is debatable, but will use it to incorporate CMPT 354 stuff.
+import random
 
 # Requires checks utility from:
 # https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils
@@ -19,7 +20,7 @@ def checkFolder():
         os.makedirs(saveFolder)
 
 def checkFiles():
-    """Used to initialize an empty database at first startup"""
+    """Used to initialize an empty JSON settings database at first startup"""
     base = { }
     empty = { }
     
@@ -34,7 +35,10 @@ def checkFiles():
         dataIO.save_json(f, base)
             
 class Ranks_beta:
-    """Guild rank management system"""
+    """
+    Mee6-inspired guild rank management system.
+    Not optimized for multi-guild deployments.
+    """
     
     #Class constructor
     def __init__(self, bot):
@@ -42,9 +46,9 @@ class Ranks_beta:
         checkFiles()
         checkFolder()
         self.settings = dataIO.load_json(saveFolder + 'settings.json')
+        self.lastspoke = dataIO.load_json(saveFolder + 'lastspoke.json')
         
-        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
-        cursor = db.cursor()
+        
     
     ############
     # COMMANDS #
@@ -99,15 +103,19 @@ class Ranks_beta:
             await self.bot.say("Please enter a cooldown time in seconds!")
             return
         
+        # Save settings
+        self.settings = dataIO.load_json(saveFolder + 'settings.json')
         self.settings["cooldown"] = seconds
-        await self.bot.say("Cooldown set to {0}".format(seconds))
+        dataIO.save_json(saveFolder + 'settings.json', self.settings)
+                
+        await self.bot.say("Cooldown set to {0} seconds.".format(self.settings["cooldown"]))
             
     
     #[p]rank settings setup
-    @_settings.command(name="setup", pass_context=True)
+    @_settings.command(name="dbsetup", pass_context=True)
     @checks.serverowner()
-    async def _settings_setup(self, ctx):
-        """Perform first time set up."""
+    async def _settings_dbsetup(self, ctx):
+        """Perform database set up. DO NOT USE if ranks is working."""
         await self.bot.say("MySQL Set up:\nWhat is the host you wish to connect to?")
         host = await self.bot.wait_for_message(timeout=30, author=ctx.message.author, channel=ctx.message.channel)
         
@@ -130,21 +138,42 @@ class Ranks_beta:
             return
         
         # Save settings
+        self.settings = dataIO.load_json(saveFolder + 'settings.json')
         self.settings["mysql_host"] = host.content
         self.settings["mysql_username"] = username.content
         self.settings["mysql_password"] = password.content
-        
         dataIO.save_json(saveFolder + 'settings.json', self.settings)
+        
         await self.bot.say("Settings saved.")
     
     ####################
     # HELPER FUNCTIONS #
     ####################
 
-    def addPoints(userID):
+    def addPoints(self, userID):
         """Add rank points between 0 and MAX_POINTS to the user"""
-        # Invoke the MySQL query to update the user.
-        pass
+        try:
+            pointsToAdd = random.randint(0, self.settings["maxPoints"])
+        except:
+            # Most likely key error, use default 25.
+            pointsToAdd = random.randint(0, 25)
+            
+        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
+        cursor = db.cursor()
+        fetch = cursor.execute("SELECT xp from renbot.xp WHERE userid = {0}".format(userID))
+        
+        currentXP = 0
+        
+        if fetch is not 0: # This user has past XP that we can add to.
+            result = cursor.fetchall()
+            currentXP = result[0][0] + pointsToAdd
+        else: # New user
+            currentXP = pointsToAdd
+        
+        cursor.execute("REPLACE INTO renbot.xp (userid, xp) VALUES ({0}, {1})".format(userID,currentXP))
+        db.commit()
+        cursor.close()
+        db.close()
         
     async def checkFlood(self, message):
         """Check to see if the user is sending messages that are flooding the server.  If yes, then do not add points."""
@@ -155,12 +184,30 @@ class Ranks_beta:
         # Check as follows:
         #  - Get the user ID and message time
         #  - Check the last message time that was used to add points to the current user.
-        #  - If this time does not exceed MIN_FLOOD_TIME, return and do nothing.
-        #  - If this time exceeds MIN_FLOOD_TIME, update the last spoken time of this user with the message time.
+        #  - If this time does not exceed COOLDOWN, return and do nothing.
+        #  - If this time exceeds COOLDOWN, update the last spoken time of this user with the message time.
         #  - Add points between 0 and MAX_POINTS (use random).
         #  - Return.
-        pass
-    
+        
+        timestamp = message.timestamp.timestamp()
+        
+        try:
+            # If the time does not exceed COOLDOWN, return and do nothing.
+            if (timestamp - self.lastspoke[message.server.id][message.author.id]["timestamp"] <= self.settings["cooldown"]):
+                return
+            # Update last spoke time with new message time.
+            self.lastspoke[message.server.id][message.author.id]["timestamp"] = timestamp
+        except Exception as e:
+            # Most likely key error, so create the key, then update
+            # last spoke time with new message time.
+            try:
+                self.lastspoke[message.server.id][message.author.id] = {}
+            except:
+                self.lastspoke[message.server.id] = {}
+                self.lastspoke[message.server.id][message.author.id] = {}
+            self.lastspoke[message.server.id][message.author.id]["timestamp"] = timestamp
+
+        self.addPoints(message.author.id)
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
