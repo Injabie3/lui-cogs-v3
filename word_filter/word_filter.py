@@ -25,13 +25,13 @@ def check_filesystem():
             print("Word Filter: Creating folder: {} ...".format(folder))
             os.makedirs(folder)
             
-    files = ["data/word_filter/filter.json", "data/word_filter/settings.json"]
+    files = ["data/word_filter/filter.json", "data/word_filter/settings.json", "data/word_filter/whitelist.json"]
     for file in files:
         if not os.path.exists(file):
             #build a default filter.json
             dict = {}
             dataIO.save_json(file,dict)    
-            print("Highlight: Creating file: {} ...".format(file))
+            print("Word Filter: Creating file: {} ...".format(file))
 
 class WordFilter(object):
     def __init__(self, bot):
@@ -39,6 +39,7 @@ class WordFilter(object):
         self.lock = Lock()
         self.lock_settings = Lock()
         self.filters = dataIO.load_json("data/word_filter/filter.json")
+        self.whitelist = dataIO.load_json("data/word_filter/whitelist.json")
         self.settings = dataIO.load_json("data/word_filter/settings.json")
         self.colours = [colour.purple(),colour.red(),colour.blue(),colour.orange(),colour.green()]
         
@@ -50,6 +51,14 @@ class WordFilter(object):
         try:
             dataIO.save_json("data/word_filter/filter.json", new_obj)
             self.filters = dataIO.load_json("data/word_filter/filter.json")
+        finally:
+            self.lock.release()
+    
+    def _update_whitelist(self, new_obj):
+        self.lock.acquire()
+        try:
+            dataIO.save_json("data/word_filter/whitelist.json", new_obj)
+            self.whitelist = dataIO.load_json("data/word_filter/whitelist.json")
         finally:
             self.lock.release()
     
@@ -165,14 +174,102 @@ class WordFilter(object):
         
         self._update_settings(self.settings)
 
+    @word_filter.command(name="wladd", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def add_whitelist(self, ctx, channel_name: str):
+        """
+        Add channel to whitelist.
+        All messages in the channel will not be filtered.
+        """
+        guild_id = ctx.message.server.id
+        user = ctx.message.author
+        guild_name = ctx.message.server.name
+        
+        if guild_id not in list(self.whitelist):
+            dict = {}
+            dict[guild_id] = []
+            self.whitelist.update(dict)
+            self._update_whitelist(self.whitelist)
+            
+        if channel_name not in self.whitelist[guild_id]:
+            self.whitelist[guild_id].append(channel_name)
+            self._update_whitelist(self.whitelist)
+            await self.bot.say(":white_check_mark: Word Filter: Channel with name `{0}` will not be filtered.".format(channel_name))
+        else:
+            await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel `{0}` is already whitelisted.".format(channel_name))
+        
+    @word_filter.command(name="wlremove", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def remove_whitelist(self, ctx, channel_name: str):
+        """
+        Remove channel from whitelist
+        All messages in the removed channel will be subjected to the filter.
+        """
+        guild_id = ctx.message.server.id
+        user = ctx.message.author
+        guild_name = ctx.message.server.name
+        
+        if guild_id not in list(self.whitelist):
+            await self.bot.say(":negative_squared_cross_mark: Word Filter: The guild **{}** is not registered, please add a channel to the whitelist first.".format(guild_name))
+            return
+        
+        if len(self.whitelist[guild_id]) == 0 or channel_name not in self.whitelist[guild_id]:
+            await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel `{0}` was already not whitelisted.".format(channel_name))
+            return
+        else:
+            self.whitelist[guild_id].remove(channel_name)
+            self._update_whitelist(self.whitelist)
+            await self.bot.say(":white_check_mark: Word Filter: `{0}` removed from the channel whitelist.".format(channel_name))
     
+    @word_filter.command(name="wllist", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def list_whitelist(self, ctx):
+        """List whitelisted channels. NOTE: do this in a channel outside of the viewing public"""
+        guild_id = ctx.message.server.id
+        guild_name = ctx.message.server.name
+        user = ctx.message.author
+        
+        if guild_id not in list(self.whitelist):
+            await self.bot.say(":negative_squared_cross_mark: Word Filter: The guild **{}** is not registered, please add a channel first".format(guild_name))
+            return
+        
+        if len(self.whitelist[guild_id]) > 0:
+            display = []
+            for n in range(0, len(self.whitelist[guild_id])):
+                display.append("`"+self.whitelist[guild_id][n]+"`")
+            # msg = ""
+            # for word in self.whitelist[guild_id]:
+                # msg += word
+                # msg += "\n"
+            # title = "Filtered words for: **{}**".format(guild_name)   
+            # embed = discord.Embed(title=title,description=msg,colour=discord.Colour.red())
+            # await self.bot.send_message(user,embed=embed)
+            
+            p = Pages(self.bot,message=ctx.message,entries=display)
+            p.embed.title = "Whitelisted channels for: **{}**".format(guild_name)
+            p.embed.colour = discord.Colour.red()
+            await p.paginate()
+        else:
+            await self.bot.say("Sorry, there are no whitelisted channels in **{}**".format(guild_name))
+            
     async def check_words(self, msg, new_msg=None):
         mod_role = self.bot.settings.get_server_mod(msg.server).lower()
         admin_role = self.bot.settings.get_server_admin(msg.server).lower()
+        guild_id = msg.server.id
         
         #Filter only configured servers, not private DMs.
         if isinstance(msg.channel,discord.PrivateChannel) or msg.server.id not in list(self.filters):
             return
+        
+        #Do not filter whitelisted channels
+        try:
+            whitelist = self.whitelist[guild_id]
+            for channels in whitelist:
+                if channels.lower() == msg.channel.name.lower():
+                    return
+        except:
+            # Most likely no whitelisted channels.
+            pass
         
         #Check if mod or admin, and do not filter if togglemod is enabled.
         try:
@@ -184,7 +281,7 @@ class WordFilter(object):
             print(e)
             pass
         
-        guild_id = msg.server.id
+        
         filtered_words = self.filters[guild_id]
         if new_msg:
             check_msg = new_msg.content
