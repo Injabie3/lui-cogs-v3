@@ -255,11 +255,12 @@ class WordFilter(object):
     async def check_words(self, msg, new_msg=None):
         mod_role = self.bot.settings.get_server_mod(msg.server).lower()
         admin_role = self.bot.settings.get_server_admin(msg.server).lower()
-        guild_id = msg.server.id
         
         #Filter only configured servers, not private DMs.
         if isinstance(msg.channel,discord.PrivateChannel) or msg.server.id not in list(self.filters):
             return
+            
+        guild_id = msg.server.id
         
         #Do not filter whitelisted channels
         try:
