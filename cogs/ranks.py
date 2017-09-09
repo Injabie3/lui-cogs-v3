@@ -56,7 +56,9 @@ class Ranks_beta:
     
     @commands.group(name="ranks", pass_context=True, no_pm=True)
     async def _ranks(self, ctx):
-        """Guild rank management system"""
+        """
+        Mee6-inspired guild rank management system. WIP
+        """
         #Display the help context menu
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
@@ -95,20 +97,63 @@ class Ranks_beta:
         """Test"""
         await self.bot.say("test")
         
+    #[p]rank settings show
+    @_settings.command(name="show", pass_context=True)
+    async def _settings_show(self):
+        """Show current settings."""
+        try:
+            cooldown = self.settings["cooldown"]
+        except:
+            # Not set.
+            cooldown = 0
+        try:
+            maxPoints = self.settings["maxPoints"]
+        except:
+            # Not set.
+            maxPoints = 25
+        msg  = ":information_source: Ranks - Current Settings\n```"
+        msg += "Cooldown time:  {0} seconds.\n".format(cooldown)
+        msg += "Maximum points: {0} points per eligible message```".format(maxPoints)
+        
+        await self.bot.say(msg)
+        
     #[p]rank settings cooldown
     @_settings.command(name="cooldown", pass_context=True)
     async def _settings_cooldown(self, ctx, seconds: int):
         """Set the cooldown required between XP gains (in seconds)"""
         if seconds is None:
-            await self.bot.say("Please enter a cooldown time in seconds!")
+            await self.bot.say(":negative_squared_cross_mark: Ranks - Cooldown: Please enter a time in seconds!")
             return
         
+        if seconds < 0:
+            await self.bot.say(":negative_squared_cross_mark: Ranks - Cooldown: Please enter a valid time in seconds!")
+            return
+            
         # Save settings
         self.settings = dataIO.load_json(saveFolder + 'settings.json')
         self.settings["cooldown"] = seconds
         dataIO.save_json(saveFolder + 'settings.json', self.settings)
                 
-        await self.bot.say("Cooldown set to {0} seconds.".format(self.settings["cooldown"]))
+        await self.bot.say(":white_check_mark: Ranks - Cooldown: Set to {0} seconds.".format(self.settings["cooldown"]))
+    
+    #[p]rank settings maxpoints
+    @_settings.command(name="maxpoints", pass_context=True)
+    async def _settings_maxpoints(self, ctx, maxpoints: int):
+        """Set the max points you can gain for every eligible message. Defaults to 25 points."""
+        if maxpoints is None:
+            await self.bot.say(":white_check_mark: Ranks - Max Points: Setting default (up to 25 points per eligible message).")
+            return
+        
+        if maxpoints < 0:
+            await self.bot.say(":negative_squared_cross_mark: Ranks - Max Points: Please enter a positive number.")
+            return
+        
+        # Save settings
+        self.settings = dataIO.load_json(saveFolder + 'settings.json')
+        self.settings["maxPoints"] = maxpoints
+        dataIO.save_json(saveFolder + 'settings.json', self.settings)
+                
+        await self.bot.say(":white_check_mark: Ranks - Max Points: Users can gain up to {0} points per eligible message.".format(self.settings["maxPoints"]))
             
     
     #[p]rank settings dbsetup
@@ -194,6 +239,9 @@ class Ranks_beta:
         if message.author.bot is True:
             return
         
+        if message.channel.is_private is True:
+            return
+            
         try:
             # If the time does not exceed COOLDOWN, return and do nothing.
             if (timestamp - self.lastspoke[message.server.id][message.author.id]["timestamp"] <= self.settings["cooldown"]):
