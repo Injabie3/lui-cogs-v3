@@ -8,6 +8,7 @@ import os
 import asyncio
 import aiohttp # Using this to build own request to Discord API for NSFW.
 import json # Will need this to use in conjunction with aiohttp below.
+import itertools
 
 def check_filesystem():
     folders = ["data/lui-cogs/tempchannels"]
@@ -35,7 +36,7 @@ class TempChannels:
         dataIO.save_json("data/lui-cogs/tempchannels/settings.json", self.settings)
         self.settings = dataIO.load_json("data/lui-cogs/tempchannels/settings.json")
     
-    @commands.group(name="tempchannels", pass_context=True, no_pm=True)
+    @commands.group(name="tempchannels", pass_context=True, no_pm=True, aliases=["tc"])
     @checks.serverowner()
     async def _tempchannels(self, ctx):
         """
@@ -52,6 +53,8 @@ class TempChannels:
         - Start at 00:00.
         - Duration of channel is 1 minute.
         - The creation and deletion of TempChannel is disabled.
+        - NSFW prompt will not appear.
+        - TempChannel will not be role restricted.
         - If present, the previous TempChannel (if any) will be forgotten, and not deleted.
         """
         try:
@@ -69,6 +72,8 @@ class TempChannels:
         self.settings[ctx.message.server.id]["startMinute"] = 0
         self.settings[ctx.message.server.id]["enabled"] = False
         self.settings[ctx.message.server.id]["nsfw"] = False
+        self.settings[ctx.message.server.id]["roleallow"] = []
+        self.settings[ctx.message.server.id]["roledeny"] = []
         self.settings[ctx.message.server.id]["channel"] = None
         
         self._sync_settings()
@@ -89,9 +94,17 @@ class TempChannels:
                 msg += "NSFW Prompt:      Yes\n"
             else:
                 msg += "NSFW Prompt:      No\n"
+            if len(self.settings[ctx.message.server.id]["roleallow"]) == 0:
+                msg += "Role Allow:       None\n"
+            else:
+                msg += "Role Allow:       {0}\n".format(self.settings[ctx.message.server.id]["roleallow"])
+            if len(self.settings[ctx.message.server.id]["roledeny"]) == 0:
+                msg += "Role Deny:        None\n"
+            else:
+                msg += "Role Deny:        {0}\n".format(self.settings[ctx.message.server.id]["roledeny"])
             msg += "Channel Name:     {0}\n".format(self.settings[ctx.message.server.id]["channelName"])
             msg += "Channel Topic:    {0}\n".format(self.settings[ctx.message.server.id]["channelTopic"])
-            msg += "Creation time:    {0:002d}:{1:002d}\n".format(self.settings[ctx.message.server.id]["startHour"],self.settings[ctx.message.server.id]["startMinute"])
+            msg += "Creation Time:    {0:002d}:{1:002d}\n".format(self.settings[ctx.message.server.id]["startHour"],self.settings[ctx.message.server.id]["startMinute"])
             msg += "Duration:         {0}h {1}m\n".format(self.settings[ctx.message.server.id]["durationHours"],self.settings[ctx.message.server.id]["durationMinutes"])
             msg += "Channel Position: {0}```".format(self.settings[ctx.message.server.id]["channelPosition"])
             await self.bot.say(msg)
@@ -184,7 +197,7 @@ class TempChannels:
 
     @_tempchannels.command(name="settopic", pass_context=True, no_pm=True)
     @checks.serverowner()
-    async def _tempchannels_settopic(self, ctx, topic: str):
+    async def _tempchannels_settopic(self, ctx, *, topic: str):
         """Sets the topic of the channel."""
         if len(topic) > 1024:
             await self.bot.say(":negative_squared_cross_mark: TempChannel - Topic: Topic is too long.  Try again.")
@@ -220,6 +233,93 @@ class TempChannels:
         self._sync_settings()
         
         await self.bot.say(":white_check_mark: TempChannel - Position: This channel will be at position {0}".format(position))
+    
+    @_tempchannels.command(name="allowadd", pass_context=True, no_pm=True, aliases=["aa"])
+    @checks.serverowner()
+    async def _tempchannels_allowadd(self, ctx, *, role: str):
+        """
+        Add role to allow access to the channel. No @mention.
+        Do not @mention the role, just type the name of the role.
+        
+        Upon creation of channel, will check for role names, not IDs,
+        so you must update this list if you change the role name!
+        """
+        if len(role) > 25: # This is arbitrary.
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role: Role name is too long.  Try again.")
+            return
+        
+        # Validate the role.
+        result = discord.utils.get(ctx.message.server.roles, name=role)
+        
+        if result is None:
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Allow: **`{}`** not found!  Not set.".format(role))
+        else:
+            if role not in self.settings[ctx.message.server.id]["roleallow"]:
+                self.settings[ctx.message.server.id]["roleallow"].append(role)
+                await self.bot.say(":white_check_mark: TempChannel - Role Allow: **`{0}`** will be allowed access.".format(role))
+            else:
+                await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Allow: **`{0}`** is already allowed.".format(role))
+
+    @_tempchannels.command(name="allowremove", pass_context=True, no_pm=True, aliases=["ar"])
+    @checks.serverowner()
+    async def _tempchannels_allowremove(self, ctx, *, role: str):
+        """
+        Remove role from access to the channel. No @mention.
+        Do not @mention the role, just type the name of the role.
+        """
+
+        if len(self.settings[ctx.message.server.id]["roleallow"]) == 0 or role not in self.settings[ctx.message.server.id]["roleallow"]:
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Allow: **`{0}`** wasn't on the list.".format(role))
+            return
+        else:
+            self.settings[ctx.message.server.id]["roleallow"].remove(role)
+            self._sync_settings()
+            await self.bot.say(":white_check_mark: TempChannel - Role Allow: **`{0}`** removed from the list.".format(role))
+
+    @_tempchannels.command(name="denyadd", pass_context=True, no_pm=True, aliases=["da"])
+    @checks.serverowner()
+    async def _tempchannels_denyadd(self, ctx, *, role: str):
+        """
+        Add role to block sending to the channel. No @mention.
+        Do not @mention the role, just type the name of the role.
+        
+        Upon creation of channel, will check for role names, not IDs,
+        so you must update this list if you change the role name!
+        
+        This role should be HIGHER in the role hierarchy than the roles in
+        the allowed list!  The bot will not check for this.
+        """
+        if len(role) > 25: # This is arbitrary.
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role: Role name is too long.  Try again.")
+            return
+        
+        # Validate the role.
+        result = discord.utils.get(ctx.message.server.roles, name=role)
+        
+        if result is None:
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Deny: **`{}`** not found!  Not set.".format(role))
+        else:
+            if role not in self.settings[ctx.message.server.id]["roledeny"]:
+                self.settings[ctx.message.server.id]["roledeny"].append(role)
+                await self.bot.say(":white_check_mark: TempChannel - Role: **`{0}`** will be denied message sending, provided this role is higher than any of the ones in the allowed list.".format(role))
+            else:
+                await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Deny: **`{0}`** is already denied.".format(role))
+
+    @_tempchannels.command(name="denyremove", pass_context=True, no_pm=True, aliases=["dr"])
+    @checks.serverowner()
+    async def _tempchannels_denyremove(self, ctx, *, role: str):
+        """
+        Remove role from being blocked sending to the channel. No @mention.
+        Do not @mention the role, just type the name of the role.
+        """
+
+        if len(self.settings[ctx.message.server.id]["roledeny"]) == 0 or role not in self.settings[ctx.message.server.id]["roledeny"]:
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Role Deny: **`{0}`** wasn't on the list.".format(role))
+            return
+        else:
+            self.settings[ctx.message.server.id]["roledeny"].remove(role)
+            self._sync_settings()
+            await self.bot.say(":white_check_mark: TempChannel - Role Deny: **`{0}`** removed from the list.".format(role))
 
     @_tempchannels.command(name="delete", pass_context=True, no_pm=True)
     @checks.serverowner()
@@ -234,7 +334,7 @@ class TempChannels:
                         await self.bot.delete_channel(self.bot.get_channel(self.settings[ctx.message.server.id]["channel"]))
                         self.settings[ctx.message.server.id]["channel"] = None
                     except Exception as e:
-                        print(e)
+                        print("TempChannel: "+e)
                     await self.bot.say(":white_check_mark: TempChannel: Channel deleted")
                 else:
                     await self.bot.say(":negative_squared_cross_mark: TempChannel: No temp channel to delete.")
@@ -244,10 +344,14 @@ class TempChannels:
             print("TempChannel: Channel deleted at "+format(time.strftime("%H:%M:%S")))
             self.settings[ctx.message.server.id]["channelCreated"] = False
             self._sync_settings()
-        
+    
+    ###################
+    # Background Loop #
+    ###################
     async def _check_channels(self):
+        """Loop to check whether or not we should create/delete the TempChannel"""
         while self == self.bot.get_cog("TempChannels"):
-            await asyncio.sleep(30)
+            await asyncio.sleep(15)
             # Create/maintain the channel during a valid time and duration, else delete it.
             try:
                 for server in self.settings:
@@ -262,6 +366,8 @@ class TempChannels:
                         self.settings[server]["durationHours"]
                         self.settings[server]["durationMinutes"]
                         self.settings[server]["nsfw"]
+                        self.settings[server]["roleallow"]
+                        self.settings[server]["roledeny"]
                         if (self.settings[server]["enabled"] is False):
                             continue
                     except:
@@ -272,24 +378,52 @@ class TempChannels:
                         # Create the channel, and store the ID, and time to delete channel in the settings.
                         
                         if self.settings[server]["channel"] is None:
-                            if self.settings[server]["nsfw"] is True:
-                                created_channel = await self.bot.create_channel(self.bot.get_server(server), "nsfw-{}".format(self.settings[server]["channelName"]))
+                            # Start with permissions
+                            allow_list = []
+                            deny_list = []
+                            allow_perms = [ discord.PermissionOverwrite(read_messages=True) ]
+                            allow_roles = [ self.bot.user ]
+                            deny_perms = []
+                            deny_roles = []
+                            
+                            if len(self.settings[server]["roleallow"]) > 0:
+                            # If we have allow roles, automatically deny @everyone read messages.
+                                deny_perms.append(discord.PermissionOverwrite(read_messages=False))
+                                deny_roles.append(self.bot.get_server(server).default_role)
+                                for override_roles in self.settings[server]["roleallow"]:
+                                    find_role = discord.utils.get(self.bot.get_server(server).roles, name=override_roles)
+                                    allow_roles.append(find_role)
+                            
+                            allow_list = itertools.zip_longest(allow_roles, allow_perms, fillvalue=allow_perms[0])
+                            
+                            
+                            # Check for deny permissions.
+                            if len(self.settings[server]["roledeny"]) > 0:
+                                deny_perms.append(discord.PermissionOverwrite(send_messages=False))
+                                for override_roles2 in self.settings[server]["roledeny"]:
+                                    find_role2 = discord.utils.get(self.bot.get_server(server).roles, name=override_roles2)
+                                    deny_roles.append(find_role2)
+                            deny_list = itertools.zip_longest(deny_roles, deny_perms, fillvalue=discord.PermissionOverwrite(send_messages=False))
+                            
+                            if self.settings[server]["nsfw"]:
+                                created_channel = await self.bot.create_channel(self.bot.get_server(server), "nsfw-{}".format(self.settings[server]["channelName"]), *list(allow_list), *list(deny_list))
                                 
                                 # This is most definitely not the best way of doing it, but since no NSFW method, we have this:
                                 header = { "Authorization" : "Bot {}".format(self.bot.settings.token), "content-type" : "application/json" }
-                                body = { "name" : self.settings[server]["channelName"], "nsfw" : True }
+                                body = { "nsfw" : True }
                                 
                                 async with aiohttp.ClientSession() as session:
-                                    async with session.put('https://discordapp.com/api/channels/{}'.format(created_channel.id),headers=header,data=json.dumps(body)) as resp:
+                                    async with session.patch('https://discordapp.com/api/channels/{}'.format(created_channel.id),headers=header,data=json.dumps(body)) as resp:
                                         print(resp.status)
                                         print(await resp.text())
-                            else:
-                                created_channel = await self.bot.create_channel(self.bot.get_server(server), self.settings[server]["channelName"])
+                            else: # Not NSFW
+                                created_channel = await self.bot.create_channel(self.bot.get_server(server), self.settings[server]["channelName"], *list(allow_list), *list(deny_list))
                                 
                             self.settings[server]["channel"] = created_channel.id
                             self._sync_settings()
                             print("TempChannel: Channel created at "+format(time.strftime("%H:%M:%S")))
                             
+                            # Change topic.
                             await self.bot.edit_channel(created_channel, topic=self.settings[server]["channelTopic"],name=self.settings[server]["channelName"])
                             
                             try:
@@ -311,7 +445,7 @@ class TempChannels:
                                         await self.bot.delete_channel(self.bot.get_channel(self.settings[server]["channel"]))
                                         self.settings[server]["channel"] = None
                                     except Exception as e:
-                                        print(e)
+                                        print("TempChannel: "+e)
                             except:
                                 self.settings[server]["channel"] = None
                             print("TempChannel: Channel deleted at "+format(time.strftime("%H:%M:%S")))
