@@ -86,11 +86,11 @@ class TempChannels:
         self._sync_settings()
         try:
             msg  = ":information_source: TempChannel - Current Settings\n```"
-            if self.settings[ctx.message.server.id]["enabled"] is True:
+            if self.settings[ctx.message.server.id]["enabled"]:
                 msg += "Enabled?          Yes\n"
             else:
                 msg += "Enabled?          No\n"
-            if self.settings[ctx.message.server.id]["nsfw"] is True:
+            if self.settings[ctx.message.server.id]["nsfw"]:
                 msg += "NSFW Prompt:      Yes\n"
             else:
                 msg += "NSFW Prompt:      No\n"
@@ -116,7 +116,7 @@ class TempChannels:
     async def _tempchannels_toggle(self, ctx):
         """Toggle the creation/deletion of the temporary channel."""
         try:
-            if self.settings[ctx.message.server.id]["enabled"] is True:
+            if self.settings[ctx.message.server.id]["enabled"]:
                 self.settings[ctx.message.server.id]["enabled"] = False
                 set = False
             else:
@@ -136,7 +136,7 @@ class TempChannels:
     async def _tempchannels_nsfw(self, ctx):
         """Toggle NSFW requirements"""
         try:
-            if self.settings[ctx.message.server.id]["nsfw"] is True:
+            if self.settings[ctx.message.server.id]["nsfw"]:
                 self.settings[ctx.message.server.id]["nsfw"] = False
                 set = False
             else:
@@ -325,7 +325,7 @@ class TempChannels:
     @checks.serverowner()
     async def _tempchannels_delete(self, ctx):
         """Deletes the temp channel, if it exists."""
-        if self.settings[ctx.message.server.id]["channelCreated"] is True:
+        if self.settings[ctx.message.server.id]["channelCreated"]:
             # Channel created, see when we should delete it.
             self._sync_settings()
             try:
@@ -355,23 +355,17 @@ class TempChannels:
             # Create/maintain the channel during a valid time and duration, else delete it.
             try:
                 for server in self.settings:
-                    try:
-                        # Check for valid settings
-                        self.settings[server]["channelName"]
-                        self.settings[server]["channelPosition"]
-                        self.settings[server]["channelTopic"]
-                        self.settings[server]["channelCreated"]
-                        self.settings[server]["startHour"]
-                        self.settings[server]["startMinute"]
-                        self.settings[server]["durationHours"]
-                        self.settings[server]["durationMinutes"]
-                        self.settings[server]["nsfw"]
-                        self.settings[server]["roleallow"]
-                        self.settings[server]["roledeny"]
-                        if (self.settings[server]["enabled"] is False):
-                            continue
-                    except:
-                        print("TempChannels: Error, missing keys for {}".format(server))
+                    keys_settings = self.settings[server].keys()
+                    keys_required = [ "channelName", "channelPosition", "channelTopic", "channelCreated", "startHour", "startMinute", "durationHours", "durationMinutes", "nsfw", "roleallow", "roledeny", "enabled"]
+                    missing = False
+                    for key in keys_required:
+                        if key not in keys_settings:
+                            missing = True
+                            print("TempChannels: Key {} is missing in settings! Run [p]tc default.".format(key))
+                    if missing:
+                        continue
+                        
+                    if not self.settings[server]["enabled"]:
                         continue
                     
                     if ( int(time.strftime("%H")) == self.settings[server]["startHour"]) and (int(time.strftime("%M")) == self.settings[server]["startMinute"]) and (self.settings[server]["channelCreated"] is False):
@@ -435,7 +429,7 @@ class TempChannels:
                             self.settings[server]["channelCreated"] = True
                             self._sync_settings()
                             
-                    elif self.settings[server]["channelCreated"] is True:
+                    elif self.settings[server]["channelCreated"]:
                         # Channel created, see when we should delete it.
                         self._sync_settings()
                         if time.time() >= self.settings[server]["stopTime"]:
