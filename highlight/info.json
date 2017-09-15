@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "sedruk#7348, Injabie3#1660",
+    "INSTALL_MSG" : "Highlights module installed!  Please let us know if you find improvements!",
+    "NAME" : "Highlights",
+    "SHORT" : "Notifies a user of messages outside of @mentions.",
+    "DESCRIPTION" : "Allows a user to configure keywords/phrases that trigger a notification to the user.  Useful for users that want to join a conversation that is on a subject they are interested, and does not require @mentions."
+}

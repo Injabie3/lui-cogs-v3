@@ -239,6 +239,9 @@ class Highlight(object):
                 match = self._is_word_match(word,msg.content)
                 if match and not active and user_id != user['id']:
                     hilite_user = msg.server.get_member(user['id'])
+                    if hilite_user is None:
+                        # Handle case where user is no longer in the server of interest.
+                        continue
                     perms = msg.channel.permissions_for(hilite_user)
                     if not perms.read_messages:
                         break
