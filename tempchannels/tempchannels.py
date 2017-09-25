@@ -82,7 +82,7 @@ class TempChannels:
     @_tempchannels.command(name="show", pass_context=True, no_pm=True)
     @checks.serverowner()
     async def _tempchannels_show(self,ctx):
-        """Show current settings"""
+        """Show current settings."""
         self._sync_settings()
         try:
             msg  = ":information_source: TempChannel - Current Settings\n```"
@@ -106,7 +106,11 @@ class TempChannels:
             msg += "Channel Topic:    {0}\n".format(self.settings[ctx.message.server.id]["channelTopic"])
             msg += "Creation Time:    {0:002d}:{1:002d}\n".format(self.settings[ctx.message.server.id]["startHour"],self.settings[ctx.message.server.id]["startMinute"])
             msg += "Duration:         {0}h {1}m\n".format(self.settings[ctx.message.server.id]["durationHours"],self.settings[ctx.message.server.id]["durationMinutes"])
-            msg += "Channel Position: {0}```".format(self.settings[ctx.message.server.id]["channelPosition"])
+            msg += "Channel Position: {0}\n".format(self.settings[ctx.message.server.id]["channelPosition"])
+            if self.settings[ctx.message.server.id]["channelCategory"] == 0:
+                msg += "Channel Category: None.```"
+            else:
+                msg += "Channel Category: ID {}```".format(self.settings[ctx.message.server.id]["channelCategory"])
             await self.bot.say(msg)
         except:
             await self.bot.say(":negative_squared_cross_mark: TempChannel: Cannot display settings.  Please set default settings by typing `{}tempchannels default` first.".format(ctx.prefix))            
@@ -234,6 +238,33 @@ class TempChannels:
         
         await self.bot.say(":white_check_mark: TempChannel - Position: This channel will be at position {0}".format(position))
     
+    @_tempchannels.command(name="setcategory", pass_context=True, no_pm=True)
+    @checks.serverowner()
+    async def _tempchannels_setcategory(self, ctx, id: int):
+        """
+        Sets the parent category of the text channel (ID ONLY).
+        
+        Enter an ID to enable, enter 0 to disable.
+        
+        Since the library does not support categories yet, we will use IDs.
+        To retreive an ID:
+        - Turn on Developer Mode.
+        - Right click the category.
+        - Click "Copy ID"
+        - Run this command with the ID.
+        """
+        if id < 0:
+            await self.bot.say(":negative_squared_cross_mark: TempChannel - Category: Please enter a valid ID.")
+            return
+
+        self.settings[ctx.message.server.id]["channelCategory"] = id
+        self._sync_settings()
+        
+        if id == 0:
+            await self.bot.say(":white_check_mark: TempChannel - Category: Parent category disabled.")
+        else:
+            await self.bot.say(":white_check_mark: TempChannel - Category: Parent category set to ID `{}`.".format(id))
+    
     @_tempchannels.command(name="allowadd", pass_context=True, no_pm=True, aliases=["aa"])
     @checks.serverowner()
     async def _tempchannels_allowadd(self, ctx, *, role: str):
@@ -356,7 +387,7 @@ class TempChannels:
             try:
                 for server in self.settings:
                     keys_settings = self.settings[server].keys()
-                    keys_required = [ "channelName", "channelPosition", "channelTopic", "channelCreated", "startHour", "startMinute", "durationHours", "durationMinutes", "nsfw", "roleallow", "roledeny", "enabled"]
+                    keys_required = [ "channelName", "channelPosition", "channelCategory", "channelTopic", "channelCreated", "startHour", "startMinute", "durationHours", "durationMinutes", "nsfw", "roleallow", "roledeny", "enabled"]
                     missing = False
                     for key in keys_required:
                         if key not in keys_settings:
@@ -382,18 +413,18 @@ class TempChannels:
                             
                             if len(self.settings[server]["roleallow"]) > 0:
                             # If we have allow roles, automatically deny @everyone read messages.
-                                deny_perms.append(discord.PermissionOverwrite(read_messages=False))
+                                deny_perms.append(discord.PermissionOverwrite(read_messages=False, add_reactions=False))
                                 deny_roles.append(self.bot.get_server(server).default_role)
                                 for override_roles in self.settings[server]["roleallow"]:
                                     find_role = discord.utils.get(self.bot.get_server(server).roles, name=override_roles)
                                     allow_roles.append(find_role)
                             
-                            allow_list = itertools.zip_longest(allow_roles, allow_perms, fillvalue=allow_perms[0])
+                            allow_list = itertools.zip_longest(allow_roles, allow_perms, fillvalue=discord.PermissionOverwrite(read_messages=True, add_reactions=False))
                             
                             
                             # Check for deny permissions.
                             if len(self.settings[server]["roledeny"]) > 0:
-                                deny_perms.append(discord.PermissionOverwrite(send_messages=False))
+                                deny_perms.append(discord.PermissionOverwrite(send_messages=False, add_reactions=False))
                                 for override_roles2 in self.settings[server]["roledeny"]:
                                     find_role2 = discord.utils.get(self.bot.get_server(server).roles, name=override_roles2)
                                     deny_roles.append(find_role2)
@@ -420,15 +451,28 @@ class TempChannels:
                             # Change topic.
                             await self.bot.edit_channel(created_channel, topic=self.settings[server]["channelTopic"],name=self.settings[server]["channelName"])
                             
+                            # Set parent category.  Must use this method because library does not 
+                            # have a method for this yet.
+                            if self.settings[server]["channelCategory"] != 0:
+                                header = { "Authorization" : "Bot {}".format(self.bot.settings.token), "content-type" : "application/json" }
+                                body = { "parent_id" : self.settings[server]["channelCategory"] }
+                                
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.patch('https://discordapp.com/api/channels/{}'.format(created_channel.id),headers=header,data=json.dumps(body)) as resp:
+                                        print(resp.status)
+                                        print(await resp.text())
+                            
+                            # Move channel position.
                             try:
                                 await self.bot.move_channel(created_channel, self.settings[server]["channelPosition"])
                             except:
                                 print("TempChannel: Could not move channel position")
-
+                                
+                            # Set delete times, and save settings.
                             self.settings[server]["stopTime"] = time.time() + (self.settings[server]["durationHours"]*60*60) + (self.settings[server]["durationMinutes"]*60)
                             self.settings[server]["channelCreated"] = True
                             self._sync_settings()
-                            
+                                        
                     elif self.settings[server]["channelCreated"]:
                         # Channel created, see when we should delete it.
                         self._sync_settings()
