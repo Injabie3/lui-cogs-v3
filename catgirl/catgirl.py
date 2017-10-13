@@ -383,11 +383,10 @@ class Catgirl_beta:
     async def _randomize(self):
         """Shuffles images in the list."""
         while self:
-            print("Catgirl: Shuffling lists...")
             random.shuffle(self.catgirls)
             random.shuffle(self.catboys)
             random.shuffle(self.catgirls_local)
-            await asyncio.sleep(300)
+            await asyncio.sleep(3600)
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
