@@ -232,6 +232,10 @@ class Highlight(object):
         
         guild_idx = self._check_guilds(guild_id)
         
+        # Prevent the bot from triggering your highlight word.
+        if user_obj.id == self.bot.user.id:
+            return
+        
         # iterate through every users words on the server, and notify all highlights
         for user in self.highlights['guilds'][guild_idx][guild_id]['users']:
             for word in user['words']:
