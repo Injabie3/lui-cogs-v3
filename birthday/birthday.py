@@ -200,6 +200,7 @@ class Birthday_beta:
     async def _dailySweep(self):
         while self == self.bot.get_cog("Birthday_beta"):
             await asyncio.sleep(15*60)
+            self.settingsLock.acquire()
             try:
                 # Check each server.
                 for server in self.settings:
@@ -212,23 +213,21 @@ class Birthday_beta:
                                 roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
                                 userObject = discord.utils.get(serverObject.members, id=user)
                                 
-                                # Remove the roll
+                                # Remove the role
                                 try:
-                                    await self.bot.remove_roles(userObject, roleObject)                        
+                                    await self.bot.remove_roles(userObject, roleObject)
+                                    print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
                                 except discord.errors.Forbidden as e:
                                     print(e)
                                     
                                 # Update the list.
-                                self.settingsLock.acquire()
-                                try:
-                                    self.settings[server][keyBirthdayUsers][keyIsAssigned] = False
-                                except:
-                                    pass
-                                finally:
-                                    self.settingsLock.release()
+                                self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
+                                self.saveSettings()                                   
                                 
             except Exception as e:
                 print(e)
+            finally:
+                self.settingsLock.release()
         # End while loop.
 
 def setup(bot):
