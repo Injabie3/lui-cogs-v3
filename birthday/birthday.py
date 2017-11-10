@@ -85,6 +85,7 @@ class Birthday_beta:
             self.settings[ctx.message.server.id][keyBirthdayRole] = role.id
             self.saveSettings()
         except Exception as e:
+            print("Birthday Error:")
             print(e)
         finally:
             self.settingsLock.release()
@@ -111,6 +112,7 @@ class Birthday_beta:
             # Add the role to the user.
             await self.bot.add_roles(user, role)
         except discord.errors.Forbidden as e:
+            print("Birthday Error:")
             print(e)
             await self.bot.say(":negative_squared_cross_mark: **Birthday - Add**: Could not add **{}** to the list, the bot does not have enough permissions to do so!".format(user.name))
             return        
@@ -131,6 +133,7 @@ class Birthday_beta:
             
             self.saveSettings()
         except Exception as e:
+            print("Birthday Error:")
             print(e)
             await self.bot.say(":negative_squared_cross_mark: **Birthday - Add**: Could not save **{}** to the list, but the role was assigned!  Please try again.".format(user.name))
         finally:
@@ -173,6 +176,7 @@ class Birthday_beta:
             # Add the role to the user.
             await self.bot.remove_roles(user, role)
         except discord.errors.Forbidden as e:
+            print("Birthday Error:")
             print(e)
             await self.bot.say(":negative_squared_cross_mark: **Birthday - Delete**: Could not remove **{}** from the role, the bot does not have enough permissions to do so!".format(user.name))
             return
@@ -186,6 +190,7 @@ class Birthday_beta:
             
             self.saveSettings()
         except Exception as e:
+            print("Birthday Error:")
             print(e)
             await self.bot.say(":negative_squared_cross_mark: **Birthday - Delete**: Could not remove **{}** from the list, but the role was removed!  Please try again.".format(user.name))
         finally:
@@ -218,6 +223,7 @@ class Birthday_beta:
                                     await self.bot.remove_roles(userObject, roleObject)
                                     print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
                                 except discord.errors.Forbidden as e:
+                                    print("Birthday Error:")
                                     print(e)
                                     
                                 # Update the list.
@@ -225,6 +231,7 @@ class Birthday_beta:
                                 self.saveSettings()                                   
                                 
             except Exception as e:
+                print("Birthday Error:")
                 print(e)
             finally:
                 self.settingsLock.release()
