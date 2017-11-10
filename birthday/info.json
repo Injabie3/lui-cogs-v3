@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3#1660",
+    "INSTALL_MSG" : "Done. Run `[p]birthday` to see the commands.",
+    "NAME" : "Birthday_beta",
+    "SHORT" : "Allows you to assign a role to a user, and auto-remove it at the end of the day.",
+    "DESCRIPTION" : "The birthday cog allows you to assign a birthday role to a user, and automatically remove them at the end of the day."
+}
