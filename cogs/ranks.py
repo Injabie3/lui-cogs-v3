@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
-import os #Used to create folder at first load.
+import os # Used to create folder at first load.
 import MySQLdb # The use of MySQL is debatable, but will use it to incorporate CMPT 354 stuff.
 import random
 
@@ -10,8 +10,8 @@ import random
 # https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils
 from .utils import checks
 
-#Global variables
-saveFolder = "data/lui-cogs/ranks/" #Path to save folder.
+# Global variables
+saveFolder = "data/lui-cogs/ranks/" # Path to save folder.
 
 def checkFolder():
     """Used to create the data folder at first startup"""
@@ -40,7 +40,7 @@ class Ranks_beta:
     Not optimized for multi-guild deployments.
     """
     
-    #Class constructor
+    # Class constructor
     def __init__(self, bot):
         self.bot = bot
         checkFolder()
@@ -59,22 +59,24 @@ class Ranks_beta:
         """
         Mee6-inspired guild rank management system. WIP
         """
-        #Display the help context menu
+        # Display the help context menu
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
     
-    #[p]rank check
+    # [p]ranks check
     @_ranks.command(name="check", pass_context=True, no_pm=True)
     async def _ranks_check(self, ctx):
         """Check your rank in the server."""
-        #Execute a MySQL query to order and check.
+        # Execute a MySQL query to order and check.
+        await self.bot.say("The function is currently blank.")
         pass
         
-    #[p]rank leaderboard
+    # [p]ranks leaderboard
     @_ranks.command(name="leaderboard", pass_context=True, no_pm=True)
     async def _ranks_leaderboard(self, ctx):
         """Show the server ranking leaderboard"""
         #Execute a MySQL query to order and check.
+        await self.bot.say("The function is currently blank.")
         pass
     
     #######################
@@ -82,7 +84,7 @@ class Ranks_beta:
     #######################
     #Ideally would be nice have this replaced by a web admin panel. 
 
-    #[p]rank settings
+    # [p]ranks settings
     @_ranks.group(name="settings", pass_context=True, no_pm=True)
     @checks.serverowner()
     async def _settings(self, ctx):
@@ -91,23 +93,23 @@ class Ranks_beta:
             await send_cmd_help(ctx)
             
     
-    #[p]rank settings test
-    @_settings.command(name="test", pass_context=True)
-    async def _settings_test(self):
+    # [p]ranks settings test
+    @_settings.command(name="test", pass_context=True, no_pm=True)
+    async def _settings_test(self, ctx):
         """Test"""
         await self.bot.say("test")
         
-    #[p]rank settings show
-    @_settings.command(name="show", pass_context=True)
-    async def _settings_show(self):
+    # [p]ranks settings show
+    @_settings.command(name="show", pass_context=True, no_pm=True)
+    async def _settings_show(self, ctx):
         """Show current settings."""
         try:
-            cooldown = self.settings["cooldown"]
+            cooldown = self.settings[ctx.message.server.id]["cooldown"]
         except:
             # Not set.
             cooldown = 0
         try:
-            maxPoints = self.settings["maxPoints"]
+            maxPoints = self.settings[ctx.message.server.id]["maxPoints"]
         except:
             # Not set.
             maxPoints = 25
@@ -117,7 +119,7 @@ class Ranks_beta:
         
         await self.bot.say(msg)
         
-    #[p]rank settings cooldown
+    # [p]rank settings cooldown
     @_settings.command(name="cooldown", pass_context=True)
     async def _settings_cooldown(self, ctx, seconds: int):
         """Set the cooldown required between XP gains (in seconds)"""
@@ -131,10 +133,15 @@ class Ranks_beta:
             
         # Save settings
         self.settings = dataIO.load_json(saveFolder + 'settings.json')
-        self.settings["cooldown"] = seconds
+        
+        # Make sure the server id key exists.
+        if ctx.message.server.id not in self.settings.keys():
+            self.settings[ctx.message.server.id] = {}
+            
+        self.settings[ctx.message.server.id]["cooldown"] = seconds
         dataIO.save_json(saveFolder + 'settings.json', self.settings)
                 
-        await self.bot.say(":white_check_mark: Ranks - Cooldown: Set to {0} seconds.".format(self.settings["cooldown"]))
+        await self.bot.say(":white_check_mark: Ranks - Cooldown: Set to {0} seconds.".format(self.settings[ctx.message.server.id]["cooldown"]))
     
     #[p]rank settings maxpoints
     @_settings.command(name="maxpoints", pass_context=True)
@@ -150,10 +157,13 @@ class Ranks_beta:
         
         # Save settings
         self.settings = dataIO.load_json(saveFolder + 'settings.json')
-        self.settings["maxPoints"] = maxpoints
+        # Make sure the server id key exists.
+        if ctx.message.server.id not in self.settings.keys():
+            self.settings[ctx.message.server.id] = {}
+        self.settings[ctx.message.server.id]["maxPoints"] = maxpoints
         dataIO.save_json(saveFolder + 'settings.json', self.settings)
                 
-        await self.bot.say(":white_check_mark: Ranks - Max Points: Users can gain up to {0} points per eligible message.".format(self.settings["maxPoints"]))
+        await self.bot.say(":white_check_mark: Ranks - Max Points: Users can gain up to {0} points per eligible message.".format(self.settings[ctx.message.server.id]["maxPoints"]))
             
     
     #[p]rank settings dbsetup
@@ -261,8 +271,8 @@ class Ranks_beta:
         self.addPoints(message.server.id, message.author.id)
 
 def setup(bot):
-    checkFolder()   #Make sure the data folder exists!
-    checkFiles()    #Make sure we have a local database!
+    checkFolder()   # Make sure the data folder exists!
+    checkFiles()    # Make sure we have a local database!
     rankingSystem = Ranks_beta(bot)
     bot.add_cog(rankingSystem)
     bot.add_listener(rankingSystem.checkFlood, 'on_message')
