@@ -262,7 +262,7 @@ class Ranks_beta:
     def addPoints(self, guildID, userID):
         """Add rank points between 0 and MAX_POINTS to the user"""
         try:
-            pointsToAdd = random.randint(0, self.settings["maxPoints"])
+            pointsToAdd = random.randint(0, self.settings[message.server.id]["maxPoints"])
         except:
             # Most likely key error, use default 25.
             pointsToAdd = random.randint(0, 25)
@@ -308,7 +308,7 @@ class Ranks_beta:
             
         try:
             # If the time does not exceed COOLDOWN, return and do nothing.
-            if (timestamp - self.lastspoke[message.server.id][message.author.id]["timestamp"] <= self.settings["cooldown"]):
+            if (timestamp - self.lastspoke[message.server.id][message.author.id]["timestamp"] <= self.settings[message.server.id]["cooldown"]):
                 return
             # Update last spoke time with new message time.
             self.lastspoke[message.server.id][message.author.id]["timestamp"] = timestamp
