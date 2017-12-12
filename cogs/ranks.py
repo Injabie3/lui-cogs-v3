@@ -68,16 +68,70 @@ class Ranks_beta:
     async def _ranks_check(self, ctx):
         """Check your rank in the server."""
         # Execute a MySQL query to order and check.
-        await self.bot.say("The function is currently blank.")
-        pass
+        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
+        cursor = db.cursor()
+        
+        # Using query code from:
+        # https://stackoverflow.com/questions/13566695/select-increment-counter-in-mysql
+        fetch = cursor.execute("SELECT * FROM (SELECT @rownum := @rownum + 1 as rank, userid, xp FROM renbot.xp cross join (select @rownum := 0) r WHERE guildid = {0} order by xp desc) as xpDescending WHERE userid = {1} order by xp desc".format(ctx.message.server.id, ctx.message.author.id))
+        
+        embed = discord.Embed()
+        
+        data = cursor.fetchone()
+        print(data)
+        rank = data[0]
+        userID = data[1]
+        xp = data[2]
+        
+        userObject = ctx.message.server.get_member(str(userID))
+        
+        embed.set_author(name=userObject.display_name, icon_url=userObject.avatar_url)
+        embed.colour = discord.Colour.red()
+        embed.add_field(name="Rank", value=int(rank))
+        embed.add_field(name="Level", value="Soon:tm:")
+        embed.add_field(name="Exp.", value=xp)
+        embed.set_footer(text="Note: This is a WIP, and this EXP is different from Mee6.")
+        
+        await self.bot.say(embed=embed)
+        
         
     # [p]ranks leaderboard
     @_ranks.command(name="leaderboard", pass_context=True, no_pm=True)
     async def _ranks_leaderboard(self, ctx):
         """Show the server ranking leaderboard"""
-        #Execute a MySQL query to order and check.
-        await self.bot.say("The function is currently blank.")
-        pass
+        # Execute a MySQL query to order and check.
+        
+        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
+        cursor = db.cursor()
+        fetch = cursor.execute("SELECT userid, xp FROM renbot.xp WHERE guildid = {0} order by xp desc limit 20".format(ctx.message.server.id))
+        
+        msg = ":information_source: **Ranks - Leaderboard (WIP)**\n```"
+        
+        rank = 1
+        for row in cursor.fetchall():
+            # row[0]: userID
+            # row[1]: xp
+            userID = row[0]
+            userObject = ctx.message.server.get_member(str(userID))
+            xp = row[1]
+            
+            # Lookup the ID against the guild
+            if userObject is None:
+                continue
+            
+            msg += str(rank).ljust(3)
+            msg += (str(userObject.display_name) + " ").ljust(23)
+            msg += str(xp).rjust(10) + "\n"
+            
+            rank += 1
+            if rank == 11:
+                break
+        
+        msg += "```"
+        await self.bot.say(msg)
+        cursor.close()
+        db.close()
+        
     
     #######################
     # COMMANDS - SETTINGS #
