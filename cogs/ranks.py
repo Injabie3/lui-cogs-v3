@@ -73,24 +73,34 @@ class Ranks_beta:
         
         # Using query code from:
         # https://stackoverflow.com/questions/13566695/select-increment-counter-in-mysql
-        fetch = cursor.execute("SELECT * FROM (SELECT @rownum := @rownum + 1 as rank, userid, xp FROM renbot.xp cross join (select @rownum := 0) r WHERE guildid = {0} order by xp desc) as xpDescending WHERE userid = {1} order by xp desc".format(ctx.message.server.id, ctx.message.author.id))
+        # This code is now included in the stored procedure in the database.
         
+        fetch = cursor.execute("CALL renbot.getUserInfo({0},{1})".format(ctx.message.server.id,ctx.message.author.id))
         embed = discord.Embed()
+        data = cursor.fetchone() # Data from the database.
         
-        data = cursor.fetchone()
-        print(data)
-        rank = data[0]
-        userID = data[1]
-        xp = data[2]
+        try:
+            print(data)
+            rank = data[0]
+            userID = data[1]
+            level = data[2]
+            levelXP = data[3]
+            currentXP = data[4]
+            totalXP = data[5]
+            currentLevelXP = (currentXP - totalXP)
+        except:
+            await self.bot.say("Something went wrong when checking your level.  Please notify the admin!")
+            return
+        
         
         userObject = ctx.message.server.get_member(str(userID))
         
         embed.set_author(name=userObject.display_name, icon_url=userObject.avatar_url)
         embed.colour = discord.Colour.red()
         embed.add_field(name="Rank", value=int(rank))
-        embed.add_field(name="Level", value="Soon:tm:")
-        embed.add_field(name="Exp.", value=xp)
-        embed.set_footer(text="Note: This is a WIP, and this EXP is different from Mee6.")
+        embed.add_field(name="Level", value=level)
+        embed.add_field(name="Exp.", value="{0}/{1} (total {2})".format(currentLevelXP, levelXP, currentXP))
+        embed.set_footer(text="Note: This EXP is different from Mee6.")
         
         await self.bot.say(embed=embed)
         
