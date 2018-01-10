@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3#1660",
+    "INSTALL_MSG" : "Heartbeat module installed!  Please let us know if you find improvements!",
+    "NAME" : "Heartbeat",
+    "SHORT" : "A loop that saves an empty file every 5 minutes.  Can be used with your favourite uptime checker.",
+    "DESCRIPTION" : "A heartbeat for the bot that allows you to check bot uptime externally if you are running it alongside a web server, using your favourite uptime checker (e.g. StatusCake).  To use on Linux, reference the timestamp.json file using PHP and compare it with a time.  Assign a HTTP code for up and down, and use this in your uptime checks."
+}
