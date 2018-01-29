@@ -1,10 +1,12 @@
 import discord
 import time # To auto remove birthday role on the next day.
+from .utils.paginator import Pages # For making pages, requires the util!
 from discord.ext import commands
 from __main__ import send_cmd_help
 from cogs.utils.dataIO import dataIO
 from threading import Lock
 import asyncio
+import datetime
 
 # Requires checks utility from:
 # https://github.com/Rapptz/RoboDanny/tree/master/cogs/utils
@@ -142,6 +144,80 @@ class Birthday_beta:
         
         return
           
+    @_birthday.command(name="set", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(administrator=True)
+    async def _birthdaySet(self, ctx, month: int, day: int, forUser: discord.Member = None):
+        """Set a user's birth date.  Defaults to you.  On the day, the bot will automatically add the user to the birthday role."""
+        if forUser is None:
+            forUser = ctx.message.author 
+   
+        # Check inputs here.
+        try:
+            userBirthday = datetime.datetime(2020, month, day)
+        except Exception as e:
+            await self.bot.say(":negative_squared_cross_mark: **Birthday - Set**: Please enter a valid birthday!")
+            return
+
+        # Check if server is initialized.
+        if ctx.message.server.id not in self.settings.keys():
+            await self.bot.say(":negative_squared_cross_mark: **Birthday - Set**: This server is not configured, please set a role!")
+            return
+        elif keyBirthdayRole not in self.settings[ctx.message.server.id].keys():
+            await self.bot.say(":negative_squared_cross_mark: **Birthday - Set**: Please notify the server admin to set a role before continuing!")
+            return
+        elif self.settings[ctx.message.server.id][keyBirthdayRole] is None:
+            await self.bot.say(":negative_squared_cross_mark: **Birthday - Set**: Please notify the server admin to set a role before continuing!")
+            return 
+        
+        # Save settings
+        self.settingsLock.acquire()
+        try:
+            self.loadSettings()
+            if ctx.message.server.id not in self.settings.keys():
+                self.settings[ctx.message.server.id] = {}
+            if keyBirthdayUsers not in self.settings[ctx.message.server.id].keys():
+                self.settings[ctx.message.server.id][keyBirthdayUsers] = {}
+            if forUser.id not in self.settings[ctx.message.server.id][keyBirthdayUsers].keys():
+                self.settings[ctx.message.server.id][keyBirthdayUsers][forUser.id] = {}
+            self.settings[ctx.message.server.id][keyBirthdayUsers][forUser.id][keyBirthdateMonth] = month
+            self.settings[ctx.message.server.id][keyBirthdayUsers][forUser.id][keyBirthdateDay] = day
+            
+            self.saveSettings()
+        except Exception as e:
+            print("Birthday Error:")
+            print(e)
+            await self.bot.say(":negative_squared_cross_mark: **Birthday - Set**: Could not save the birthday for **{0}** to the list.  Please try again!".format(forUser.name))
+        finally:
+            self.settingsLock.release()
+        messageID = await self.bot.say(":white_check_mark: **Birthday - Set**: Successfully set **{0}**'s birthday to **{1:%B} {1:%d}**.  The role will be assigned automatically on this day.".format(forUser.name,userBirthday))
+        
+        await asyncio.sleep(5)
+
+        await self.bot.edit_message(messageID, ":white_check_mark: **Birthday - Set**: Successfully set **{0}**'s birthday, and the role will be automatically assigned on the day.".format(forUser.name,userBirthday))
+
+        return
+    
+
+    @_birthday.command(name="list", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(administrator=True)
+    async def _birthdayList(self, ctx):
+        """Lists the birthdays of users."""
+        guild_id = ctx.message.server.id
+        guild_name = ctx.message.server.name
+        user = ctx.message.author
+
+        display = []
+        for user, items in self.settings[guild_id][keyBirthdayUsers].items():
+            if keyBirthdateDay in items.keys() and keyBirthdateMonth in items.keys():
+                userObject = discord.utils.get(ctx.message.server.members, id=user)
+                userBirthday = datetime.datetime(2020, items[keyBirthdateMonth], items[keyBirthdateDay])
+                text = "{0}: {1:%B} {1:%d}".format(userObject.name, userBirthday)
+                display.append(text)
+
+        p = Pages(self.bot,message=ctx.message,entries=display)
+        p.embed.title = "Birthdays in **{}**".format(guild_name)
+        p.embed.colour = discord.Colour.red()
+        await p.paginate()
         
         
     @_birthday.command(name="del", pass_context=True, no_pm=True)
@@ -237,10 +313,76 @@ class Birthday_beta:
                 self.settingsLock.release()
         # End while loop.
 
+    ##################################################################
+    # Event Loop - Check to see if we need to add people to the role #
+    ##################################################################
+    async def _dailyAdd(self):
+        while self == self.bot.get_cog("Birthday_beta"):
+            await asyncio.sleep(15*60)
+            self.settingsLock.acquire()
+            try: 
+                # Check each server.
+                for server in self.settings:
+                    # Check to see if any users need to be removed.
+                    for user in self.settings[server][keyBirthdayUsers]:
+                        # If today is the user's birthday, and the role is not assigned, assign the role.
+                        # Get the current user, and make it a local variable to easily manipulate.
+                        currentUser = self.settings[server][keyBirthdayUsers][user]
+
+                        # Check if the keys for birthdate day and month exist.
+                        if keyBirthdateDay in currentUser.keys() and keyBirthdateMonth in currentUser.keys():
+                            birthdayDay = currentUser[keyBirthdateDay]
+                            birthdayMonth = currentUser[keyBirthdateMonth]
+                            
+                            if birthdayMonth == int(time.strftime("%m")) and birthdayDay == int(time.strftime("%d")):
+                                # Get the necessary Discord objects.
+                                serverObject = discord.utils.get(self.bot.servers, id=server)
+                                roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
+                                userObject = discord.utils.get(serverObject.members, id=user)
+                                
+                                try:
+                                    if not currentUser[keyIsAssigned] and userObject is not None:
+                                        try:
+                                            await self.bot.add_roles(userObject, roleObject)
+                                            print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                            # Update the list.
+                                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
+                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
+                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
+                                            self.saveSettings() 
+                                        except discord.errors.Forbidden as e:
+                                            print("Birthday Error - Add Loop - Not Assigned If:")
+                                            print(e)
+                                except: # This key error will happen if the isAssigned key does not exist.
+                                    if userObject is not None:
+                                        try:
+                                            await self.bot.add_roles(userObject, roleObject)
+                                            print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                            # Update the list.
+                                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
+                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
+                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
+                                            self.saveSettings()  
+                                        except discord.errors.Forbidden as e:
+                                            print("Birthday Error - Add Loop - Non-existent isAssigned Key If:")
+                                            print(e)
+                                            
+                                # End try/except block for isAssigned key.
+                            # End if to check if today is the user's birthday.
+                        # End if to check for birthdateMonth and birthdateDay keys.
+                    # End user loop.
+                # End server loop.
+            except Exception as e:
+                print("Birthday Error - Add Loop:")
+                print(e)
+            finally:
+                self.settingsLock.release()
+
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
     checkFiles()    #Make sure we have settings!
     customCog = Birthday_beta(bot)
     bot.add_cog(customCog)
     bot.loop.create_task(customCog._dailySweep())
+    bot.loop.create_task(customCog._dailyAdd())
     
