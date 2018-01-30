@@ -202,20 +202,35 @@ class Birthday_beta:
     @checks.mod_or_permissions(administrator=True)
     async def _birthdayList(self, ctx):
         """Lists the birthdays of users."""
-        guild_id = ctx.message.server.id
-        guild_name = ctx.message.server.name
+        serverID = ctx.message.server.id
+        serverName = ctx.message.server.name
         user = ctx.message.author
 
-        display = []
-        for user, items in self.settings[guild_id][keyBirthdayUsers].items():
-            if keyBirthdateDay in items.keys() and keyBirthdateMonth in items.keys():
-                userObject = discord.utils.get(ctx.message.server.members, id=user)
-                userBirthday = datetime.datetime(2020, items[keyBirthdateMonth], items[keyBirthdateDay])
-                text = "{0}: {1:%B} {1:%d}".format(userObject.name, userBirthday)
-                display.append(text)
+        sortedList = [] # List to sort by month, day.
+        display = [] # List of text for paginator to use.  Will be constructed from sortedList.
+        
+        # Add only the users we care about (e.g. the ones that have birthdays set).
+        for user, items in self.settings[serverID][keyBirthdayUsers].items():
+            # Check if the birthdate keys exist, and they are not null.
+            # If true, add an ID key and append to list.
+            if keyBirthdateDay in items.keys() and keyBirthdateMonth in items.keys() and keyBirthdateDay is not None and keyBirthdateMonth is not None:
+                items["ID"] = user
+                sortedList.append(items)
+        
+        # Sort by month, day.
+        sortedList.sort(key=lambda x: (x[keyBirthdateMonth], x[keyBirthdateDay]))
+        
+        for user in sortedList:
+            # Get the associated user Discord object.
+            userObject = discord.utils.get(ctx.message.server.members, id=user["ID"])
+            
+            # The year below is just there to accommodate leap year.  Not used anywhere else.
+            userBirthday = datetime.datetime(2020, user[keyBirthdateMonth], user[keyBirthdateDay])
+            text = "{0:%B} {0:%d}: {1}".format(userBirthday, userObject.name)
+            display.append(text)
 
         p = Pages(self.bot,message=ctx.message,entries=display)
-        p.embed.title = "Birthdays in **{}**".format(guild_name)
+        p.embed.title = "Birthdays in **{}**".format(serverName)
         p.embed.colour = discord.Colour.red()
         await p.paginate()
         
@@ -288,26 +303,29 @@ class Birthday_beta:
                     # Check to see if any users need to be removed.
                     for user in self.settings[server][keyBirthdayUsers]:
                         # If assigned and the date is different than the date assigned, remove role.
-                        if self.settings[server][keyBirthdayUsers][user][keyIsAssigned]:
-                            if self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] != int(time.strftime("%m")) or self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] != int(time.strftime("%d")):
-                                serverObject = discord.utils.get(self.bot.servers, id=server)
-                                roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
-                                userObject = discord.utils.get(serverObject.members, id=user)
-                                
-                                # Remove the role
-                                try:
-                                    await self.bot.remove_roles(userObject, roleObject)
-                                    print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
-                                except discord.errors.Forbidden as e:
-                                    print("Birthday Error:")
-                                    print(e)
+                        try:
+                            if self.settings[server][keyBirthdayUsers][user][keyIsAssigned]:
+                                if self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] != int(time.strftime("%m")) or self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] != int(time.strftime("%d")):
+                                    serverObject = discord.utils.get(self.bot.servers, id=server)
+                                    roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
+                                    userObject = discord.utils.get(serverObject.members, id=user)
                                     
-                                # Update the list.
-                                self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
-                                self.saveSettings()                                   
-                                
+                                    # Remove the role
+                                    try:
+                                        await self.bot.remove_roles(userObject, roleObject)
+                                        print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                    except discord.errors.Forbidden as e:
+                                        print("Birthday Error - Sweep Loop - Removing Role:")
+                                        print(e)
+                                        
+                                    # Update the list.
+                                    self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
+                                    self.saveSettings()
+                        except:
+                            # This happens if the isAssigned key is non-existent.
+                            continue            
             except Exception as e:
-                print("Birthday Error:")
+                print("Birthday Error - Sweep Loop:")
                 print(e)
             finally:
                 self.settingsLock.release()
@@ -329,8 +347,8 @@ class Birthday_beta:
                         # Get the current user, and make it a local variable to easily manipulate.
                         currentUser = self.settings[server][keyBirthdayUsers][user]
 
-                        # Check if the keys for birthdate day and month exist.
-                        if keyBirthdateDay in currentUser.keys() and keyBirthdateMonth in currentUser.keys():
+                        # Check if the keys for birthdate day and month exist, and that they're not null
+                        if keyBirthdateDay in currentUser.keys() and keyBirthdateMonth in currentUser.keys() and currentUser[keyBirthdateDay] is not None and currentUser[keyBirthdateMonth] is not None:
                             birthdayDay = currentUser[keyBirthdateDay]
                             birthdayMonth = currentUser[keyBirthdateMonth]
                             
