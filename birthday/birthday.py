@@ -321,9 +321,15 @@ class Birthday_beta:
                                     # Update the list.
                                     self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
                                     self.saveSettings()
-                        except:
+                        except KeyError as e:
+                            print("Birthday Error - Sweep Loop: Assigning key.")
+                            print(e)
+                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
+                            self.saveSettings()
+                        except Exception as e:
                             # This happens if the isAssigned key is non-existent.
-                            continue            
+                            print("Birthday Error - Sweep Loop:")
+                            print(e)            
             except Exception as e:
                 print("Birthday Error - Sweep Loop:")
                 print(e)
