@@ -293,120 +293,125 @@ class Birthday_beta:
     ########################################
     # Event loop - Try an absolute timeout #
     ########################################
-    async def _dailySweep(self):
+    async def birthdayLoop(self):
         while self == self.bot.get_cog("Birthday_beta"):
-            await asyncio.sleep(15*60)
-            self.settingsLock.acquire()
-            try:
-                # Check each server.
-                for server in self.settings:
-                    # Check to see if any users need to be removed.
-                    for user in self.settings[server][keyBirthdayUsers]:
-                        # If assigned and the date is different than the date assigned, remove role.
-                        try:
-                            if self.settings[server][keyBirthdayUsers][user][keyIsAssigned]:
-                                if self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] != int(time.strftime("%m")) or self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] != int(time.strftime("%d")):
-                                    serverObject = discord.utils.get(self.bot.servers, id=server)
-                                    roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
-                                    userObject = discord.utils.get(serverObject.members, id=user)
+            await asyncio.sleep(7.5*60)
+            # print("Birthday: Performing daily sweep...")
+            await self._dailySweep()
+            # print("Birthday: Sleeping...")
+            await asyncio.sleep(7.5*60)
+            # print("Birthday: Performing daily add...")
+            await self._dailyAdd()
+            # print("Birthday: Sleeping...")
+            
+    async def _dailySweep(self):
+        self.settingsLock.acquire()
+        try:
+            # Check each server.
+            for server in self.settings:
+                # Check to see if any users need to be removed.
+                for user in self.settings[server][keyBirthdayUsers]:
+                    # If assigned and the date is different than the date assigned, remove role.
+                    try:
+                        if self.settings[server][keyBirthdayUsers][user][keyIsAssigned]:
+                            if self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] != int(time.strftime("%m")) or self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] != int(time.strftime("%d")):
+                                serverObject = discord.utils.get(self.bot.servers, id=server)
+                                roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
+                                userObject = discord.utils.get(serverObject.members, id=user)
+                                
+                                # Remove the role
+                                try:
+                                    await self.bot.remove_roles(userObject, roleObject)
+                                    print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                except discord.errors.Forbidden as e:
+                                    print("Birthday Error - Sweep Loop - Removing Role:")
+                                    print(e)
                                     
-                                    # Remove the role
-                                    try:
-                                        await self.bot.remove_roles(userObject, roleObject)
-                                        print("Birthday: Removing role from {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
-                                    except discord.errors.Forbidden as e:
-                                        print("Birthday Error - Sweep Loop - Removing Role:")
-                                        print(e)
-                                        
-                                    # Update the list.
-                                    self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
-                                    self.saveSettings()
-                        except KeyError as e:
-                            print("Birthday Error - Sweep Loop: Assigning key.")
-                            print(e)
-                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
-                            self.saveSettings()
-                        except Exception as e:
-                            # This happens if the isAssigned key is non-existent.
-                            print("Birthday Error - Sweep Loop:")
-                            print(e)            
-            except Exception as e:
-                print("Birthday Error - Sweep Loop:")
-                print(e)
-            finally:
-                self.settingsLock.release()
-        # End while loop.
+                                # Update the list.
+                                self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
+                                self.saveSettings()
+                    except KeyError as e:
+                        print("Birthday Error - Sweep Loop: Assigning key.")
+                        print(e)
+                        self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = False
+                        self.saveSettings()
+                    except Exception as e:
+                        # This happens if the isAssigned key is non-existent.
+                        print("Birthday Error - Sweep Loop:")
+                        print(e)            
+        except Exception as e:
+            print("Birthday Error - Sweep Loop:")
+            print(e)
+        finally:
+            self.settingsLock.release()
 
     ##################################################################
     # Event Loop - Check to see if we need to add people to the role #
     ##################################################################
     async def _dailyAdd(self):
-        while self == self.bot.get_cog("Birthday_beta"):
-            await asyncio.sleep(15*60)
-            self.settingsLock.acquire()
-            try: 
-                # Check each server.
-                for server in self.settings:
-                    # Check to see if any users need to be removed.
-                    for user in self.settings[server][keyBirthdayUsers]:
-                        # If today is the user's birthday, and the role is not assigned, assign the role.
-                        # Get the current user, and make it a local variable to easily manipulate.
-                        currentUser = self.settings[server][keyBirthdayUsers][user]
+        self.settingsLock.acquire()
+        try: 
+            # Check each server.
+            for server in self.settings:
+                # Check to see if any users need to be removed.
+                for user in self.settings[server][keyBirthdayUsers]:
+                    # If today is the user's birthday, and the role is not assigned, assign the role.
+                    # Get the current user, and make it a local variable to easily manipulate.
+                    currentUser = self.settings[server][keyBirthdayUsers][user]
 
-                        # Check if the keys for birthdate day and month exist, and that they're not null
-                        if keyBirthdateDay in currentUser.keys() and keyBirthdateMonth in currentUser.keys() and currentUser[keyBirthdateDay] is not None and currentUser[keyBirthdateMonth] is not None:
-                            birthdayDay = currentUser[keyBirthdateDay]
-                            birthdayMonth = currentUser[keyBirthdateMonth]
+                    # Check if the keys for birthdate day and month exist, and that they're not null
+                    if keyBirthdateDay in currentUser.keys() and keyBirthdateMonth in currentUser.keys() and currentUser[keyBirthdateDay] is not None and currentUser[keyBirthdateMonth] is not None:
+                        birthdayDay = currentUser[keyBirthdateDay]
+                        birthdayMonth = currentUser[keyBirthdateMonth]
+                        
+                        if birthdayMonth == int(time.strftime("%m")) and birthdayDay == int(time.strftime("%d")):
+                            # Get the necessary Discord objects.
+                            serverObject = discord.utils.get(self.bot.servers, id=server)
+                            roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
+                            userObject = discord.utils.get(serverObject.members, id=user)
                             
-                            if birthdayMonth == int(time.strftime("%m")) and birthdayDay == int(time.strftime("%d")):
-                                # Get the necessary Discord objects.
-                                serverObject = discord.utils.get(self.bot.servers, id=server)
-                                roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
-                                userObject = discord.utils.get(serverObject.members, id=user)
-                                
-                                try:
-                                    if not currentUser[keyIsAssigned] and userObject is not None:
-                                        try:
-                                            await self.bot.add_roles(userObject, roleObject)
-                                            print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
-                                            # Update the list.
-                                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
-                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
-                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
-                                            self.saveSettings() 
-                                        except discord.errors.Forbidden as e:
-                                            print("Birthday Error - Add Loop - Not Assigned If:")
-                                            print(e)
-                                except: # This key error will happen if the isAssigned key does not exist.
-                                    if userObject is not None:
-                                        try:
-                                            await self.bot.add_roles(userObject, roleObject)
-                                            print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
-                                            # Update the list.
-                                            self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
-                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
-                                            self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
-                                            self.saveSettings()  
-                                        except discord.errors.Forbidden as e:
-                                            print("Birthday Error - Add Loop - Non-existent isAssigned Key If:")
-                                            print(e)
-                                            
-                                # End try/except block for isAssigned key.
-                            # End if to check if today is the user's birthday.
-                        # End if to check for birthdateMonth and birthdateDay keys.
-                    # End user loop.
-                # End server loop.
-            except Exception as e:
-                print("Birthday Error - Add Loop:")
-                print(e)
-            finally:
-                self.settingsLock.release()
+                            try:
+                                if not currentUser[keyIsAssigned] and userObject is not None:
+                                    try:
+                                        await self.bot.add_roles(userObject, roleObject)
+                                        print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                        # Update the list.
+                                        self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
+                                        self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
+                                        self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
+                                        self.saveSettings() 
+                                    except discord.errors.Forbidden as e:
+                                        print("Birthday Error - Add Loop - Not Assigned If:")
+                                        print(e)
+                            except: # This key error will happen if the isAssigned key does not exist.
+                                if userObject is not None:
+                                    try:
+                                        await self.bot.add_roles(userObject, roleObject)
+                                        print("Birthday: Adding role to {}#{} ({})".format(userObject.name, userObject.discriminator, userObject.id))
+                                        # Update the list.
+                                        self.settings[server][keyBirthdayUsers][user][keyIsAssigned] = True
+                                        self.settings[server][keyBirthdayUsers][user][keyDateAssignedMonth] = int(time.strftime("%m"))
+                                        self.settings[server][keyBirthdayUsers][user][keyDateAssignedDay] = int(time.strftime("%d"))
+                                        self.saveSettings()  
+                                    except discord.errors.Forbidden as e:
+                                        print("Birthday Error - Add Loop - Non-existent isAssigned Key If:")
+                                        print(e)
+                                        
+                            # End try/except block for isAssigned key.
+                        # End if to check if today is the user's birthday.
+                    # End if to check for birthdateMonth and birthdateDay keys.
+                # End user loop.
+            # End server loop.
+        except Exception as e:
+            print("Birthday Error - Add Loop:")
+            print(e)
+        finally:
+            self.settingsLock.release()
 
 def setup(bot):
     checkFolder()   #Make sure the data folder exists!
     checkFiles()    #Make sure we have settings!
     customCog = Birthday_beta(bot)
     bot.add_cog(customCog)
-    bot.loop.create_task(customCog._dailySweep())
-    bot.loop.create_task(customCog._dailyAdd())
-    
+    bot.loop.create_task(customCog.birthdayLoop())
+    # bot.loop.create_task(customCog._dailyAdd())
