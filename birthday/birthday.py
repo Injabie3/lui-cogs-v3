@@ -224,6 +224,10 @@ class Birthday_beta:
             # Get the associated user Discord object.
             userObject = discord.utils.get(ctx.message.server.members, id=user["ID"])
             
+            # Skip if user is no longer in server.
+            if userObject is None:
+                continue
+                
             # The year below is just there to accommodate leap year.  Not used anywhere else.
             userBirthday = datetime.datetime(2020, user[keyBirthdateMonth], user[keyBirthdateDay])
             text = "{0:%B} {0:%d}: {1}".format(userBirthday, userObject.name)
@@ -370,6 +374,10 @@ class Birthday_beta:
                             roleObject = discord.utils.get(serverObject.roles, id=self.settings[server][keyBirthdayRole])
                             userObject = discord.utils.get(serverObject.members, id=user)
                             
+                            # Skip if user is no longer in server.
+                            if userObject is None:
+                                continue
+
                             try:
                                 if not currentUser[keyIsAssigned] and userObject is not None:
                                     try:
@@ -415,3 +423,4 @@ def setup(bot):
     bot.add_cog(customCog)
     bot.loop.create_task(customCog.birthdayLoop())
     # bot.loop.create_task(customCog._dailyAdd())
+    
