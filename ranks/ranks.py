@@ -54,60 +54,9 @@ class Ranks_beta:
     # COMMANDS #
     ############
     
-    @commands.group(name="ranks", pass_context=True, no_pm=True)
-    async def _ranks(self, ctx):
-        """
-        Mee6-inspired guild rank management system. WIP
-        """
-        # Display the help context menu
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
-    
-    # [p]ranks check
-    @_ranks.command(name="check", pass_context=True, no_pm=True)
-    async def _ranks_check(self, ctx):
-        """Check your rank in the server."""
-        # Execute a MySQL query to order and check.
-        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
-        cursor = db.cursor()
-        
-        # Using query code from:
-        # https://stackoverflow.com/questions/13566695/select-increment-counter-in-mysql
-        # This code is now included in the stored procedure in the database.
-        
-        fetch = cursor.execute("CALL renbot.getUserInfo({0},{1})".format(ctx.message.server.id,ctx.message.author.id))
-        embed = discord.Embed()
-        data = cursor.fetchone() # Data from the database.
-        
-        try:
-            print(data)
-            rank = data[0]
-            userID = data[1]
-            level = data[2]
-            levelXP = data[3]
-            currentXP = data[4]
-            totalXP = data[5]
-            currentLevelXP = (currentXP - totalXP)
-        except:
-            await self.bot.say("Something went wrong when checking your level.  Please notify the admin!")
-            return
-        
-        
-        userObject = ctx.message.server.get_member(str(userID))
-        
-        embed.set_author(name=userObject.display_name, icon_url=userObject.avatar_url)
-        embed.colour = discord.Colour.red()
-        embed.add_field(name="Rank", value=int(rank))
-        embed.add_field(name="Level", value=level)
-        embed.add_field(name="Exp.", value="{0}/{1} (total {2})".format(currentLevelXP, levelXP, currentXP))
-        embed.set_footer(text="Note: This EXP is different from Mee6.")
-        
-        await self.bot.say(embed=embed)
-        
-        
-    # [p]ranks leaderboard
-    @_ranks.command(name="leaderboard", pass_context=True, no_pm=True)
-    async def _ranks_leaderboard(self, ctx):
+    # [p]levels
+    @commands.command(name="levels", pass_context=True, no_pm=True)
+    async def _ranks_levels(self, ctx):
         """Show the server ranking leaderboard"""
         # Execute a MySQL query to order and check.
         
@@ -137,10 +86,66 @@ class Ranks_beta:
             if rank == 11:
                 break
         
-        msg += "```"
+        msg += "```\n Full rankings at https://ren.injabie3.moe/ranks/"
         await self.bot.say(msg)
         cursor.close()
         db.close()
+
+    # [p]rank
+    @commands.command(name="rank", pass_context=True, no_pm=True)
+    async def _ranks_check(self, ctx, ofUser: discord.Member=None):
+        """Check your rank in the server."""
+        if ofUser is None:
+            ofUser = ctx.message.author
+            
+        # Execute a MySQL query to order and check.
+        db = MySQLdb.connect(host=self.settings["mysql_host"],user=self.settings["mysql_username"],passwd=self.settings["mysql_password"])
+        cursor = db.cursor()
+        
+        # Using query code from:
+        # https://stackoverflow.com/questions/13566695/select-increment-counter-in-mysql
+        # This code is now included in the stored procedure in the database.
+        
+        fetch = cursor.execute("CALL renbot.getUserInfo({0},{1})".format(ctx.message.server.id,ofUser.id))
+        embed = discord.Embed()
+        data = cursor.fetchone() # Data from the database.
+        
+        try:
+            print(data)
+            rank = data[0]
+            userID = data[1]
+            level = data[2]
+            levelXP = data[3]
+            currentXP = data[4]
+            totalXP = data[5]
+            currentLevelXP = (currentXP - totalXP)
+        except:
+            await self.bot.say("Something went wrong when checking your level.  Please notify the admin!")
+            db.close()
+            return
+        
+        
+        userObject = ctx.message.server.get_member(str(userID))
+        
+        embed.set_author(name=userObject.display_name, icon_url=userObject.avatar_url)
+        embed.colour = discord.Colour.red()
+        embed.add_field(name="Rank", value=int(rank))
+        embed.add_field(name="Level", value=level)
+        embed.add_field(name="Exp.", value="{0}/{1} (total {2})".format(currentLevelXP, levelXP, currentXP))
+        embed.set_footer(text="Note: This EXP is different from Mee6.")
+        
+        await self.bot.say(embed=embed)
+        db.close()
+    
+    @commands.group(name="ranks", pass_context=True, no_pm=True)
+    async def _ranks(self, ctx):
+        """
+        Mee6-inspired guild rank management system. WIP
+        """
+        # Display the help context menu
+        if ctx.invoked_subcommand is None:
+            await send_cmd_help(ctx)
+    
         
     
     #######################
@@ -153,7 +158,7 @@ class Ranks_beta:
     @checks.serverowner()
     async def _settings(self, ctx):
         """Ranking system settings.  Only server admins should see this."""
-        if ctx.invoked_subcommand is None:
+        if str(ctx.invoked_subcommand).lower() == "ranks settings":
             await send_cmd_help(ctx)
             
     
