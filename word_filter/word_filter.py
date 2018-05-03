@@ -70,7 +70,7 @@ class WordFilter(object):
         finally:
             self.lock_settings.release()
             
-    @commands.group(name="word_filter", pass_context=True, no_pm=True)
+    @commands.group(name="word_filter", pass_context=True, no_pm=True, aliases=["wf"])
     @checks.mod_or_permissions(manage_messages=True)
     async def word_filter(self, ctx):
         """Smart word filtering"""
@@ -101,7 +101,7 @@ class WordFilter(object):
     @word_filter.command(name="remove", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def remove_filter(self, ctx, word: str):
-        """Remove word  from filter"""
+        """Remove word from filter"""
         guild_id = ctx.message.server.id
         user = ctx.message.author
         guild_name = ctx.message.server.name
@@ -173,10 +173,20 @@ class WordFilter(object):
             await self.bot.say(":negative_squared_cross_mark: Word Filter: Moderators (and higher) **will be** filtered.")
         
         self._update_settings(self.settings)
-
-    @word_filter.command(name="wladd", pass_context=True, no_pm=True)
+        
+    ############################################
+    # COMMANDS - CHANNEL WHITELISTING SETTINGS #
+    ############################################
+    @word_filter.group(name="whitelist", pass_context=True, no_pm=True, aliases=["wl"])
     @checks.mod_or_permissions(manage_messages=True)
-    async def add_whitelist(self, ctx, channel_name: str):
+    async def _whitelist(self, ctx):
+        """Channel whitelisting settings."""
+        if str(ctx.invoked_subcommand).lower() == "word_filter whitelist":
+            await send_cmd_help(ctx)
+    
+    @_whitelist.command(name="add", pass_context=True, no_pm=True)
+    @checks.mod_or_permissions(manage_messages=True)
+    async def _whitelist_add(self, ctx, channel_name: str):
         """
         Add channel to whitelist.
         All messages in the channel will not be filtered.
@@ -198,9 +208,9 @@ class WordFilter(object):
         else:
             await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel `{0}` is already whitelisted.".format(channel_name))
         
-    @word_filter.command(name="wlremove", pass_context=True, no_pm=True)
+    @_whitelist.command(name="remove", pass_context=True, no_pm=True, aliases=["delete"])
     @checks.mod_or_permissions(manage_messages=True)
-    async def remove_whitelist(self, ctx, channel_name: str):
+    async def _whitelist_remove(self, ctx, channel_name: str):
         """
         Remove channel from whitelist
         All messages in the removed channel will be subjected to the filter.
@@ -221,9 +231,9 @@ class WordFilter(object):
             self._update_whitelist(self.whitelist)
             await self.bot.say(":white_check_mark: Word Filter: `{0}` removed from the channel whitelist.".format(channel_name))
     
-    @word_filter.command(name="wllist", pass_context=True, no_pm=True)
+    @_whitelist.command(name="list", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
-    async def list_whitelist(self, ctx):
+    async def _whitelist_list(self, ctx):
         """List whitelisted channels. NOTE: do this in a channel outside of the viewing public"""
         guild_id = ctx.message.server.id
         guild_name = ctx.message.server.name
