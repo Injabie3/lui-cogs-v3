@@ -11,9 +11,9 @@ import itertools
 import re
 
 """
-Cog Purpose: 
+Cog Purpose:
     - To dm a user certain "highlight" words that they specify
-Credit: 
+Credit:
     - This idea was first implemented by Danny (https://github.com/Rapptz/) but that bot is currently closed source.
     So this is my own subpar implementation of the highlight bot :D
 """
@@ -25,7 +25,7 @@ def check_filesystem():
         if not os.path.exists(folder):
             print("Highlight: Creating folder: {} ...".format(folder))
             os.makedirs(folder)
-            
+
     files = ["data/highlight/words.json"]
     for file in files:
         if not os.path.exists(file):
@@ -34,15 +34,15 @@ def check_filesystem():
                 dict = {}
                 dict['guilds'] = []
                 dataIO.save_json("data/highlight/words.json",dict)
-                
+
             print("Highlight: Creating file: {} ...".format(file))
-            
+
 class Highlight(object):
     def __init__(self, bot):
         self.bot = bot
         self.lock = Lock()
         self.highlights = dataIO.load_json("data/highlight/words.json")
-    
+
     def _update_highlights(self, new_obj):
         self.lock.acquire()
         try:
@@ -50,19 +50,19 @@ class Highlight(object):
             self.highlights = dataIO.load_json("data/highlight/words.json")
         finally:
             self.lock.release()
-    
+
     async def _sleep_then_delete(self, msg, time):
         await asyncio.sleep(time)
         await self.bot.delete_message(msg)
-    
+
     def _get_guild_ids(self):
         guilds = [list(x) for x in self.highlights['guilds']]
         return list(itertools.chain.from_iterable(guilds)) # flatten list
-    
+
     def _check_guilds(self, guild_id):
         """returns guild pos in list"""
         guilds_ids = self._get_guild_ids()
-        
+
         if guild_id not in guilds_ids:
             new_guild = {}
             users = {}
@@ -70,33 +70,33 @@ class Highlight(object):
             new_guild[guild_id] = users
             self.highlights['guilds'].append(new_guild)
             self._update_highlights(self.highlights)
-            
+
         return next(x for (x,d) in enumerate(self.highlights['guilds']) if guild_id in d)
-    
+
     def _is_registered(self, guild_idx, guild_id, user_id):
         users = self.highlights['guilds'][guild_idx][guild_id]['users']
 
         for user in users:
-            if user_id == user['id']:   
+            if user_id == user['id']:
                 return [next(index for (index, d) in enumerate(users) if d["id"] == user['id']), user]
         return None
-    
+
     @commands.group(name="highlight", pass_context=True, no_pm=True)
     async def highlight(self, ctx):
         """Slack-like feature to be notified based on specific words outside of at-mentions"""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
-        
+
     @highlight.command(name="add", pass_context=True, no_pm=True)
     async def add_highlight(self, ctx, word: str):
         """Add a word to be highlighted in the current guild"""
         guild_id = ctx.message.server.id
         user_id = ctx.message.author.id
         user_name = ctx.message.author.name
-        
+
         guild_idx = self._check_guilds(guild_id)
         user = self._is_registered(guild_idx,guild_id,user_id)
-        
+
         if user is not None:
             user_idx = user[0]
             user_add = user[1]
@@ -119,19 +119,19 @@ class Highlight(object):
             self._update_highlights(self.highlights)
             t_msg = await self.bot.say("Registered and highlight word added, {}".format(user_name))
             await self._sleep_then_delete(t_msg,2)
-            
+
         await self.bot.delete_message(ctx.message)
-        
+
     @highlight.command(name="remove", pass_context=True, no_pm=True)
     async def remove_highlight(self, ctx, word: str):
         """Remove a highlighted word in the current guild"""
         guild_id = ctx.message.server.id
         user_id = ctx.message.author.id
         user_name = ctx.message.author.name
-        
+
         guild_idx = self._check_guilds(guild_id)
         user = self._is_registered(guild_idx,guild_id,user_id)
-        
+
         if user is not None:
             user_idx = user[0]
             user_rm = user[1]
@@ -149,19 +149,19 @@ class Highlight(object):
             msg += " Add a word to become registered"
             t_msg = await self.bot.say(msg.format(user_name))
             await self._sleep_then_delete(t_msg,5)
-            
+
         await self.bot.delete_message(ctx.message)
-        
+
     @highlight.command(name="list", pass_context=True, no_pm=True)
     async def list_highlight(self, ctx):
         """List your highighted words for the current guild"""
         guild_id = ctx.message.server.id
         user_id = ctx.message.author.id
         user_name = ctx.message.author.name
-        
+
         guild_idx = self._check_guilds(guild_id)
         user = self._is_registered(guild_idx,guild_id,user_id)
-        
+
         if user is not None:
             user_list = user[1]
             if len(user_list['words']) > 0:
@@ -169,7 +169,7 @@ class Highlight(object):
                 for word in user_list['words']:
                     msg += word
                     msg += "\n"
-                    
+
                 embed = discord.Embed(description=msg,colour=discord.Colour.red())
                 embed.set_author(name=ctx.message.author.name,icon_url=ctx.message.author.avatar_url)
                 t_msg = await self.bot.say(embed=embed)
@@ -182,19 +182,19 @@ class Highlight(object):
             msg += " Add a word to become registered"
             t_msg = await self.bot.say(msg.format(user_name))
             await self._sleep_then_delete(t_msg,5)
-            
+
     @highlight.command(name="import", pass_context=True, no_pm=False)
     async def import_highlight(self, ctx, from_server: str):
         """Transfer highlights from a different guild to the current guild, OVERWRITING any words in the current guild"""
         guild_id = ctx.message.server.id
         user_id = ctx.message.author.id
         user_name = ctx.message.author.name
-        
+
         guild_idx = self._check_guilds(guild_id)
         user = self._is_registered(guild_idx,guild_id,user_id)
-        
+
         guild = discord.utils.get(self.bot.servers, name=from_server)
-        
+
         # This is kind of ugly, dont really like it but kind of has to be done like this based on how i have
         # the highlight data structured, will definitely be revisting this
         if guild is not None and user is not None:
@@ -202,7 +202,7 @@ class Highlight(object):
             if guild.id in self._get_guild_ids():
                 impt_guild_idx = self._check_guilds(guild.id)
                 impt_user = self._is_registered(impt_guild_idx,guild.id,user_id)
-                
+
                 if impt_user is not None:
                     impt_user_idx = impt_user[0]
                     impt = self.highlights['guilds'][impt_guild_idx][guild.id]['users'][impt_user_idx]
@@ -220,7 +220,7 @@ class Highlight(object):
             msg += " or you are not registered in this guild"
             t_msg = await self.bot.say(msg.format(user_name))
             await self._sleep_then_delete(t_msg,5)
-    
+
     async def check_highlights(self, msg):
         if isinstance(msg.channel,discord.PrivateChannel):
             return
@@ -229,13 +229,13 @@ class Highlight(object):
         user_id = msg.author.id
         user_name = msg.author.name
         user_obj = msg.author
-        
+
         guild_idx = self._check_guilds(guild_id)
-        
+
         # Prevent bots from triggering your highlight word.
         if user_obj.bot:
             return
-        
+
         # iterate through every users words on the server, and notify all highlights
         for user in self.highlights['guilds'][guild_idx][guild_id]['users']:
             for word in user['words']:
@@ -250,7 +250,7 @@ class Highlight(object):
                     if not perms.read_messages:
                         break
                     await self._notify_user(hilite_user,msg,word)
-                    
+
     async def _notify_user(self, user, message, word):
         await asyncio.sleep(3) # possibly pick up messages after trigger that will help with the context
         msgs = []
@@ -259,30 +259,35 @@ class Highlight(object):
         msg_ctx = sorted(msgs, key=lambda r: r.timestamp)
         notify_msg = "In {1.channel.mention}, you were mentioned with highlight word **{0}**:\n".format(word,message)
         embed_msg = ""
+        msg_still_there = false
         for msg in msg_ctx:
             time = msg.timestamp
             time = time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime('%H:%M:%S %Z')
             embed_msg += "[{0}] {1.author.name}#{1.author.discriminator}: {1.content}\n".format(time,msg)
+            if _is_word_match(word, msg):
+                msg_still_there = true
+        if not msg_still_there:
+            return
         embed = discord.Embed(title=user.name,description=embed_msg,colour=discord.Colour.red())
         time = message.timestamp.replace(tzinfo=timezone.utc).astimezone(tz=None)
         footer = "Triggered at | {}".format(time.strftime('%a, %d %b %Y %I:%M%p %Z'))
         embed.set_footer(text=footer)
         await self.bot.send_message(user,content=notify_msg,embed=embed)
-        
+
     def _is_word_match(self, word, string):
         regex = r'\b{}\b'.format(word.lower())
         return bool(re.search(regex,string.lower()))
-        
+
     async def _is_active(self, user_id, channel, message):
         is_active = False
-        
+
         async for msg in self.bot.logs_from(channel,limit=50,before=message):
             delta_since_msg = message.timestamp - msg.timestamp
             if msg.author.id == user_id and delta_since_msg <= timedelta(seconds=20):
                 is_active = True
                 break
         return is_active
-    
+
 def setup(bot):
     check_filesystem()
     hilite = Highlight(bot)
