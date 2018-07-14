@@ -259,13 +259,13 @@ class Highlight(object):
         msg_ctx = sorted(msgs, key=lambda r: r.timestamp)
         notify_msg = "In {1.channel.mention}, you were mentioned with highlight word **{0}**:\n".format(word,message)
         embed_msg = ""
-        msg_still_there = false
+        msg_still_there = False
         for msg in msg_ctx:
             time = msg.timestamp
             time = time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime('%H:%M:%S %Z')
             embed_msg += "[{0}] {1.author.name}#{1.author.discriminator}: {1.content}\n".format(time,msg)
-            if _is_word_match(word, msg):
-                msg_still_there = true
+            if self._is_word_match(word, msg.content):
+                msg_still_there = True
         if not msg_still_there:
             return
         embed = discord.Embed(title=user.name,description=embed_msg,colour=discord.Colour.red())
