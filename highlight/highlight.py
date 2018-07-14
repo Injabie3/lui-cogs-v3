@@ -275,8 +275,12 @@ class Highlight(object):
         await self.bot.send_message(user,content=notify_msg,embed=embed)
 
     def _is_word_match(self, word, string):
-        regex = r'\b{}\b'.format(word.lower())
-        return bool(re.search(regex,string.lower()))
+        try:
+            regex = r'\b{}\b'.format(re.escape(word.lower()))
+            return bool(re.search(regex,string.lower()))
+        except Exception as e:
+            print("Highlight error: Using the word \"{}\"".format(word))
+            print(e)
 
     async def _is_active(self, user_id, channel, message):
         is_active = False
