@@ -84,9 +84,14 @@ class RoleAssigner:
         await self.bot.say( msg )
 
     @_roleAssigner.command( name="assign", pass_context=True )
-    async def _rA_assign( self, ctx ):
-        """Randomly assign roles to users."""
+    async def _rA_assign( self, ctx, role : discord.Role=None ):
+        """
+        Randomly assign roles to users.
+        Optionally apply to a subset of users with a certain role.
+        """
         users = ctx.message.server.members
+        if role:
+            users = [ user for user in users if role in user.roles ]
         numberOfRoles = len( self.roles )
 
         msgId = await self.bot.say( ":hourglass: **Role Assigner - Assign:** "
@@ -101,14 +106,15 @@ class RoleAssigner:
         for index, user in enumerate( users ):
             await self.bot.add_roles( user, roles[ index % numberOfRoles ] )
         await self.bot.edit_message( msgId, ":white_check_mark: **Role Assigner - "
-                                     "Assign:** Roles Assigned" )
+                                     "Assign:** Roles assigned." )
     
     @_roleAssigner.command( name="unassign", pass_context=True )
-    async def _rA_unassign( self, ctx ):
+    async def _rA_unassign( self, ctx, role : discord.Role=None ):
         """Remove roles on the list from ALL users"""
         users = ctx.message.server.members
-        numberOfRoles = len( self.roles )
-        
+        if role:
+            users = [ user for user in users if role in user.roles ]
+
         msgId = await self.bot.say( ":hourglass: **Role Assigner - Unassign:** "
                                     "Unassigning roles, please wait..." )
 
