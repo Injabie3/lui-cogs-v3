@@ -105,8 +105,12 @@ class RoleAssigner:
 
         for index, user in enumerate( users ):
             await self.bot.add_roles( user, roles[ index % numberOfRoles ] )
-        await self.bot.edit_message( msgId, ":white_check_mark: **Role Assigner - "
-                                     "Assign:** Roles assigned." )
+        msg = ":white_check_mark: **Role Assigner - Assign:** Roles assigned"
+        if role:
+            msg += " to users with the {} role.".format( role.name )
+        else:
+            msg += "."
+        await self.bot.edit_message( msgId, msg )
     
     @_roleAssigner.command( name="unassign", pass_context=True )
     async def _rA_unassign( self, ctx, role : discord.Role=None ):
@@ -124,11 +128,15 @@ class RoleAssigner:
             roleObject = discord.utils.get( roleList, id=roleId )
             roles.append( roleObject )
 
-        for user, role in itertools.product( users, roles ):
-            if role in user.roles:
-                await self.bot.remove_roles( user, role )
-        await self.bot.edit_message( msgId, ":white_check_mark: **Role Assigner - "
-                                     "Unassign:** Roles removed." )
+        for userObject, roleObject in itertools.product( users, roles ):
+            if roleObject in userObject.roles:
+                await self.bot.remove_roles( userObject, roleObject )
+        msg = ":white_check_mark: **Role Assigner - Unassign:** Roles removed"
+        if role:
+            msg += " from users with the {} role.".format( role.name )
+        else:
+            msg += "."
+        await self.bot.edit_message( msgId, msg )
 
 def setup( bot ):
     checkFolder()
