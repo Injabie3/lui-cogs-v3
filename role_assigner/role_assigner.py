@@ -3,7 +3,7 @@ from discord.ext import commands
 from __main__ import send_cmd_help
 import asyncio
 import os # Used to create folder path.
-from .utils import config, checks, formats 
+from .utils import config, checks, formats
 import itertools
 
 saveFolder = "data/lui-cogs/roleAssigner"
@@ -16,7 +16,7 @@ def checkFolder():
 
 class RoleAssigner:
     """Randomly assign roles to users."""
- 
+
     def __init__(self, bot):
         self.bot = bot
         self.config = config.Config( "settings.json",
@@ -34,7 +34,7 @@ class RoleAssigner:
     @_roleAssigner.command( name="add", pass_context=True )
     async def _rA_add( self, context, roleName : discord.Role ):
         """Add a role to be randomly assigned."""
-        
+
         if not self.roles:
             roles = []
         elif roleName.id in self.roles:
@@ -64,12 +64,10 @@ class RoleAssigner:
         await self.config.put( "roles", self.roles )
         await self.bot.say( ":white_check_mark: **Role Assigner - Remove:** "
                             "Role removed." )
-        
-
 
     @_roleAssigner.command( name="list", pass_context=True )
     async def _rA_list( self, ctx ):
-        """List roles for random assignment.""" 
+        """List roles for random assignment."""
         msg = ":information_source: **Role Assigner - List:** One of the " \
               "following roles will be assigned to each user:\n"
         if not self.roles:
@@ -111,7 +109,7 @@ class RoleAssigner:
         else:
             msg += "."
         await self.bot.edit_message( msgId, msg )
-    
+
     @_roleAssigner.command( name="unassign", pass_context=True )
     async def _rA_unassign( self, ctx, role : discord.Role=None ):
         """Remove roles on the list from ALL users"""
