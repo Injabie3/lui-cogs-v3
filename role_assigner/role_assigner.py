@@ -3,13 +3,12 @@ Role Assigner cog.
 Randomly assigns roles to users.
 """
 
+import os # Used to create folder path.
+import itertools
 import discord
 from discord.ext import commands
 from __main__ import send_cmd_help # pylint: disable=no-name-in-module
-import asyncio
-import os # Used to create folder path.
-from .utils import config, checks, formats
-import itertools
+from .utils import config, checks # pylint: disable=relative-beyond-top-level
 
 SAVE_FOLDER = "data/lui-cogs/roleAssigner"
 
@@ -31,17 +30,17 @@ class RoleAssigner:
     @checks.mod_or_permissions(manage_messages=True)
     @commands.group(name="roleassigner", aliases=["ra"], pass_context=True,
                     no_pm=True)
-    async def _roleAssigner(self, ctx):
+    async def roleAssigner(self, ctx):
         """Role assigner, one role per user from a list of roles."""
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    @_roleAssigner.command(name="add", pass_context=True)
-    async def _rA_add(self, context, roleName: discord.Role):
+    @roleAssigner.command(name="add", pass_context=False)
+    async def raAdd(self, roleName: discord.Role):
         """Add a role to be randomly assigned."""
 
         if not self.roles:
-            roles = []
+            self.roles = []
         elif roleName.id in self.roles:
             await self.bot.say(":warning: **Role Assigner - Add:** The role "
                                "already exists in the list!")
@@ -52,11 +51,11 @@ class RoleAssigner:
         await self.bot.say(":white_check_mark: **Role Assigner - Add:** Role "
                            "added")
 
-    @_roleAssigner.command(name="remove", pass_context=True,
-                           aliases=["del", "rm"])
-    async def _rA_remove(self, context, roleName: discord.Role):
+    @roleAssigner.command(name="remove", pass_context=False,
+                          aliases=["del", "rm"])
+    async def raRemove(self, roleName: discord.Role):
         """Remove a role to be randomly assigned."""
-        if not self.roles:
+        if not self.roles: # pylint: disable=no-else-return
             await self.bot.say(":warning: **Role Assigner - Remove:** There are "
                                "no roles on the list.  Please add one first!")
             return
@@ -70,8 +69,8 @@ class RoleAssigner:
         await self.bot.say(":white_check_mark: **Role Assigner - Remove:** "
                            "Role removed.")
 
-    @_roleAssigner.command(name="list", pass_context=True)
-    async def _rA_list(self, ctx):
+    @roleAssigner.command(name="list", pass_context=True)
+    async def raList(self, ctx):
         """List roles for random assignment."""
         msg = ":information_source: **Role Assigner - List:** One of the " \
               "following roles will be assigned to each user:\n"
@@ -86,8 +85,8 @@ class RoleAssigner:
         msg += "```"
         await self.bot.say(msg)
 
-    @_roleAssigner.command(name="assign", pass_context=True)
-    async def _rA_assign(self, ctx, role: discord.Role = None):
+    @roleAssigner.command(name="assign", pass_context=True)
+    async def raAssign(self, ctx, role: discord.Role = None):
         """
         Randomly assign roles to users.
         Optionally apply to a subset of users with a certain role.
@@ -115,8 +114,8 @@ class RoleAssigner:
             msg += "."
         await self.bot.edit_message(msgId, msg)
 
-    @_roleAssigner.command(name="unassign", pass_context=True)
-    async def _rA_unassign(self, ctx, role: discord.Role = None):
+    @roleAssigner.command(name="unassign", pass_context=True)
+    async def raUnassign(self, ctx, role: discord.Role = None):
         """Remove roles on the list from ALL users"""
         users = ctx.message.server.members
         if role:
@@ -142,5 +141,6 @@ class RoleAssigner:
         await self.bot.edit_message(msgId, msg)
 
 def setup(bot):
+    """Add the cog to the bot."""
     checkFolder()
     bot.add_cog(RoleAssigner(bot))
