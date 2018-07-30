@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "Injabie3#1660",
-    "INSTALL_MSG" : "The roleAssigner module was installed.  Please run [p]ra for details.",
+    "INSTALL_MSG" : "The role assigner cog was installed.  Please run [p]ra for details.",
     "NAME" : "RoleAssigner",
     "SHORT" : "Role assigner: assign one role from a list of roles to all users.",
     "DESCRIPTION" : "Role assigner: assign one role from a list of roles to all users.  Useful if you have seasonal roles in which you want to assign different colours to different users."
