@@ -10,7 +10,6 @@ import asyncio
 import aiohttp
 import feedparser
 from datetime import datetime
-from urllib import parse
 from bs4 import BeautifulSoup
 
 """
@@ -178,7 +177,7 @@ class RSSFeed(object):
                 embed.url = item['link']
                 
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(item['link']) as resp:
+                    async with session.get(item['link'].replace(' ', '%20')) as resp:
                         page = await resp.text()
                 
                 soup = BeautifulSoup(page, "html.parser")
