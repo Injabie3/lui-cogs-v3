@@ -227,7 +227,6 @@ class Highlight(object):
 
         guild_id = msg.server.id
         user_id = msg.author.id
-        user_name = msg.author.name
         user_obj = msg.author
 
         guild_idx = self._check_guilds(guild_id)
@@ -236,6 +235,7 @@ class Highlight(object):
         if user_obj.bot:
             return
 
+        tasks = []
         # iterate through every users words on the server, and notify all highlights
         for user in self.highlights['guilds'][guild_idx][guild_id]['users']:
             for word in user['words']:
@@ -249,7 +249,9 @@ class Highlight(object):
                     perms = msg.channel.permissions_for(hilite_user)
                     if not perms.read_messages:
                         break
-                    await self._notify_user(hilite_user,msg,word)
+                    tasks.append(self._notify_user(hilite_user,msg,word))
+
+        await asyncio.gather(*tasks)
 
     async def _notify_user(self, user, message, word):
         await asyncio.sleep(3) # possibly pick up messages after trigger that will help with the context
