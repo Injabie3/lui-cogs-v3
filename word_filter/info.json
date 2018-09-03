@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "sedruk#7348, Injabie3#1660",
+    "INSTALL_MSG" : "The word_filter module was installed. Run [p]wf to see the commands.",
+    "NAME" : "WordFilter",
+    "SHORT" : "A word filter cog, for all your word filtering needs.",
+    "DESCRIPTION" : "A powerful word filter cog that uses regex to filter out messages, and tells people that they are filtered.  Also replaces the message with asterisks in place of filtered out words."
+}
