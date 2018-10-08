@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3#1660",
+    "INSTALL_MSG" : "The spoilers module was installed. You can use it by doing `[p]spoiler <message>`",
+    "NAME" : "Spoilers",
+    "SHORT" : "Emulates the spoiler tag seen in forums.",
+    "DESCRIPTION" : "Emulates the spoiler tag seen in forums by saving the message, deleting it, and posting a reactable message that will DM users the message contents upon adding a reaction."
+}
