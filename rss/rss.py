@@ -110,7 +110,7 @@ def _getFeed(rssUrl, channel, index=None):
     dataIO.save_json("data/rss/feeds.json", feeds)
 
     # Heartbeat
-    dataIO.save_json("data/rss/timestamp.json","{}")
+    dataIO.save_json("data/rss/timestamp.json", "{}")
 
     return news
 
