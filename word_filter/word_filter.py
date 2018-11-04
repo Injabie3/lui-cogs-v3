@@ -328,7 +328,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
 
     @_whitelist.command(name="add", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
-    async def _whitelistAdd(self, ctx, channelName: str):
+    async def _whitelistAdd(self, ctx, channelName):
         """Add channel to whitelist.
         All messages in the channel will not be filtered.
         """
@@ -339,6 +339,13 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             myDict[guildId] = []
             self.whitelist.update(myDict)
             self._updateWhitelist()
+
+        pattern = r'<#(\d+)>'
+        match = re.search(pattern, channelName)
+        if match: # channel ID
+            for channel in ctx.message.server.channels:
+                if match.group(1) == channel.id:
+                    channelName = channel.name
 
         if channelName not in self.whitelist[guildId]:
             self.whitelist[guildId].append(channelName)
