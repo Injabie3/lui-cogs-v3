@@ -343,9 +343,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         pattern = r'<#(\d+)>'
         match = re.search(pattern, channelName)
         if match: # channel ID
-            for channel in ctx.message.server.channels:
-                if match.group(1) == channel.id:
-                    channelName = channel.name
+            channel = discord.utils.get(ctx.message.server.channels, id=match.group(1))
+            channelName = channel.name
 
         if channelName not in self.whitelist[guildId]:
             self.whitelist[guildId].append(channelName)
