@@ -156,7 +156,8 @@ class RoleAssigner:
 
     @roleAssigner.command(name="random", pass_context=True)
     async def raRandom(self, ctx, fromRole: discord.Role, number: int,
-                       assignRole: discord.Role):
+                       assignRole: discord.Role,
+                       excludeFromRole: discord.Role=None):
         """Assign a role to some users from a certain role.
 
         Pick `number` of users from fromRole at random, and assign assignRole to
@@ -168,7 +169,13 @@ class RoleAssigner:
             return
 
         users = ctx.message.server.members
-        eligibleUsers = [user for user in users if fromRole in user.roles]
+        if excludeFromRole:
+            eligibleUsers = [user for user in users if fromRole in user.roles and
+                             excludeFromRole not in user.roles and assignRole not
+                             in user.roles]
+        else:
+            eligibleUsers = [user for user in users if fromRole in user.roles and
+                             assignRole not in user.roles]
 
         if number > len(eligibleUsers):
             # Assign role to all eligible users.
@@ -178,8 +185,15 @@ class RoleAssigner:
             random.shuffle(eligibleUsers)
             picked = eligibleUsers[0:number]
 
+        if not picked:
+            await self.bot.say(":negative_squared_cross_mark: **Role Assigner - "
+                               "Random:** Nobody was eligible to be assigned!")
+            return
+
         await self.bot.say(":white_check_mark: **Role Assigner - Random:** The "
-                           "following users were picked:")
+                           "following users were picked from the **{}** role and "
+                           "assigned to the role **{}**:"
+                           .format(fromRole.name, assignRole.name))
 
         msg = ""
         for user in picked:
