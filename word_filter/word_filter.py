@@ -23,6 +23,7 @@ PATH_BLACKLIST = PATH + "command_blacklist.json"
 PATH_FILTER = PATH + "filter.json"
 PATH_SETTINGS = PATH + "settings.json"
 PATH_WHITELIST = PATH + "whitelist.json"
+PATTERN_CHANNEL_ID = r'<#(\d+)>'
 
 def checkFileSystem():
     """Check if the folders/files are created."""
@@ -340,8 +341,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             self.whitelist.update(myDict)
             self._updateWhitelist()
 
-        pattern = r'<#(\d+)>'
-        match = re.search(pattern, channelName)
+        match = re.search(PATTERN_CHANNEL_ID, channelName)
         if match: # channel ID
             channel = discord.utils.get(ctx.message.server.channels, id=match.group(1))
             channelName = channel.name
@@ -358,7 +358,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
     @_whitelist.command(name="del", pass_context=True, no_pm=True,
                         aliases=["delete", "remove"])
     @checks.mod_or_permissions(manage_messages=True)
-    async def _whitelistRemove(self, ctx, channelName: str):
+    async def _whitelistRemove(self, ctx, channelName):
         """Remove channel from whitelist
         All messages in the removed channel will be subjected to the filter.
         """
@@ -370,6 +370,11 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
                                "guild **{}** is not registered, please add a "
                                "channel to the whitelist first.".format(guildName))
             return
+
+        match = re.search(PATTERN_CHANNEL_ID, channelName)
+        if match: # channel ID
+            channel = discord.utils.get(ctx.message.server.channels, id=match.group(1))
+            channelName = channel.name
 
         if not self.whitelist[guildId] or channelName not in self.whitelist[guildId]:
             await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel "
