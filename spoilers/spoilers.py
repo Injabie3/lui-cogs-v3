@@ -18,6 +18,7 @@ KEY_MESSAGE = "message"
 KEY_AUTHOR_ID = "authorid"
 KEY_AUTHOR_NAME = "author"
 KEY_TIMESTAMP = "timestamp"
+KEY_EMBED = "embed"
 LOGGER = None
 PREFIX = "spoiler"
 SAVE_FOLDER = "data/lui-cogs/spoilers/" # Path to save folder.
@@ -71,6 +72,10 @@ class Spoilers: # pylint: disable=too-many-instance-attributes
             store[KEY_AUTHOR_ID] = ctx.message.author.id
             store[KEY_AUTHOR_NAME] = "{0.name}#{0.discriminator}".format(ctx.message.author)
             store[KEY_TIMESTAMP] = ctx.message.timestamp.strftime("%s")
+            if ctx.message.embeds:
+                data = discord.Embed.from_data(ctx.message.embeds[0])
+                if data.type == 'image':
+                    store[KEY_EMBED] = data.url
             await self.bot.delete_message(ctx.message)
             newMsg = await self.bot.say(":warning: {} created a spoiler!  React to see "
                                         "the message!".format(ctx.message.author.mention))
@@ -146,6 +151,8 @@ class Spoilers: # pylint: disable=too-many-instance-attributes
                                      icon_url=userObj.avatar_url)
                 else:
                     embed.set_author(name=msg[KEY_AUTHOR_NAME])
+                if KEY_EMBED in msg:
+                    embed.set_image(url=msg[KEY_EMBED])
                 embed.description = msg[KEY_MESSAGE]
                 embed.timestamp = datetime.fromtimestamp(int(msg[KEY_TIMESTAMP]))
                 try:
