@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import logging
 import json
 import os
+import re
 import discord
 from discord.ext import commands
 from cogs.utils.dataIO import dataIO
@@ -76,6 +77,11 @@ class Spoilers: # pylint: disable=too-many-instance-attributes
                 data = discord.Embed.from_data(ctx.message.embeds[0])
                 if data.type == 'image':
                     store[KEY_EMBED] = data.url
+            else:
+                imglinkPattern = r"(?i)http[^ ]+\.(?:png|jpg|jpeg|gif)"
+                match = re.search(imglinkPattern, msg)
+                if match:
+                    store[KEY_EMBED] = match.group(0)
             await self.bot.delete_message(ctx.message)
             newMsg = await self.bot.say(":warning: {} created a spoiler!  React to see "
                                         "the message!".format(ctx.message.author.mention))
