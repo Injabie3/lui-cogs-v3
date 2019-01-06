@@ -1,0 +1,7 @@
+{
+    "AUTHOR" : "Injabie3#1660",
+    "INSTALL_MSG" : "Done. Run [p]setf to see configurable settings!",
+    "NAME" : "Respects",
+    "SHORT" : "A replica of +f seen in another bot, except smarter.",
+    "DESCRIPTION" : "[p]f, except combine all users paying respects into one message."
+}
