@@ -85,8 +85,14 @@ class Birthday:
     @_birthday.command(name="setrole", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(administrator=True)
     async def _birthdayRole(self, ctx, role: discord.Role):
-        """Set the role to assign to a birthday user.  Make sure this role can be
-        assigned and removed by the bot by placing it in the correct hierarchy location.
+        """Set the role to assign to a birthday user.
+        Make sure this role can be assigned and removed by the bot by placing it in
+        the correct hierarchy location.
+
+        Parameters:
+        -----------
+        role: discord.Role
+            A role (name or mention) to set as the birthday role.
         """
 
         await self.bot.say(":white_check_mark: **Birthday - Role**: **{}** has been set "
@@ -109,7 +115,13 @@ class Birthday:
     @_birthday.command(name="add", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(administrator=True)
     async def _birthdayAdd(self, ctx, user: discord.Member):
-        """Add a user to the birthday role"""
+        """Add a user to the birthday role.
+
+        Parameters:
+        -----------
+        user: discord.Member
+            The user that you want to add to the birthday role.
+        """
         sid = ctx.message.server.id
         if sid not in self.settings.keys():
             await self.bot.say(":negative_squared_cross_mark: **Birthday - Add**: This "
@@ -183,6 +195,18 @@ class Birthday:
     async def _birthdaySet(self, ctx, month: int, day: int, forUser: discord.Member = None):
         """Set a user's birth date.  Defaults to you.  On the day, the bot will
         automatically add the user to the birthday role.
+
+        Parameters:
+        -----------
+        month: int
+            The birthday month, between 1 and 12 inclusive.
+
+        day: int
+            The birthday day, range between 1 and 31 inclusive, depending on month.
+
+        forUser: discord.Member (optional)
+            The user this birthday is being assigned to.  If not specified. it
+            defaults to you.
         """
         if forUser is None:
             forUser = ctx.message.author
@@ -252,7 +276,7 @@ class Birthday:
                     userBirthday.strftime("%B %d"))
         return
 
-    @_birthday.command(name="list", pass_context=True, no_pm=True)
+    @_birthday.command(name="list", pass_context=True, no_pm=True, aliases=["ls"])
     @checks.mod_or_permissions(administrator=True)
     async def _birthdayList(self, ctx):
         """Lists the birthdays of users."""
@@ -296,7 +320,8 @@ class Birthday:
         await page.paginate()
 
 
-    @_birthday.command(name="del", pass_context=True, no_pm=True)
+    @_birthday.command(name="del", pass_context=True, no_pm=True,
+                       aliases=["remove", "delete", "rm"])
     @checks.mod_or_permissions(administrator=True)
     async def _birthdayDel(self, ctx, user: discord.Member):
         """Remove a user from the birthday role manually."""
@@ -523,4 +548,3 @@ def setup(bot):
                                                datefmt="[%d/%m/%Y %H:%M:%S]"))
         LOGGER.addHandler(handler)
     bot.add_cog(customCog)
-    # bot.loop.create_task(customCog._dailyAdd())
