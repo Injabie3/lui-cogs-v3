@@ -128,7 +128,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
                                         "the filter for guild **{1}**".format(word, guildName))
 
     @wordFilter.command(name="del", pass_context=True, no_pm=True,
-                        aliases=["delete", "remove"])
+                        aliases=["delete", "remove", "rm"])
     @checks.mod_or_permissions(manage_messages=True)
     async def removeFilter(self, ctx, word: str):
         """Remove word from filter"""
@@ -256,7 +256,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
                                "`{0}` is already blacklisted.".format(cmd))
 
     @_command.command(name="del", pass_context=True, no_pm=True,
-                      aliases=["delete", "remove"])
+                      aliases=["delete", "remove", "rm"])
     @checks.mod_or_permissions(manage_messages=True)
     async def _commandRemove(self, ctx, cmd: str):
         """Remove a command from the blacklist.
@@ -356,7 +356,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
                                "`{0}` is already whitelisted.".format(channelName))
 
     @_whitelist.command(name="del", pass_context=True, no_pm=True,
-                        aliases=["delete", "remove"])
+                        aliases=["delete", "remove", "rm"])
     @checks.mod_or_permissions(manage_messages=True)
     async def _whitelistRemove(self, ctx, channelName):
         """Remove channel from whitelist
