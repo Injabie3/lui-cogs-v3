@@ -24,7 +24,7 @@ BASE = \
  "channelDenied" : {},
  "channelAllowed" : {},
  "filters" : [],
- "commandDenied" : {},
+ "commandDenied" : [],
  "toggleMod" : False
 }
 
@@ -191,26 +191,19 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             await ctx.send(":white_check_mark: Word Filter: `{0}` removed from "
                            "the command blacklist.".format(cmd))
 
-    @_command.command(name="list", pass_context=True, no_pm=True,
-                      aliases=["ls"])
-    @checks.mod_or_permissions(manage_messages=True)
+    @_command.command(name="list", aliases=["ls"])
+    @commands.guild_only()
     async def _commandList(self, ctx):
         """List blacklisted commands.
         If the commands on this list are invoked with any filtered words, the
         entire message is filtered and the contents of the message will be sent
         back to the user via DM.
         """
-        guildId = ctx.message.server.id
         guildName = ctx.message.server.name
 
-        if guildId not in list(self.commandBlacklist):
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: The "
-                               "guild **{}** does not have blacklisted commands, "
-                               "please add a command to the blacklist first, and "
-                               "try again.".format(guildName))
-            return
+        cmdDenied = self.config.guild(ctx.guild).commandDenied()
 
-        if self.commandBlacklist[guildId]:
+        if cmdDenied:
             display = []
             for cmd in self.commandBlacklist[guildId]:
                 display.append("`{}`".format(cmd))
@@ -220,8 +213,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             page.embed.colour = discord.Colour.red()
             await page.paginate()
         else:
-            await self.bot.say("Sorry, there are no blacklisted commands in "
-                               "**{}**".format(guildName))
+            await ctx.send("Sorry, there are no blacklisted commands in "
+                           "**{}**".format(guildName))
 
     ############################################
     # COMMANDS - CHANNEL WHITELISTING SETTINGS #
