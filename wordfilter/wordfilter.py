@@ -34,7 +34,7 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=5842647)
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_guild(**BASE) # Register default (empty) settings.
 
         # self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
@@ -56,42 +56,35 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         guildId = ctx.message.guild.id
         user = ctx.message.author
         guildName = ctx.message.guild.name
-        guildFilters = self.config.guild(ctx.guild).filters()
+        filters = self.config.guild(ctx.guild).filters()
 
-        if word not in guildFilters:
-            guildFilters.append(word)
-            await self.config.guild(ctx.guild).filters.set(guildFilters)
+        if word not in filters:
+            filters.append(word)
+            await self.config.guild(ctx.guild).filters.set(filters)
             await user.send("`Word Filter:` `{0}` was added to the filter in the "
                             "guild **{1}**".format(word, guildName))
         else:
             await user.send("`Word Filter:` The word `{0}` is already in the filter "
                             "for guild **{1}**".format(word, guildName))
 
-    @wordFilter.command(name="del", pass_context=True, no_pm=True,
-                        aliases=["delete", "remove", "rm"])
+    @wordFilter.command(name="del", aliases=["delete", "remove", "rm"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def removeFilter(self, ctx, word: str):
         """Remove word from filter"""
-        guildId = ctx.message.server.id
+        guildId = ctx.message.guild.id
         user = ctx.message.author
-        guildName = ctx.message.server.name
+        guildName = ctx.message.guild.name
+        filters = self.config.guild(ctx.guild).filters()
 
-        if guildId not in list(self.filters):
-            await self.bot.send_message(user,
-                                        "`Word Filter:` The guild **{}** is not "
-                                        "registered, please add a word first".format(guildName))
-            return
-
-        if not self.filters[guildId] or word not in self.filters[guildId]:
-            await self.bot.send_message(user,
-                                        "`Word Filter:` The word `{0}` is not in the "
-                                        "filter for guild **{1}**".format(word, guildName))
+        if not filters or word not in filters:
+            await user.send("`Word Filter:` The word `{0}` is not in the filter for "
+                            "guild **{1}**".format(word, guildName))
         else:
-            self.filters[guildId].remove(word)
-            self._updateFilters()
-            await self.bot.send_message(user,
-                                        "`Word Filter:` `{0}` removed from the filter "
-                                        "in the guild **{1}**".format(word, guildName))
+            filters.remove(word)
+            await self.config.guild(ctx.guild).filters.set(filters)
+            await user.send("`Word Filter:` `{0}` removed from the filter in the "
+                            "guild **{1}**".format(word, guildName))
 
     @wordFilter.command(name="list", pass_context=True, no_pm=True,
                         aliases=["ls"])
