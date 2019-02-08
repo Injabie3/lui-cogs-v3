@@ -86,8 +86,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             await user.send("`Word Filter:` `{0}` removed from the filter in the "
                             "guild **{1}**".format(word, guildName))
 
-    @wordFilter.command(name="list", pass_context=True, no_pm=True,
-                        aliases=["ls"])
+    @wordFilter.command(name="list", aliases=["ls"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def listFilter(self, ctx):
         """List filtered words in raw format.
@@ -96,16 +96,11 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         guildId = ctx.message.server.id
         guildName = ctx.message.server.name
         user = ctx.message.author
+        filters = self.config.guild(ctx.guild).filters()
 
-        if guildId not in list(self.filters):
-            await self.bot.send_message(user,
-                                        "`Word Filter:` The guild **{}** is not "
-                                        "registered, please add a word first".format(guildName))
-            return
-
-        if self.filters[guildId]:
+        if filters:
             display = []
-            for regex in self.filters[guildId]:
+            for regex in filters:
                 display.append("`{}`".format(regex))
             # msg = ""
             # for word in self.filters[guildId]:
@@ -120,34 +115,23 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             page.embed.colour = discord.Colour.red()
             await page.paginate()
         else:
-            await self.bot.send_message(user,
-                                        "Sorry you have no filtered words in "
-                                        "**{}**".format(guildName))
+            await user.send("Sorry you have no filtered words in **{}**".format(guildName))
 
     @wordFilter.command(name="togglemod", pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def toggleMod(self, ctx):
         """Toggle global override of filters for server admins/mods."""
-        self._updateSettings()
-        try:
-            if self.settings[ctx.message.author.server.id][self.keyToggleMod] is True:
-                self.settings[ctx.message.author.server.id][self.keyToggleMod] = False
-                isSet = False
-            else:
-                self.settings[ctx.message.author.server.id][self.keyToggleMod] = True
-                isSet = True
-        except KeyError:
-            if ctx.message.author.server.id not in self.settings:
-                self.settings[ctx.message.author.server.id] = {}
-            self.settings[ctx.message.author.server.id][self.keyToggleMod] = True
-            isSet = True
-        self._updateSettings()
-        if isSet:
-            await self.bot.say(":white_check_mark: Word Filter: Moderators (and "
-                               "higher) **will not be** filtered.")
+        toggleMod = self.config.guild(ctx.guild).toggleMod()
+
+        if toggleMod:
+            toggleMod = False
+            await ctx.send(":negative_squared_cross_mark: Word Filter: Moderators "
+                           "(and higher) **will be** filtered.")
         else:
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: Moderators "
-                               "(and higher) **will be** filtered.")
+            toggleMod = True
+            await ctx.send(":white_check_mark: Word Filter: Moderators (and higher "
+                           "**will not be** filtered.")
+        await self.config.guild(ctx.guild).toggleMod.put(toggleMod)
 
     #########################################
     # COMMANDS - COMMAND BLACKLIST SETTINGS #
