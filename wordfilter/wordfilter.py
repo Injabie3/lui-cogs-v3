@@ -8,7 +8,7 @@ import logging
 import asyncio
 import random
 import discord
-from redbot.core import Config, commands
+from redbot.core import Config, checks, commands
 from redbot.core.bot import Red
 
 COLOUR = discord.Colour
@@ -23,7 +23,7 @@ BASE = \
 {
  "channelDenied" : {},
  "channelAllowed" : {},
- "filters" : {},
+ "filters" : [],
  "commandDenied" : {},
  "toggleMod" : False
 }
@@ -42,37 +42,30 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         # self.whitelist = dataIO.load_json(PATH_WHITELIST)
         # self.settings = dataIO.load_json(PATH_SETTINGS)
 
-    @commands.group(name="word_filter", pass_context=True, no_pm=True, aliases=["wf"])
+    @commands.group(name="wordfilter", aliases=["wf"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def wordFilter(self, ctx):
         """Smart word filtering"""
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
 
-    @wordFilter.command(name="add", pass_context=True, no_pm=True)
+    @wordFilter.command(name="add")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def addFilter(self, ctx, word: str):
         """Add word to filter"""
-        guildId = ctx.message.server.id
+        guildId = ctx.message.guild.id
         user = ctx.message.author
-        guildName = ctx.message.server.name
+        guildName = ctx.message.guild.name
+        guildFilters = self.config.guild(ctx.guild).filters()
 
-        if guildId not in list(self.filters):
-            myDict = {}
-            myDict[guildId] = []
-            self.filters.update(myDict)
-            self._updateFilters()
-
-        if word not in self.filters[guildId]:
-            self.filters[guildId].append(word)
-            self._updateFilters()
-            await self.bot.send_message(user,
-                                        "`Word Filter:` `{0}` was added to the filter "
-                                        "in the guild **{1}**".format(word, guildName))
+        if word not in guildFilters:
+            guildFilters.append(word)
+            await self.config.guild(ctx.guild).filters.set(guildFilters)
+            await user.send("`Word Filter:` `{0}` was added to the filter in the "
+                            "guild **{1}**".format(word, guildName))
         else:
-            await self.bot.send_message(user,
-                                        "`Word Filter:` The word `{0}` is already in "
-                                        "the filter for guild **{1}**".format(word, guildName))
+            await user.send("`Word Filter:` The word `{0}` is already in the filter "
+                            "for guild **{1}**".format(word, guildName))
 
     @wordFilter.command(name="del", pass_context=True, no_pm=True,
                         aliases=["delete", "remove", "rm"])
