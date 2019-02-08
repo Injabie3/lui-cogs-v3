@@ -2,98 +2,45 @@
 To filter words in a more smart/useful wya than simply detecting and
 deleting a message.
 """
-
-import os
 import re
-import random
-import asyncio
 from threading import Lock
 import logging
+import asyncio
+import random
 import discord
-from discord.ext import commands
-from __main__ import send_cmd_help # pylint: disable=no-name-in-module
-from cogs.utils.dataIO import dataIO
-from cogs.utils import checks
-from cogs.utils.paginator import Pages
+from redbot.core import Config, commands
+from redbot.core.bot import Red
 
 COLOUR = discord.Colour
+COLOURS = [COLOUR.purple(),
+           COLOUR.red(),
+           COLOUR.blue(),
+           COLOUR.orange(),
+           COLOUR.green()]
 LOGGER = None
-PATH = "data/word_filter/"
-PATH_BLACKLIST = PATH + "command_blacklist.json"
-PATH_FILTER = PATH + "filter.json"
-PATH_SETTINGS = PATH + "settings.json"
-PATH_WHITELIST = PATH + "whitelist.json"
 PATTERN_CHANNEL_ID = r'<#(\d+)>'
-
-def checkFileSystem():
-    """Check if the folders/files are created."""
-
-    folders = ["data/word_filter"]
-    for folder in folders:
-        if not os.path.exists(folder):
-            print("Word Filter: Creating folder: {} ...".format(folder))
-            os.makedirs(folder)
-
-    files = [PATH_BLACKLIST, PATH_FILTER, PATH_SETTINGS, PATH_WHITELIST]
-
-    for file in files:
-        if not os.path.exists(file):
-            #build a default filter.json
-            empty = {}
-            dataIO.save_json(file, empty)
-            print("Word Filter: Creating file: {} ...".format(file))
+BASE = \
+{
+ "channelDenied" : {},
+ "channelAllowed" : {},
+ "filters" : {},
+ "commandDenied" : {},
+ "toggleMod" : False
+}
 
 class WordFilter(): # pylint: disable=too-many-instance-attributes
     """Word Filter cog, for all your word filtering needs."""
 
-    def __init__(self, bot):
+    def __init__(self, bot: Red):
+        super().__init__()
         self.bot = bot
-        self.lock = Lock()
-        self.lockSettings = Lock()
-        self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
-        self.filters = dataIO.load_json(PATH_FILTER)
-        self.whitelist = dataIO.load_json(PATH_WHITELIST)
-        self.settings = dataIO.load_json(PATH_SETTINGS)
-        self.colours = [COLOUR.purple(),
-                        COLOUR.red(),
-                        COLOUR.blue(),
-                        COLOUR.orange(),
-                        COLOUR.green()]
+        self.config = Config.get_conf(self, identifier=5842647)
+        self.config.register_guild(**BASE) # Register default (empty) settings.
 
-        #JSON keys for settings:
-        self.keyToggleMod = "toggleMod"
-
-    def _updateFilters(self):
-        self.lock.acquire()
-        try:
-            dataIO.save_json(PATH_FILTER, self.filters)
-            self.filters = dataIO.load_json(PATH_FILTER)
-        finally:
-            self.lock.release()
-
-    def _updateCommandBlacklist(self):
-        self.lock.acquire()
-        try:
-            dataIO.save_json(PATH_BLACKLIST, self.commandBlacklist)
-            self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
-        finally:
-            self.lock.release()
-
-    def _updateWhitelist(self):
-        self.lock.acquire()
-        try:
-            dataIO.save_json(PATH_WHITELIST, self.whitelist)
-            self.whitelist = dataIO.load_json(PATH_WHITELIST)
-        finally:
-            self.lock.release()
-
-    def _updateSettings(self):
-        self.lockSettings.acquire()
-        try:
-            dataIO.save_json(PATH_SETTINGS, self.settings)
-            self.settings = dataIO.load_json(PATH_SETTINGS)
-        finally:
-            self.lockSettings.release()
+        # self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
+        # self.filters = dataIO.load_json(PATH_FILTER)
+        # self.whitelist = dataIO.load_json(PATH_WHITELIST)
+        # self.settings = dataIO.load_json(PATH_SETTINGS)
 
     @commands.group(name="word_filter", pass_context=True, no_pm=True, aliases=["wf"])
     @checks.mod_or_permissions(manage_messages=True)
@@ -608,7 +555,6 @@ def _isAllFiltered(string):
 def setup(bot):
     """Add the cog to the bot."""
     global LOGGER # pylint: disable=global-statement
-    checkFileSystem()
     wordFilterCog = WordFilter(bot)
     bot.add_listener(wordFilterCog.checkWords, 'on_message')
     bot.add_listener(wordFilterCog.checkWords, 'on_message_edit')
