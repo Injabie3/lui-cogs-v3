@@ -132,13 +132,13 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             toggleMod = True
             await ctx.send(":white_check_mark: Word Filter: Moderators (and higher "
                            "**will not be** filtered.")
-        await self.config.guild(ctx.guild).toggleMod.put(toggleMod)
+        await self.config.guild(ctx.guild).toggleMod.set(toggleMod)
 
     #########################################
     # COMMANDS - COMMAND BLACKLIST SETTINGS #
     #########################################
-    @wordFilter.group(name="command", pass_context=True, no_pm=True,
-                      aliases=["cmd"])
+    @wordFilter.group(name="command", aliases=["cmd"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def _command(self, ctx):
         """Blacklist command settings. (help for more info)
@@ -147,7 +147,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         if str(ctx.invoked_subcommand).lower() == "word_filter command":
             await send_cmd_help(ctx)
 
-    @_command.command(name="add", pass_context=True, no_pm=True)
+    @_command.command(name="add")
+    @commands.guild_only()
     async def _commandAdd(self, ctx, cmd: str):
         """Add a command (without prefix) to the blacklist.
         If the invoked command contains any filtered words, the entire message
@@ -155,23 +156,18 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         user via DM.
         """
         guildId = ctx.message.server.id
+        cmdDenied = self.config.guild(ctx.guild).commandDenied()
 
-        if guildId not in list(self.commandBlacklist):
-            myDict = {}
-            myDict[guildId] = []
-            self.commandBlacklist.update(myDict)
-            self._updateCommandBlacklist()
-
-        if cmd not in self.commandBlacklist[guildId]:
-            self.commandBlacklist[guildId].append(cmd)
-            self._updateCommandBlacklist()
-            await self.bot.say(":white_check_mark: Word Filter: Command `{0}` is now "
-                               "blacklisted.  It will have the entire message filtered "
-                               "if it contains any filterable words, and its contents "
-                               "DM'd back to the user.".format(cmd))
+        if cmd not in cmdDenied:
+            cmdDenied.append(cmd)
+            await self.config.guild(ctx.guild).commandDenied.set(cmdDenied)
+            await ctx.send(":white_check_mark: Word Filter: Command `{1}` is now "
+                           "blacklisted.  It will have the entire message filtered "
+                           "if it contains any filterable words, and its contents "
+                           "DM'd back to the user.".format(cmd))
         else:
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: Command "
-                               "`{0}` is already blacklisted.".format(cmd))
+            await ctx.send(":negative_squared_cross_mark: Word Filter: Command "
+                           "`{0}` is already blacklisted.".format(cmd))
 
     @_command.command(name="del", pass_context=True, no_pm=True,
                       aliases=["delete", "remove", "rm"])
