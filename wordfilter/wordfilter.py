@@ -117,7 +117,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         else:
             await user.send("Sorry you have no filtered words in **{}**".format(guildName))
 
-    @wordFilter.command(name="togglemod", pass_context=True, no_pm=True)
+    @wordFilter.command(name="togglemod")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def toggleMod(self, ctx):
         """Toggle global override of filters for server admins/mods."""
