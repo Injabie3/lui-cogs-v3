@@ -169,9 +169,8 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
             await ctx.send(":negative_squared_cross_mark: Word Filter: Command "
                            "`{0}` is already blacklisted.".format(cmd))
 
-    @_command.command(name="del", pass_context=True, no_pm=True,
-                      aliases=["delete", "remove", "rm"])
-    @checks.mod_or_permissions(manage_messages=True)
+    @_command.command(name="del", aliases=["delete", "remove", "rm"])
+    @commands.guild_only()
     async def _commandRemove(self, ctx, cmd: str):
         """Remove a command from the blacklist.
         The command that is removed from the list will be filtered as normal
@@ -179,24 +178,18 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
         only the filtered words will be censored and replaced (as opposed to the
         entire message being deleted).
         """
-        guildId = ctx.message.server.id
-        guildName = ctx.message.server.name
+        guildName = ctx.message.guild.name
 
-        if guildId not in list(self.commandBlacklist):
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: The "
-                               "guild **{}** does not have blacklisted commands, "
-                               "please add a command to the blacklist first, and "
-                               "try again.".format(guildName))
-            return
+        cmdDenied = self.config.guild(ctx.guild).commandDenied()
 
-        if not self.commandBlacklist[guildId] or cmd not in self.commandBlacklist[guildId]:
+        if not cmdDenied or cmd not in cmdDenied:
             await self.bot.say(":negative_squared_cross_mark: Word Filter: Command "
                                "`{0}` wasn't on the blacklist.".format(cmd))
         else:
-            self.commandBlacklist[guildId].remove(cmd)
-            self._updateCommandBlacklist()
-            await self.bot.say(":white_check_mark: Word Filter: `{0}` removed from "
-                               "the command blacklist.".format(cmd))
+            cmdDenied.remove(cmd)
+            await self.config.guild(ctx.guild).commandDenied.set(cmdDenied)
+            await ctx.send(":white_check_mark: Word Filter: `{0}` removed from "
+                           "the command blacklist.".format(cmd))
 
     @_command.command(name="list", pass_context=True, no_pm=True,
                       aliases=["ls"])
