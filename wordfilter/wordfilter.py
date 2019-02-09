@@ -56,7 +56,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         guildId = ctx.message.guild.id
         user = ctx.message.author
         guildName = ctx.message.guild.name
-        filters = self.config.guild(ctx.guild).filters()
+        filters = await self.config.guild(ctx.guild).filters()
 
         if word not in filters:
             filters.append(word)
@@ -75,7 +75,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         guildId = ctx.message.guild.id
         user = ctx.message.author
         guildName = ctx.message.guild.name
-        filters = self.config.guild(ctx.guild).filters()
+        filters = await self.config.guild(ctx.guild).filters()
 
         if not filters or word not in filters:
             await user.send("`Word Filter:` The word `{0}` is not in the filter for "
@@ -93,10 +93,10 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """List filtered words in raw format.
         NOTE: do this in a channel outside of the viewing public
         """
-        guildId = ctx.message.server.id
-        guildName = ctx.message.server.name
+        guildId = ctx.message.guild.id
+        guildName = ctx.message.guild.name
         user = ctx.message.author
-        filters = self.config.guild(ctx.guild).filters()
+        filters = await self.config.guild(ctx.guild).filters()
 
         if filters:
             display = []
@@ -122,7 +122,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
     @checks.mod_or_permissions(manage_messages=True)
     async def toggleMod(self, ctx):
         """Toggle global override of filters for server admins/mods."""
-        toggleMod = self.config.guild(ctx.guild).toggleMod()
+        toggleMod = await self.config.guild(ctx.guild).toggleMod()
 
         if toggleMod:
             toggleMod = False
@@ -155,8 +155,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         is filtered and the contents of the message will be sent back to the
         user via DM.
         """
-        guildId = ctx.message.server.id
-        cmdDenied = self.config.guild(ctx.guild).commandDenied()
+        guildId = ctx.message.guild.id
+        cmdDenied = await self.config.guild(ctx.guild).commandDenied()
 
         if cmd not in cmdDenied:
             cmdDenied.append(cmd)
@@ -180,7 +180,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """
         guildName = ctx.message.guild.name
 
-        cmdDenied = self.config.guild(ctx.guild).commandDenied()
+        cmdDenied = await self.config.guild(ctx.guild).commandDenied()
 
         if not cmdDenied or cmd not in cmdDenied:
             await self.bot.say(":negative_squared_cross_mark: Word Filter: Command "
@@ -199,9 +199,9 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         entire message is filtered and the contents of the message will be sent
         back to the user via DM.
         """
-        guildName = ctx.message.server.name
+        guildName = ctx.message.guild.name
 
-        cmdDenied = self.config.guild(ctx.guild).commandDenied()
+        cmdDenied = await self.config.guild(ctx.guild).commandDenied()
 
         if cmdDenied:
             display = []
@@ -233,7 +233,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         All messages in the channel will not be filtered.
         """
         guildId = ctx.message.guild.id
-        channelAllowed = self.config.guild(ctx.guild).channelAllowed()
+        channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
 
         match = re.search(PATTERN_CHANNEL_ID, channelName)
         if match: # channel ID
