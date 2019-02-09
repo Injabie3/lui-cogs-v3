@@ -28,7 +28,7 @@ BASE = \
  "toggleMod" : False
 }
 
-class WordFilter(): # pylint: disable=too-many-instance-attributes
+class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
     """Word Filter cog, for all your word filtering needs."""
 
     def __init__(self, bot: Red):
