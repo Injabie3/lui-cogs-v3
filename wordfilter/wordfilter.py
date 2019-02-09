@@ -219,41 +219,35 @@ class WordFilter(): # pylint: disable=too-many-instance-attributes
     ############################################
     # COMMANDS - CHANNEL WHITELISTING SETTINGS #
     ############################################
-    @wordFilter.group(name="whitelist", pass_context=True, no_pm=True,
-                      aliases=["wl"])
+    @wordFilter.group(name="whitelist", aliases=["wl"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def _whitelist(self, ctx):
         """Channel whitelisting settings."""
-        if str(ctx.invoked_subcommand).lower() == "word_filter whitelist":
-            await send_cmd_help(ctx)
 
-    @_whitelist.command(name="add", pass_context=True, no_pm=True)
+    @_whitelist.command(name="add")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def _whitelistAdd(self, ctx, channelName):
         """Add channel to whitelist.
         All messages in the channel will not be filtered.
         """
-        guildId = ctx.message.server.id
-
-        if guildId not in list(self.whitelist):
-            myDict = {}
-            myDict[guildId] = []
-            self.whitelist.update(myDict)
-            self._updateWhitelist()
+        guildId = ctx.message.guild.id
+        channelAllowed = self.config.guild(ctx.guild).channelAllowed()
 
         match = re.search(PATTERN_CHANNEL_ID, channelName)
         if match: # channel ID
-            channel = discord.utils.get(ctx.message.server.channels, id=match.group(1))
+            channel = discord.utils.get(ctx.message.guild.channels, id=match.group(1))
             channelName = channel.name
 
-        if channelName not in self.whitelist[guildId]:
-            self.whitelist[guildId].append(channelName)
-            self._updateWhitelist()
-            await self.bot.say(":white_check_mark: Word Filter: Channel with name "
-                               "`{0}` will not be filtered.".format(channelName))
+        if channelName not in channelAllowed:
+            channelAllowed.append(channelName)
+            await self.config.guild(ctx.guild).channelAllowed.set(channelAllowed)
+            await ctx.send(":white_check_mark: Word Filter: Channel with name "
+                           "`{0}` will not be filtered.".format(channelName))
         else:
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel "
-                               "`{0}` is already whitelisted.".format(channelName))
+            await ctx.send(":negative_squared_cross_mark: Word Filter: Channel "
+                           "`{0}` is already whitelisted.".format(channelName))
 
     @_whitelist.command(name="del", pass_context=True, no_pm=True,
                         aliases=["delete", "remove", "rm"])
