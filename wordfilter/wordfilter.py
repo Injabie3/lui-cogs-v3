@@ -321,19 +321,17 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         Boolean
             True if the message is eligible for filtering, else False.
         """
-        modRole = self.bot.settings.get_server_mod(msg.server).lower()
-        adminRole = self.bot.settings.get_server_admin(msg.server).lower()
+        filters = await self.config.guild(msg.guild).filters()
 
         # Filter only configured servers, not private DMs.
-        if isinstance(msg.channel, discord.PrivateChannel) or msg.server.id not \
-            in list(self.filters):
+        if isinstance(msg.channel, discord.PrivateChannel):
             return False
 
-        guildId = msg.server.id
+        guildId = msg.guild.id
 
         # Do not filter whitelisted channels
         try:
-            whitelist = self.whitelist[guildId]
+            whitelist = await self.config.guild(msg.guild).channelAllowed()
             for channels in whitelist:
                 if channels.lower() == msg.channel.name.lower():
                     return False
@@ -344,10 +342,10 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
 
         # Check if mod or admin, and do not filter if togglemod is enabled.
         try:
-            if self.settings[msg.author.server.id][self.keyToggleMod]:
-                for role in msg.author.roles:
-                    if role.name.lower() == modRole or role.name.lower() == adminRole:
-                        return False
+            toggleMod = await self.config.guild(msg.guild).toggleMod()
+            if toggleMod:
+                if self.bot.is_mod(msg.author) or self.bot.is_admin(msg.author):
+                    return False
         except Exception as error: # pylint: disable=broad-except
             LOGGER.error("Exception occurred in checking keyToggleMod!")
             LOGGER.error(error)
@@ -371,10 +369,10 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """
         if not self.checkMessageServerAndChannel(msg):
             return False
-        guildId = msg.server.id
 
         filteredMsg = msg.content
-        for word in self.filters[guildId]:
+        filters = await self.config.guild(msg.guild).filters()
+        for word in filters:
             filteredMsg = _filterWord(word, filteredMsg)
 
         if msg.content == filteredMsg:
