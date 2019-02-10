@@ -249,55 +249,47 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             await ctx.send(":negative_squared_cross_mark: Word Filter: Channel "
                            "`{0}` is already whitelisted.".format(channelName))
 
-    @_whitelist.command(name="del", pass_context=True, no_pm=True,
-                        aliases=["delete", "remove", "rm"])
+    @_whitelist.command(name="del", aliases=["delete", "remove", "rm"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def _whitelistRemove(self, ctx, channelName):
         """Remove channel from whitelist
         All messages in the removed channel will be subjected to the filter.
         """
-        guildId = ctx.message.server.id
-        guildName = ctx.message.server.name
+        guildId = ctx.message.guild.id
+        guildName = ctx.message.guild.name
 
-        if guildId not in list(self.whitelist):
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: The "
-                               "guild **{}** is not registered, please add a "
-                               "channel to the whitelist first.".format(guildName))
-            return
+        channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
 
         match = re.search(PATTERN_CHANNEL_ID, channelName)
         if match: # channel ID
-            channel = discord.utils.get(ctx.message.server.channels, id=match.group(1))
+            channel = discord.utils.get(ctx.message.guild.channels, id=match.group(1))
             channelName = channel.name
 
-        if not self.whitelist[guildId] or channelName not in self.whitelist[guildId]:
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: Channel "
-                               "`{0}` was already not whitelisted.".format(channelName))
+        if not channelAllowed or channelName not in channelAllowed:
+            await ctx.send(":negative_squared_cross_mark: Word Filter: Channel "
+                           "`{0}` was already not whitelisted.".format(channelName))
         else:
-            self.whitelist[guildId].remove(channelName)
-            self._updateWhitelist()
-            await self.bot.say(":white_check_mark: Word Filter: `{0}` removed from "
-                               "the channel whitelist.".format(channelName))
+            channelAllowed.remove(channelName)
+            await self.config.guild(ctx.guild).channelAllowed.set(channelAllowed)
+            await ctx.send(":white_check_mark: Word Filter: `{0}` removed from "
+                           "the channel whitelist.".format(channelName))
 
-    @_whitelist.command(name="list", pass_context=True, no_pm=True,
-                        aliases=["ls"])
+    @_whitelist.command(name="list", aliases=["ls"])
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
     async def _whitelistList(self, ctx):
         """List whitelisted channels.
         NOTE: do this in a channel outside of the viewing public
         """
-        guildId = ctx.message.server.id
-        guildName = ctx.message.server.name
+        guildId = ctx.message.guild.id
+        guildName = ctx.message.guild.name
 
-        if guildId not in list(self.whitelist):
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: The "
-                               "guild **{}** is not registered, please add a "
-                               "channel first".format(guildName))
-            return
+        channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
 
-        if self.whitelist[guildId]:
+        if channelAllowed:
             display = []
-            for channel in self.whitelist[guildId]:
+            for channel in channelAllowed:
                 display.append("`{}`".format(channel))
             # msg = ""
             # for word in self.whitelist[guildId]:
@@ -312,8 +304,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             page.embed.colour = discord.Colour.red()
             await page.paginate()
         else:
-            await self.bot.say("Sorry, there are no whitelisted channels in "
-                               "**{}**".format(guildName))
+            await ctx.send("Sorry, there are no whitelisted channels in "
+                           "**{}**".format(guildName))
 
     def checkMessageServerAndChannel(self, msg):
         """Checks to see if the message is in a server/channel eligible for
