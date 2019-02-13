@@ -1,6 +1,8 @@
 """Word Filter cog.
 To filter words in a more smart/useful wya than simply detecting and
 deleting a message.
+
+This cog requires paginator.py, obtainable from Rapptz/RoboDanny.
 """
 import re
 from threading import Lock
@@ -9,6 +11,7 @@ import asyncio
 import random
 import discord
 from redbot.core import Config, checks, commands
+from redbot.core.utils import paginator
 from redbot.core.bot import Red
 
 COLOUR = discord.Colour
@@ -102,15 +105,9 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             display = []
             for regex in filters:
                 display.append("`{}`".format(regex))
-            # msg = ""
-            # for word in self.filters[guildId]:
-                # msg += word
-                # msg += "\n"
-            # title = "Filtered words for: **{}**".format(guildName)
-            # embed = discord.Embed(title=title,description=msg,colour=discord.Colour.red())
-            # await self.bot.send_message(user,embed=embed)
 
-            page = Pages(self.bot, message=ctx.message, entries=display)
+            page = paginator.Pages(ctx=ctx, entries=display,
+                                   show_entry_count=True)
             page.embed.title = "Filtered words for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
@@ -208,7 +205,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             for cmd in self.commandBlacklist[guildId]:
                 display.append("`{}`".format(cmd))
 
-            page = Pages(self.bot, message=ctx.message, entries=display)
+            page = paginator.Pages(ctx=ctx, entries=display,
+                                   show_entry_count=True)
             page.embed.title = "Blacklisted commands for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
@@ -291,15 +289,9 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             display = []
             for channel in channelAllowed:
                 display.append("`{}`".format(channel))
-            # msg = ""
-            # for word in self.whitelist[guildId]:
-                # msg += word
-                # msg += "\n"
-            # title = "Filtered words for: **{}**".format(guildName)
-            # embed = discord.Embed(title=title,description=msg,colour=discord.Colour.red())
-            # await self.bot.send_message(user,embed=embed)
 
-            page = Pages(self.bot, message=ctx.message, entries=display)
+            page = paginator.Pages(ctx=ctx, entries=display,
+                                   show_entry_count=True)
             page.embed.title = "Whitelisted channels for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
