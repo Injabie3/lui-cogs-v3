@@ -20,12 +20,10 @@ COLOURS = [COLOUR.purple(),
            COLOUR.blue(),
            COLOUR.orange(),
            COLOUR.green()]
-LOGGER = None
 PATTERN_CHANNEL_ID = r'<#(\d+)>'
 BASE = \
 {
- "channelDenied" : {},
- "channelAllowed" : {},
+ "channelAllowed" : [],
  "filters" : [],
  "commandDenied" : [],
  "toggleMod" : False
@@ -39,6 +37,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         self.bot = bot
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_guild(**BASE) # Register default (empty) settings.
+        self.logger = None
 
         # self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
         # self.filters = dataIO.load_json(PATH_FILTER)
@@ -329,8 +328,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
                     return False
         except Exception as error: # pylint: disable=broad-except
             # Most likely no whitelisted channels.
-            LOGGER.error("Exception occured while checking whitelist channels!")
-            LOGGER.error(error)
+            self.logger.error("Exception occured while checking whitelist channels!")
+            self.logger.error(error)
 
         # Check if mod or admin, and do not filter if togglemod is enabled.
         try:
@@ -339,8 +338,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
                 if self.bot.is_mod(msg.author) or self.bot.is_admin(msg.author):
                     return False
         except Exception as error: # pylint: disable=broad-except
-            LOGGER.error("Exception occurred in checking keyToggleMod!")
-            LOGGER.error(error)
+            self.logger.error("Exception occurred in checking keyToggleMod!")
+            self.logger.error(error)
 
         return True
 
@@ -406,10 +405,10 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             try:
                 filteredMsg = _filterWord(word, filteredMsg)
             except Exception as error: # pylint: disable=broad-except
-                LOGGER.error("Exception!")
-                LOGGER.error(error)
-                LOGGER.info("Word: %s", word)
-                LOGGER.info("Filtered message: %s", filteredMsg)
+                self.logger.error("Exception!")
+                self.logger.error(error)
+                self.logger.info("Word: %s", word)
+                self.logger.info("Filtered message: %s", filteredMsg)
 
         allFiltered = _isAllFiltered(filteredMsg)
 
@@ -432,8 +431,8 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             try:
                 await msg.author.send(filterNotify, embed=embed)
             except discord.errors.Forbidden as error:
-                LOGGER.error("Could not DM user, perhaps they have blocked DMs?")
-                LOGGER.error(error)
+                self.logger.error("Could not DM user, perhaps they have blocked DMs?")
+                self.logger.error(error)
             await asyncio.sleep(3)
             await notifyMsg.delete()
         elif (filteredMsg != originalMsg and oneWord) or allFiltered:
@@ -448,9 +447,9 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
                                   "{1}".format(msg, filteredMsg))
             await msg.channel.send(filterNotify, embed=embed)
 
-        LOGGER.info("Author : %s#%s (%s)", msg.author.name, msg.author.discriminator,
-                    msg.author.id)
-        LOGGER.info("Message: %s", originalMsg)
+        self.logger.info("Author : %s#%s (%s)", msg.author.name,
+                         msg.author.discriminator, msg.author.id)
+        self.logger.info("Message: %s", originalMsg)
 
     # Event listeners
     async def on_message(self, msg):
@@ -488,21 +487,3 @@ def _isAllFiltered(string):
         if bool(re.search("[*]+", word)):
             cnt += 1
     return cnt == len(words)
-
-def setup(bot):
-    """Add the cog to the bot."""
-    global LOGGER # pylint: disable=global-statement
-    wordFilterCog = WordFilter(bot)
-    bot.add_listener(wordFilterCog.checkWords, 'on_message')
-    bot.add_listener(wordFilterCog.checkWords, 'on_message_edit')
-    LOGGER = logging.getLogger("red.WordFilter")
-    if LOGGER.level == 0:
-        # Prevents the LOGGER from being loaded again in case of module reload.
-        LOGGER.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename="data/word_filter/info.log",
-                                      encoding="utf-8",
-                                      mode="a")
-        handler.setFormatter(logging.Formatter("%(asctime)s %(message)s",
-                                               datefmt="[%d/%m/%Y %H:%M:%S]"))
-        LOGGER.addHandler(handler)
-    bot.add_cog(wordFilterCog)
