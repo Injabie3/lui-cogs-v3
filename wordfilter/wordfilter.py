@@ -55,7 +55,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
     @checks.mod_or_permissions(manage_messages=True)
     async def addFilter(self, ctx, word: str):
         """Add word to filter"""
-        guildId = ctx.message.guild.id
         user = ctx.message.author
         guildName = ctx.message.guild.name
         filters = await self.config.guild(ctx.guild).filters()
@@ -74,7 +73,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
     @checks.mod_or_permissions(manage_messages=True)
     async def removeFilter(self, ctx, word: str):
         """Remove word from filter"""
-        guildId = ctx.message.guild.id
         user = ctx.message.author
         guildName = ctx.message.guild.name
         filters = await self.config.guild(ctx.guild).filters()
@@ -95,7 +93,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """List filtered words in raw format.
         NOTE: do this in a channel outside of the viewing public
         """
-        guildId = ctx.message.guild.id
         guildName = ctx.message.guild.name
         user = ctx.message.author
         filters = await self.config.guild(ctx.guild).filters()
@@ -151,7 +148,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         is filtered and the contents of the message will be sent back to the
         user via DM.
         """
-        guildId = ctx.message.guild.id
         cmdDenied = await self.config.guild(ctx.guild).commandDenied()
 
         if cmd not in cmdDenied:
@@ -201,7 +197,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
 
         if cmdDenied:
             display = []
-            for cmd in self.commandBlacklist[guildId]:
+            for cmd in cmdDenied:
                 display.append("`{}`".format(cmd))
 
             page = paginator.Pages(ctx=ctx, entries=display,
@@ -253,7 +249,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """Remove channel from whitelist
         All messages in the removed channel will be subjected to the filter.
         """
-        guildId = ctx.message.guild.id
         guildName = ctx.message.guild.name
 
         channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
@@ -279,7 +274,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """List whitelisted channels.
         NOTE: do this in a channel outside of the viewing public
         """
-        guildId = ctx.message.guild.id
         guildName = ctx.message.guild.name
 
         channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
@@ -318,8 +312,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if isinstance(msg.channel, discord.DMChannel):
             return False
 
-        guildId = msg.guild.id
-
         # Do not filter whitelisted channels
         try:
             whitelist = await self.config.guild(msg.guild).channelAllowed()
@@ -335,7 +327,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         try:
             toggleMod = await self.config.guild(msg.guild).toggleMod()
             if toggleMod:
-                if self.bot.is_mod(msg.author) or self.bot.is_admin(msg.author):
+                if await self.bot.is_mod(msg.author) or await self.bot.is_admin(msg.author):
                     return False
         except Exception as error: # pylint: disable=broad-except
             self.logger.error("Exception occurred in checking keyToggleMod!")
@@ -375,6 +367,17 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         """This method, given a message, will check to see if the message contains
         any filterable words, and if it does, deletes the original message and
         sends another message with the filterable words censored.
+
+        Parameters:
+        -----------
+        msg: discord.Message
+            The message that was sent, or the message before it was edited.
+        newMsg: discord.Message
+            The new message after it was edited.
+
+        Returns:
+        --------
+        Nothing.
         """
         if newMsg and not await self.checkMessageServerAndChannel(newMsg):
             return
@@ -382,7 +385,6 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if not await self.checkMessageServerAndChannel(msg):
             return
 
-        guildId = msg.guild.id
         blacklistedCmd = False
 
         filteredWords = await self.config.guild(msg.guild).filters()
