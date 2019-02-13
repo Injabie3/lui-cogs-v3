@@ -316,7 +316,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         filters = await self.config.guild(msg.guild).filters()
 
         # Filter only configured servers, not private DMs.
-        if isinstance(msg.channel, discord.PrivateChannel):
+        if isinstance(msg.channel, discord.DMChannel):
             return False
 
         guildId = msg.guild.id
@@ -377,16 +377,18 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         any filterable words, and if it does, deletes the original message and
         sends another message with the filterable words censored.
         """
-        if newMsg and not self.checkMessageServerAndChannel(newMsg):
+        if newMsg and not await self.checkMessageServerAndChannel(newMsg):
             return
 
-        if not self.checkMessageServerAndChannel(msg):
+        if not await self.checkMessageServerAndChannel(msg):
             return
 
-        guildId = msg.server.id
+        guildId = msg.guild.id
         blacklistedCmd = False
 
-        filteredWords = self.filters[guildId]
+        filteredWords = await self.config.guild(msg.guild).filters()
+        commandDenied = await self.config.guild(msg.guild).commandDenied()
+
         if newMsg:
             checkMsg = newMsg.content
         else:
@@ -395,11 +397,10 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         filteredMsg = originalMsg
         oneWord = _isOneWord(checkMsg)
 
-        if guildId in self.commandBlacklist:
-            for prefix in self.bot.command_prefix(self.bot, msg):
-                for cmd in self.commandBlacklist[guildId]:
-                    if checkMsg.startswith(prefix+cmd):
-                        blacklistedCmd = True
+        for prefix in await self.bot.get_prefix(msg):
+            for cmd in commandDenied:
+                if checkMsg.startswith(prefix+cmd):
+                    blacklistedCmd = True
 
         for word in filteredWords:
             try:
@@ -415,7 +416,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if filteredMsg == originalMsg:
             return # no bad words, don't need to do anything else
 
-        await self.bot.delete_message(msg)
+        await msg.delete()
         if blacklistedCmd:
             # If the it contains a filtered word AND the blacklisted command flag was
             # set above, then:
@@ -423,33 +424,40 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             # - Notify on the channel that the message was filtered without showing context
             # - DM user with the filtered context as per what we see usually.
             filterNotify = "{0.author.mention} was filtered!".format(msg)
-            notifyMsg = await self.bot.send_message(msg.channel, filterNotify)
+            notifyMsg = await msg.channel.send(filterNotify)
             filterNotify = "You were filtered! Your message was: \n"
-            embed = discord.Embed(colour=random.choice(self.colours),
+            embed = discord.Embed(colour=random.choice(COLOURS),
                                   description="{0.author.name}#{0.author.discriminator}: "
                                   "{1}".format(msg, filteredMsg))
             try:
-                await self.bot.send_message(msg.author, filterNotify, embed=embed)
+                await msg.author.send(filterNotify, embed=embed)
             except discord.errors.Forbidden as error:
                 LOGGER.error("Could not DM user, perhaps they have blocked DMs?")
                 LOGGER.error(error)
             await asyncio.sleep(3)
-            await self.bot.delete_message(notifyMsg)
+            await notifyMsg.delete()
         elif (filteredMsg != originalMsg and oneWord) or allFiltered:
             filterNotify = "{0.author.mention} was filtered!".format(msg)
-            notifyMsg = await self.bot.send_message(msg.channel, filterNotify)
+            notifyMsg = await msg.channel.send(filterNotify)
             await asyncio.sleep(3)
-            await self.bot.delete_message(notifyMsg)
+            await notifyMsg.delete()
         else:
             filterNotify = "{0.author.mention} was filtered! Message was: \n".format(msg)
-            embed = discord.Embed(colour=random.choice(self.colours),
+            embed = discord.Embed(colour=random.choice(COLOURS),
                                   description="{0.author.name}#{0.author.discriminator}: "
                                   "{1}".format(msg, filteredMsg))
-            await self.bot.send_message(msg.channel, filterNotify, embed=embed)
+            await msg.channel.send(filterNotify, embed=embed)
 
         LOGGER.info("Author : %s#%s (%s)", msg.author.name, msg.author.discriminator,
                     msg.author.id)
         LOGGER.info("Message: %s", originalMsg)
+
+    # Event listeners
+    async def on_message(self, msg):
+        await self.checkWords(msg)
+
+    async def on_message_edit(self, msg, newMsg):
+        await self.checkWords(msg, newMsg)
 
 def _filterWord(word, string):
     regex = r'\b{}\b'.format(word)
