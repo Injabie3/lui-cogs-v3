@@ -299,7 +299,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             await ctx.send("Sorry, there are no whitelisted channels in "
                            "**{}**".format(guildName))
 
-    def checkMessageServerAndChannel(self, msg):
+    async def checkMessageServerAndChannel(self, msg):
         """Checks to see if the message is in a server/channel eligible for
         filtering.
 
@@ -344,7 +344,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
 
         return True
 
-    def containsFilterableWords(self, msg):
+    async def containsFilterableWords(self, msg):
         """Checks to see if the message contains words that we need to filter out.
         If the message is in a server/channel that does not exist or is whitelisted,
         this function will return False.
@@ -359,7 +359,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         Boolean
             True if message contains words that can be filtered, else False.
         """
-        if not self.checkMessageServerAndChannel(msg):
+        if not await self.checkMessageServerAndChannel(msg):
             return False
 
         filteredMsg = msg.content
