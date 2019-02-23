@@ -44,7 +44,15 @@ with open("whitelist.json") as v2Whitelist:
     for key, val in whitelist.items():
         if key not in v3Json[UID]["GUILD"]:
             v3Json[UID]["GUILD"][key] = {}
-        v3Json[UID]["GUILD"][key]["channelDenied"] = val
+        v3Json[UID]["GUILD"][key]["channelAllowed"] = val
+
+with open("command_blacklist.json") as v2CmdBlacklist:
+    print("Converting command_blacklist.json..")
+    blacklist = json.load(v2CmdBlacklist)
+    for key, val in blacklist.items():
+        if key not in v3Json[UID]["GUILD"]:
+            v3Json[UID]["GUILD"][key] = {}
+        v3Json[UID]["GUILD"][key]["commandDenied"] = val
 
 with open("v3data.json", "w") as output:
     json.dump(v3Json, output, indent=4)
