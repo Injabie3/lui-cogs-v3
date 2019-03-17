@@ -7,13 +7,10 @@ Requirements:
 import asyncio
 from datetime import datetime
 import logging
-import os
-
 import aiohttp
-import discord
-import discord
 import feedparser
 from bs4 import BeautifulSoup
+import discord
 from redbot.core  import checks, Config, commands
 from redbot.core.bot import Red
 
@@ -39,34 +36,6 @@ def epoch2date(epoch):
     date = datetime.fromtimestamp(epoch).strftime('%a, %d %b %Y %I:%M%p')
     return date
 
-def checkFilesystem():
-    """Check if the folders/files are created."""
-    folders = ("data/rss")
-    for folder in folders:
-        if not os.path.exists(folder):
-            self.logger.info("Creating folder: %s ...", folder)
-            os.makedirs(folder)
-
-    files = ("data/rss/config.json", "data/rss/feeds.json")
-    for file in files:
-        if not os.path.exists(file):
-            self.logger.info("Creating file: %s...", file)
-
-            if "feeds" in file:
-                #build a default feeds.json
-                defaultDict = {}
-                defaultFeedItem = {}
-                defaultFeedItem['id'] = 0
-                defaultFeedItem['latest_post_time'] = 0
-                defaultDict['feeds'] = []
-                defaultDict['feeds'].append(defaultFeedItem)
-            elif "config" in file:
-                #build a default config.json
-                defaultDict = {}
-                defaultDict[KEY_CHANNEL] = "change_me"
-                defaultDict[KEY_FEEDS] = {}
-                defaultDict[KEY_INTERVAL] = 3600 #default to checking every hour
-
 def _getLatestPostTime(feedItems):
     publishedTimes = []
     for item in feedItems:
@@ -83,19 +52,19 @@ class RSSFeed(commands.Cog):
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=5842647, 
-                                    force_registration = True)
+        self.config = Config.get_conf(self, identifier=5842647,
+                                      force_registration=True)
         self.logger = logging.getLogger('discord')
-        default_global = {
-                "interval": 60
+        defaultGlobal = {
+            "interval": 60
                 }
-        default_guild = {
-                "channelId": None,
-                "rssFeedUrls": {},
+        defaultGuild = {
+            "channelId": None,
+            "rssFeedUrls": {},
 
                 }
-        self.config.register_global(**default_global)
-        self.config.register_guild(**default_guild)
+        self.config.register_global(**defaultGlobal)
+        self.config.register_guild(**defaultGuild)
         #self.config = config.Config("config.json",
          #                           cogname="rss")
         #self.bot = bot
@@ -119,19 +88,19 @@ class RSSFeed(commands.Cog):
         """
         if minutes < 1 or minutes > 180:
             await ctx.send(":negative_squared_cross_mark: **RSS - Check Interval:** "
-                               "The interval must be between 1 and 180 minutes!")
+                           "The interval must be between 1 and 180 minutes!")
             return
 
         await self.config.interval.set(minutes*60)
 
         await ctx.send(":white_check_mark: **RSS - Check Interval:** Interval set to "
-                           "**{}** minutes".format(minutes))
+                       "**{}** minutes".format(minutes))
 
         self.logger.info("%s#%s (%s) changed the RSS check interval to %s minutes",
-                    ctx.message.author.name,
-                    ctx.message.author.discriminator,
-                    ctx.message.author.id,
-                    minutes)
+                         ctx.message.author.name,
+                         ctx.message.author.discriminator,
+                         ctx.message.author.id,
+                         minutes)
 
     @_rss.command(name="channel", pass_context=True, no_pm=True)
     async def setChannel(self, ctx, channel: discord.TextChannel):
@@ -144,13 +113,13 @@ class RSSFeed(commands.Cog):
         """
         await self.config.guild(ctx.guild).channelId.set(channel.id)
         await ctx.send(":white_check_mark: **RSS - Channel**: New updates will now "
-                           "be posted to {}".format(channel.mention))
+                       "be posted to {}".format(channel.mention))
         self.logger.info("%s#%s (%s) changed the RSS post channel to %s (%s)",
-                    ctx.message.author.name,
-                    ctx.message.author.discriminator,
-                    ctx.message.author.id,
-                    channel.name,
-                    channel.id)
+                         ctx.message.author.name,
+                         ctx.message.author.discriminator,
+                         ctx.message.author.id,
+                         channel.name,
+                         channel.id)
 
     @_rss.command(name="show", pass_context=False, no_pm=True)
     async def showSettings(self, ctx):
@@ -282,4 +251,3 @@ class RSSFeed(commands.Cog):
                 self.logger.error("The asyncio sleep was cancelled!")
                 self.logger.error(error)
                 raise error
-

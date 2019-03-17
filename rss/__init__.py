@@ -1,3 +1,8 @@
+"""
+Init file for RSS cog.
+"""
+
+
 import logging
 import os
 
@@ -5,7 +10,7 @@ from redbot.core.bot import Red
 from .rss import RSSFeed
 
 LOG_FOLDER = "log/lui-cogs/rss"
-
+LOGGER = None
 def checkFolders():
     """Make sure folder for logs is available."""
     if not os.path.exists(LOG_FOLDER):
