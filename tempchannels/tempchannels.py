@@ -406,7 +406,7 @@ class TempChannels:
                             # Start with permissions
                             allow_list = []
                             deny_list = []
-                            allow_perms = [ discord.PermissionOverwrite(read_messages=True) ]
+                            allow_perms = [ discord.PermissionOverwrite(read_messages=True, send_messages=False) ]
                             allow_roles = [ self.bot.user ]
                             deny_perms = []
                             deny_roles = []
