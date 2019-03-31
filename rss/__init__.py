@@ -18,7 +18,6 @@ def checkFolders():
 
 def setup(bot: Red):
     """Add the cog to the bot."""
-    #checkFilesystem()
     global LOGGER # pylint: disable=global-statement
     LOGGER = logging.getLogger("red.RSSFeed")
     if LOGGER.level == 0:

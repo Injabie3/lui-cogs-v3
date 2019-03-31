@@ -65,12 +65,6 @@ class RSSFeed(commands.Cog):
                 }
         self.config.register_global(**defaultGlobal)
         self.config.register_guild(**defaultGuild)
-        #self.config = config.Config("config.json",
-         #                           cogname="rss")
-        #self.bot = bot
-        #self.rssFeedUrls = self.config.get(KEY_FEEDS)
-        #self.checkInterval = self.config.get(KEY_INTERVAL)
-        #self.channelId = self.config.get(KEY_CHANNEL)
 
     @checks.mod_or_permissions(manage_messages=True)
     @commands.group(name="rss", pass_context=True, no_pm=True)
@@ -179,8 +173,6 @@ class RSSFeed(commands.Cog):
             rssDict[rssUrl][KEY_LAST_POST_TIME] = latestPostTime
 
         await self.config.guild(guild).rssFeedUrls.set(rssDict)
-
-        # Heartbeat
 
         return news
 
