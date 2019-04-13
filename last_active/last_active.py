@@ -2,8 +2,11 @@
 See when the last time someone spoke in a channel.
 """
 
+from datetime import datetime
+from threading import Lock
 import logging
 import os
+from pprint import pprint
 import discord
 from discord.ext import commands
 
@@ -24,13 +27,26 @@ class LastActive: # pylint: disable=too-few-public-methods
     # Class constructor
     def __init__(self, bot):
         self.bot = bot
+        self.messages = {}
+        self.lock = Lock()
 
     @commands.command(name="lastactive", pass_context=True)
     async def lastactive(self, ctx):
         """Last active."""
-        pass
+        pprint(self.messages)
 
-    # TODO Add listener
+    async def listener(self, msg):
+        """Listener for messages"""
+        with self.lock:
+            sid = msg.server.id
+            cid = msg.channel.id
+            uid = msg.author.id
+            if sid not in self.messages.keys():
+                self.messages[sid] = {}
+            if cid not in self.messages[sid].keys():
+                self.messages[sid][cid] = {}
+            if uid not in self.messages[sid][cid].keys():
+                self.messages[sid][cid][uid] = datetime.now()
 
 def setup(bot):
     """Add the cog to the bot."""
@@ -47,4 +63,5 @@ def setup(bot):
                                                datefmt="[%d/%m/%Y %H:%M:%S]"))
         LOGGER.addHandler(handler)
     customCog = LastActive(bot)
+    bot.add_listener(customCog.listener, "on_message")
     bot.add_cog(customCog)
