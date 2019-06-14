@@ -454,9 +454,11 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         self.logger.info("Message: %s", originalMsg)
 
     # Event listeners
+    @commands.Cog.listener()
     async def on_message(self, msg):
         await self.checkWords(msg)
 
+    @commands.Cog.listener()
     async def on_message_edit(self, msg, newMsg):
         await self.checkWords(msg, newMsg)
 
