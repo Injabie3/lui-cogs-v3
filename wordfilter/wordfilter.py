@@ -306,11 +306,11 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         Boolean
             True if the message is eligible for filtering, else False.
         """
-        filters = await self.config.guild(msg.guild).filters()
-
         # Filter only configured servers, not private DMs.
         if isinstance(msg.channel, discord.DMChannel):
             return False
+
+        filters = await self.config.guild(msg.guild).filters()
 
         # Do not filter whitelisted channels
         try:
