@@ -21,17 +21,17 @@ DEFAULT_TIMEOUT = 20
 MAX_WORDS_HIGHLIGHT = 20
 MAX_WORDS_IGNORE = 20
 KEY_BLACKLIST = "blacklist"
-KEY_IGNORE = "ignoreWords"
 KEY_TIMEOUT = "timeout"
 KEY_WORDS = "words"
+KEY_WORDS_IGNORE = "ignoreWords"
 KEY_IGNORE = "ignoreChannelID"
 
 BASE_GUILD_MEMBER = \
 {
  KEY_BLACKLIST: [],
- KEY_IGNORE: [],
  KEY_TIMEOUT: DEFAULT_TIMEOUT,
- KEY_WORDS: []
+ KEY_WORDS: [],
+ KEY_WORDS_IGNORE: []
 }
 
 BASE_GUILD = \
@@ -45,7 +45,7 @@ class Highlight(commands.Cog):
         super().__init__()
         self.bot = bot
         self.lock = Lock()
-        self.config = Config.get_conf(self, identifier=5842647)
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_member(**BASE_GUILD_MEMBER)
         self.config.register_guild(**BASE_GUILD)
 
@@ -468,8 +468,8 @@ class Highlight(commands.Cog):
                 continue
 
             # Handle case where message contains words being ignored byu the user.
-            if KEY_IGNORE in data.keys():
-                for word in data[KEY_IGNORE]:
+            if KEY_WORDS_IGNORE in data.keys():
+                for word in data[KEY_WORDS_IGNORE]:
                     if _isWordMatch(word, msg.content):
                         self.logger.debug("%s is being ignored, skipping user.", word)
                         isWordIgnored = True
