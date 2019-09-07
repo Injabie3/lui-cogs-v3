@@ -4,6 +4,7 @@ Credit: This idea was first implemented by Danny (https://github.com/Rapptz/) bu
 the time, that bot was closed source.
 """
 from datetime import timedelta, timezone
+import logging
 import re
 from threading import Lock
 import asyncio
