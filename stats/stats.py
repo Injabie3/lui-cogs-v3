@@ -3,6 +3,9 @@
 Collect some stats for ourselves.
 """
 
+from datetime import datetime
+import logging
+import discord
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.bot import Red
 from redbot.core.commands.context import Context
@@ -57,7 +60,7 @@ class Stats(commands.Cog):
         """Stats for the guild."""
         pass
 
-    @stats.command(name="update")
+    @statsGroup.command(name="update")
     async def update(self, ctx: Context):
         """Update the message count for all users on the guild.
 
@@ -65,18 +68,58 @@ class Stats(commands.Cog):
         """
         self.logger.debug("Starting stats update on guild %s (%s)",
                           ctx.guild.name, ctx.guild.id)
-        status = ctx.send(":information_source: Updating, please wait...")
-        membersLock = self.config.get_members_lock()
+        status = await ctx.send(":information_source: Updating, please wait...")
+        membersLock = self.config.get_members_lock(ctx.guild)
         channelsLock = self.config.get_channels_lock()
 
+        # TODO double check to make sure that we can't deadlock here.
         await membersLock.acquire()
         await channelsLock.acquire()
 
         self.logger.debug("Member and channel locks acquired")
 
-        for guild in self.bot.guilds:
-            pass
+        for chan in ctx.guild.text_channels:
+            self.logger.debug("Processing channel %s (%s)", chan.name, chan.id)
+            await status.edit(content=":information_source: Processing channel **{}"
+                              "**".format(chan.name))
+            lastUpdated = await self.config.channel(chan).lastUpdated()
+            lastUpdated = datetime.fromtimestamp(lastUpdated) if lastUpdated else None
+            try:
+                async for msg in chan.history(limit=None, after=lastUpdated,
+                        oldest_first=True):
+                    self.logger.debug("Current message: %s", msg)
+                    await self.config.channel(chan).lastUpdated.set(msg.created_at.
+                            timestamp())
+                    if msg.author.bot or not isinstance(msg.author, discord.Member):
+                        continue
+                    async with self.config.member(msg.author).messageCount() as msgCount:
+                        if str(chan.id) not in msgCount.keys():
+                            msgCount[str(chan.id)] = 1
+                        else:
+                            msgCount[str(chan.id)] += 1
+            except discord.Forbidden:
+                self.logger.error("Permission error! Check traceback", exc_info=True)
 
+        await status.edit(content=":white_check_mark: Stats update complete!")
+
+    @statsGroup.command(name="info")
+    async def info(self, ctx: Context, member: discord.Member=None):
+        """Check user info.
+
+        Parameters:
+        -----------
+        member: discord.Member (optional)
+            The guild member you wish to check info for. If not specified, this defaults
+            to you.
+        """
+        total = 0
+        if not member:
+            member = ctx.author
+        memberData = await self.config.member(member).messageCount()
+
+        for chanId, msgs in memberData.items():
+            total += msgs
+        await ctx.send("You have sent {} messages on this server!".format(total))
 
     @commands.Cog.listener("on_message")
     async def messageListener(self, message: discord.Message):
