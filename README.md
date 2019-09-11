@@ -9,6 +9,7 @@ Custom cogs for Red-DiscordBot v3.  Currently in development.
 - `roleassigner`: WIP.
 - `rss`: Ready.
 - `sfu`: Ready.
+- `stats`: WIP.
 - `smartreact`: WIP.
 - `wordfilter`: Ready.
 
