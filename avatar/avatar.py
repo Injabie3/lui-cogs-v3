@@ -40,8 +40,11 @@ class Avatar(commands.Cog):
             await ctx.send("Saved all avatars!")
 
     @commands.Cog.listener("on_user_update")
-    async def newAvatarListener(self, _, updatedUser):
+    async def newAvatarListener(self, oldUser, updatedUser):
         """Listener for user updates."""
+        if oldUser.avatar == updatedUser.avatar:
+            return
+
         self.logger.info("%s#%s (%s) updated their avatar, saving image",
                          updatedUser.name, updatedUser.discriminator,
                          updatedUser.id)
