@@ -2,6 +2,7 @@
 Custom cogs for Red-DiscordBot v3.  Currently in development.
 
 ## Status
+- `avatar`: Ready.
 - `birthday`: Ready.
 - `catgirl`: Ready.
 - `highlight`: Ready.
