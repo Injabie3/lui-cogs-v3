@@ -13,6 +13,7 @@ Custom cogs for Red-DiscordBot v3.  Currently in development.
 - `stats`: WIP.
 - `smartreact`: WIP.
 - `tempchannels`: Ready.
+- `welcome`: Ready.
 - `wordfilter`: Ready.
 
 ## Dependencies
