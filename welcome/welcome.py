@@ -89,10 +89,10 @@ class Welcome(commands.Cog): # pylint: disable=too-many-instance-attributes
                     await channel.send(f":o: ``Server Welcome:`` User {newUser.name}#"
                                        f"{newUser.discriminator} ({newUser.id}) has "
                                        "joined. DM sent.")
-                    # LOGGER.info("User %s#%s (%s) has joined.  DM sent.",
-                    #             newUser.name,
-                    #             newUser.discriminator,
-                    #             newUser.id)
+                    LOGGER.info("User %s#%s (%s) has joined.  DM sent.",
+                                newUser.name,
+                                newUser.discriminator,
+                                newUser.id)
 
     async def logServerLeave(self, leaveUser: discord.Member):
         """Logs the server leave to a channel, if enabled."""
