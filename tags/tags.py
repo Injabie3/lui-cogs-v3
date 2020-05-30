@@ -150,7 +150,7 @@ class Tags(commands.Cog):
         if server is None:
             return generic
 
-        generic.update(self.config.get(server.id, {}))
+        generic.update(self.config.get(str(server.id), {}))
         return generic
 
     def get_tag(self, server, name, *, redirect=True):
@@ -231,9 +231,12 @@ class Tags(commands.Cog):
         await self.config.put(tag.location, db)
 
     @tag.error
-    async def tag_error(self, error, ctx):
+    async def tag_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.bot.say('You need to pass in a tag name.')
+            await ctx.send('You need to pass in a tag name.')
+            await ctx.send_help()
+        else:
+            raise error
 
     def verify_lookup(self, lookup):
         if '@everyone' in lookup or '@here' in lookup:
