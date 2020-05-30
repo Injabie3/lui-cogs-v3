@@ -3,10 +3,9 @@
 # DATE IMPORTED: 2017-04-10
 # DATE LAST MODIFIED: 2017-04-13
 
-from .utils import config, checks, formats
+from .config import Config
 from .utils.paginator import Pages
 
-from discord.ext import commands
 import csv
 import json
 import re
@@ -14,6 +13,14 @@ import datetime
 import discord
 import difflib
 from threading import Lock
+
+import asyncio
+import discord
+import logging
+
+from redbot.core import checks, commands
+from redbot.core.bot import Red
+from redbot.core.commands.context import Context
 
 DEFAULT_MAX = 50 # Default max number of tags per user.
 KEY_MAX = "max"
@@ -117,14 +124,15 @@ def tag_decoder(obj):
         return TagAlias(**obj)
     return obj
 
-class Tags:
+class Tags(commands.Cog):
     """The tag related commands."""
 
     def __init__(self, bot):
         self.bot = bot
-        self.config = config.Config('tags.json', cogname='tags', encoder=TagEncoder, object_hook=tag_decoder,
-                                                 loop=bot.loop, load_later=True)
-        self.settings = config.Config('settings.json', cogname='tags')
+        self.config = Config('tags.json', cogname='tags', encoder=TagEncoder,
+                             object_hook=tag_decoder, loop=bot.loop,
+                             load_later=True)
+        self.settings = Config('settings.json', cogname='tags')
         self.lock = Lock()
                                                  
     def get_database_location(self, message):
@@ -202,21 +210,21 @@ class Tags:
             return True
         return False
 
-    @commands.group(pass_context=True, invoke_without_command=True)
-    async def tag(self, ctx, *, name : str):
+    @commands.group(name="tag", invoke_without_command=True)
+    async def tag(self, ctx: Context, *, name : str):
         """Allows you to tag text for later retrieval.
         If a subcommand is not called, then this will search the tag database
         for the tag requested.
         """
         lookup = name.lower()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            return await ctx.send(e)
 
         tag.uses += 1
-        await self.bot.say(tag)
+        await ctx.send(tag)
 
         # update the database with the new tag reference
         db = self.config.get(tag.location)
