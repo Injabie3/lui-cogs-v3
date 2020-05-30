@@ -32,7 +32,7 @@ class Config:
             self._db = {}
 
     async def load(self):
-        with await self.lock:
+        async with self.lock:
             await self.loop.run_in_executor(None, self.load_from_file)
 
     def _dump(self):
@@ -44,7 +44,7 @@ class Config:
         os.replace(temp, self.directory+self.name)
 
     async def save(self):
-        with await self.lock:
+        async with self.lock:
             await self.loop.run_in_executor(None, self._dump)
 
     def get(self, key, *args):
