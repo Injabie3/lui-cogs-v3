@@ -248,23 +248,29 @@ class Tags(commands.Cog):
         if len(lookup) > 100:
             raise RuntimeError('Tag name is a maximum of 100 characters.')
 
-    @tag.command(pass_context=True, no_pm=True)
+    @tag.command(name="max")
+    @commands.guild_only()
     @checks.mod_or_permissions()
-    async def max(self, ctx, num_tags: int=None):
+    async def max(self, ctx: Context, num_tags: int=None):
         """Set the max number of tags per user. Leave blank to show current setting.
 
         This limit does not apply to admins or mods.
+
+        Parameters:
+        -----------
+        num_tags: int
+            The maximum number of tags per user.
         """
         if not num_tags:
             limit = self.settings.get(KEY_MAX, DEFAULT_MAX)
-            await self.bot.say("The current tag limit per user is {}.".format(limit))
+            await ctx.send("The current tag limit per user is {}.".format(limit))
             return
         if num_tags < 0:
-            await self.bot.say("Please set a value greater than 0.")
+            await ctx.send("Please set a value greater than 0.")
             return
 
         await self.settings.put(KEY_MAX, num_tags)
-        await self.bot.say("The tag limit was set to {}".format(num_tags))
+        await ctx.send("The tag limit was set to {}".format(num_tags))
 
     @tag.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions()
