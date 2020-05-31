@@ -587,70 +587,86 @@ class Tags(commands.Cog):
         await self.config.put(tag.location, db)
         await ctx.send('Tag successfully edited.')
 
-    @tag.command(pass_context=True, no_pm=True)
+    @tag.command(name="transfer")
+    @commands.guild_only()
     @checks.sensei_or_mod_or_permissions(manage_messages=True)
-    async def transfer(self, ctx, tag_name, user: discord.Member):
-        """
-        Transfers a tag that you have created to another user.
+    async def transfer(self, ctx: Context, tag_name, user: discord.Member):
+        """Transfer your tag to another user.
+
         This can be done by the creator of the tag. Cannot transfer 
         if the user being transfered to is over the tag limit.
+
+        Parameters:
+        -----------
+        tag_name: str
+            The tag name.
+        user: discord.Member
+            The guild member you wish to transfer this tag to.
         """
         lookup = tag_name.lower().strip()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup, redirect=False)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            await ctx.send(e)
+            return
         
         adminRoleName = self.bot.settings.get_server_admin(server)
         modRoleName = self.bot.settings.get_server_mod(server)
         ownerID = self.bot.settings.owner
 
-        adminRole = discord.utils.get(ctx.message.server.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.server.roles, name=modRoleName)
+        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
+        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
     
-        sensei = discord.utils.get(ctx.message.server.roles, name="Sensei")
+        sensei = discord.utils.get(ctx.message.guild.roles, name="Sensei")
         
         #checks for mod/admin/owner of the tag
         if (tag.owner_id != ctx.message.author.id and adminRole not in ctx.message.author.roles 
                 and modRole not in ctx.message.author.roles and ctx.message.author.id != ownerID 
                 and ctx.message.author.id not in ctx.bot.settings.co_owners):
-            await self.bot.say("Only the tag owner can transfer this tag.")
+            await ctx.send("Only the tag owner can transfer this tag.")
             return
 
         #checks if the user in question has permissions to create tags
         if (sensei not in user.roles and adminRole not in user.roles and modRole not in user.roles 
                 and user.id != ownerID and user.id not in ctx.bot.settings.co_owners):
-            await self.bot.say("The person you are trying to transfer to cannot create commands.")
+            await ctx.send("The person you are trying to transfer to cannot create commands.")
             return
 
         #checks if the user has exceeded the tag limit
         if await self.user_exceeds_tag_limit(ctx.message.server, user):
-            await self.bot.say("The person you are trying to transfer a tag to already has too many commands!")
+            await ctx.send("The person you are trying to transfer a tag to already "
+                           "has too many commands!")
             return
 
-        await self.bot.say("{} please confirm by saying \"yes\" that you would like to receive "
-                           "this tag from {}. \nAny other message in this channel by the recipient "
-                           "will be treated as no.".format(user.mention, ctx.message.author.mention))
-        response = await self.bot.wait_for_message(timeout=15, author=user,
-                                                   channel=ctx.message.channel)
-        if not response:
-            await self.bot.say("No confirmation from {}. Transfer has been cancelled.".format(user.name))
+        await ctx.send("{} please confirm by saying \"yes\" that you would like to "
+                       "receive this tag from {}. \nAny other message in this channel "
+                       "by the recipient will be treated as no.".format(user.mention,
+                        ctx.message.author.mention))
+
+        def check(msg: discord.Message):
+            return msg.author == ctx.author and msg.channel == ctx.channel
+        try:
+            response = await self.bot.wait_for("message", check=check, timeout=15)
+        except asyncio.TimeoutError:
+            await ctx.send(f"No confirmation from {user.name}. Transfer has been "
+                           "cancelled.")
             return
+
         if response.content.lower() == 'yes':
             #The user has answered yes; transfering tag
             db = self.config.get(tag.location)
             tag.owner_id = user.id
             await self.config.put(tag.location, db)
-            await self.bot.say("Tag successfully transferred from the current owner "
-                               "to {}.".format(user.mention))
+            await ctx.send("Tag successfully transferred from the current owner "
+                           "to {}.".format(user.mention))
         else:
-            await self.bot.say("Tag has been rejected by {}. Transfer has been "
-                               "cancelled.".format(user.name))
+            await ctx.send("Tag has been rejected by {}. Transfer has been "
+                           "cancelled.".format(user.name))
 
-    @tag.command(pass_context=True, aliases=['delete','del'])
+    @tag.command(name="delete", aliases=["del", "remove", "rm"])
     @checks.sensei_or_mod_or_permissions(manage_messages=True)
-    async def remove(self, ctx, *, name : str):
+    async def remove(self, ctx: Context, *, name : str):
         """Removes a tag that you own.
         The tag owner can always delete their own tags. If someone requests
         deletion and has Manage Messages permissions or a Bot Mod role then
@@ -659,11 +675,12 @@ class Tags(commands.Cog):
         Deleting a tag will delete all of its aliases as well.
         """
         lookup = name.lower()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup, redirect=False)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            await ctx.send(e)
+            return
 
         if not tag.is_generic:
             can_delete = checks.role_or_permissions(ctx, lambda r: r.name == 'Bot Admin', manage_messages=True)
@@ -673,15 +690,16 @@ class Tags(commands.Cog):
         can_delete = can_delete or tag.owner_id == ctx.message.author.id
 
         # Get admin and mod roles.
-        adminRoleName = self.bot.settings.get_server_admin(ctx.message.server)
-        modRoleName = self.bot.settings.get_server_mod(ctx.message.server)
+        adminRoleName = self.bot.settings.get_server_admin(ctx.message.guild)
+        modRoleName = self.bot.settings.get_server_mod(ctx.message.guild)
 
-        adminRole = discord.utils.get(ctx.message.server.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.server.roles, name=modRoleName) 
+        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
+        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
         
         # Check and see if the user is not the tag owner, or is not a mod, or is not an admin.
-        if not can_delete and adminRole not in ctx.message.author.roles and modRole not in ctx.message.author.roles:
-            await self.bot.say('You do not have permissions to delete this tag.')
+        if not can_delete and adminRole not in ctx.message.author.roles and \
+                modRole not in ctx.message.author.roles:
+            await ctx.send('You do not have permissions to delete this tag.')
             return
 
         if isinstance(tag, TagAlias):
@@ -703,12 +721,10 @@ class Tags(commands.Cog):
             del db[lookup]
 
         await self.config.put(location, db)
-        await self.bot.say(msg)
+        await ctx.send(msg)
         
-        aliasCog = self.bot.get_cog('Alias')
-        await aliasCog.del_alias(ctx.message.server, lookup)
-        
-        
+        # aliasCog = self.bot.get_cog('Alias')
+        # await aliasCog.del_alias(ctx.message.server, lookup)
 
     @tag.command(pass_context=True, aliases=['owner'])
     async def info(self, ctx, *, name : str):
