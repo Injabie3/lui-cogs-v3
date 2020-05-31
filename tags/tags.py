@@ -272,16 +272,17 @@ class Tags(commands.Cog):
         await self.settings.put(KEY_MAX, num_tags)
         await ctx.send("The tag limit was set to {}".format(num_tags))
 
-    @tag.command(pass_context=True, no_pm=True)
+    @tag.command(name="dump")
+    @commands.guild_only()
     @checks.mod_or_permissions()
-    async def dump(self, ctx):
+    async def dump(self, ctx: Context):
         """Dumps server-specific tags to a CSV file, sorted by number of uses."""
         sid = ctx.message.server.id
         with self.lock:
             with open(DUMP_IN, "r") as inputFile, open(DUMP_OUT, "w") as outputFile:
                 tags = json.load(inputFile)
                 if sid not in tags.keys():
-                    await self.bot.say("There are no tags on this server!")
+                    await ctx.send("There are no tags on this server!")
 
                 csvWriter = csv.writer(outputFile)
                 headerCreated = False
@@ -299,7 +300,7 @@ class Tags(commands.Cog):
                         csvWriter.writerow(header)
                         headerCreated = True
 
-                    owner = discord.utils.get(ctx.message.server.members, id=tag["owner_id"])
+                    owner = discord.utils.get(ctx.guild.members, id=tag["owner_id"])
                     if not owner:
                         owner = "Unknown"
                     else:
@@ -308,7 +309,7 @@ class Tags(commands.Cog):
                     data = list(tag.values()) + [owner]
                     csvWriter.writerow(data)
 
-            await self.bot.send_file(ctx.message.channel, DUMP_OUT)
+            await ctx.send(file=DUMP_OUT)
 
     @tag.command(pass_context=True, aliases=['add'], no_pm=True)
     @checks.sensei_or_mod_or_permissions(manage_messages=True)
