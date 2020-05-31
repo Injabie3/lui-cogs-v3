@@ -311,24 +311,26 @@ class Tags(commands.Cog):
 
             await ctx.send(file=DUMP_OUT)
 
-    @tag.command(pass_context=True, aliases=['add'], no_pm=True)
-    @checks.sensei_or_mod_or_permissions(manage_messages=True)
-    async def create(self, ctx, name : str, *, content : str):
+    @tag.command(name="create", aliases=['add'])
+    @commands.guild_only()
+    # @checks.sensei_or_mod_or_permissions(manage_messages=True) # TODO Fix this later.
+    async def create(self, ctx: Context, name : str, *, content : str):
         """Creates a new tag owned by you.
         If you create a tag via private message then the tag is a generic
         tag that can be accessed in all servers. Otherwise the tag you
         create can only be accessed in the server that it was created in.
         """
-        aliasCog = self.bot.get_cog('Alias')
-        if aliasCog.part_of_existing_command(name, ctx.message.server.id):
-            await self.bot.say("This name cannot be used because there is already an internal "
-                               "command with this name.")
-            return
+        # TODO Fix this later.
+        # aliasCog = self.bot.get_cog('Alias')
+        # if aliasCog.part_of_existing_command(name, ctx.message.server.id):
+        #     await self.bot.say("This name cannot be used because there is already an internal "
+        #                        "command with this name.")
+        #     return
 
         limit = self.settings.get(KEY_MAX, DEFAULT_MAX)
         if await self.user_exceeds_tag_limit(ctx.message.server, ctx.message.author):
-            await self.bot.say("You have too many commands. The maximum number of commands "
-                               "per user is {}, please delete some first!".format(limit))
+            await ctx.send("You have too many commands. The maximum number of commands "
+                           "per user is {}, please delete some first!".format(limit))
             return
 
         content = self.clean_tag_content(content)
@@ -336,12 +338,12 @@ class Tags(commands.Cog):
         try:
             self.verify_lookup(lookup)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            return await ctx.send(e)
 
         location = self.get_database_location(ctx.message)
         db = self.config.get(location, {})
         if lookup in db:
-            await self.bot.say('A tag with the name of "{}" already exists.'.format(name))
+            await ctx.send('A tag with the name of "{}" already exists.'.format(name))
             return
 
         db[lookup] = TagInfo(name, content, ctx.message.author.id,
@@ -349,15 +351,14 @@ class Tags(commands.Cog):
                              created_at=datetime.datetime.utcnow().timestamp())
 
         await self.config.put(location, db)
-        await self.bot.say('Tag "{}" successfully created.'.format(name))
+        await ctx.send('Tag "{}" successfully created.'.format(name))
         
-        aliasCog = self.bot.get_cog('Alias')
-        await aliasCog.add_alias(ctx.message.server, lookup, "tag {}".format(lookup))
+        # await aliasCog.add_alias(ctx.message.server, lookup, "tag {}".format(lookup))
 
     @create.error
-    async def create_error(self, error, ctx):
+    async def create_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.bot.say('Tag ' + str(error))
+            await ctx.send('Tag ' + str(error))
 
     @tag.command(pass_context=True)
     @checks.mod_or_permissions(administrator=True)
