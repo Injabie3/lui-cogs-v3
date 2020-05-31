@@ -395,7 +395,7 @@ class Tags(commands.Cog):
             await ctx.send('A tag with the name of "{}" already exists.'.format(name))
             return
 
-        db[lookup] = TagInfo(name, content, ctx.message.author.id,
+        db[lookup] = TagInfo(name, content, str(ctx.author.id),
                              location='generic',
                              created_at=datetime.datetime.utcnow().timestamp())
         await self.config.put('generic', db)
@@ -547,7 +547,7 @@ class Tags(commands.Cog):
         e.add_field(name='Global', value='%s tags\n%s uses' % (total_tags, total_uses))
 
         if server is not None:
-            db = self.config.get(server.id, {})
+            db = self.config.get(str(server.id), {})
             e.add_field(name='Server-Specific', value='%s tags\n%s uses' % (len(db), sum(t.uses for t in db.values())))
         else:
             db = {}
@@ -791,10 +791,10 @@ class Tags(commands.Cog):
         owner = ctx.message.author if member is None else member
         server = ctx.message.guild
         tags = [tag.name for tag in self.config.get('generic', {}).values()
-                if tag.owner_id == owner.id]
+                if tag.owner_id == str(owner.id)]
         if server is not None:
-            tags.extend(tag.name for tag in self.config.get(server.id, {}).values()
-                        if tag.owner_id == owner.id)
+            tags.extend(tag.name for tag in self.config.get(str(server.id), {}).values()
+                        if tag.owner_id == str(owner.id))
 
         tags.sort()
 
@@ -828,7 +828,7 @@ class Tags(commands.Cog):
     async def _all(self, ctx):
         """Lists all server-specific tags for this server."""
 
-        tags = [tag.name for tag in self.config.get(ctx.message.guild.id, {}).values()]
+        tags = [tag.name for tag in self.config.get(str(ctx.message.guild.id), {}).values()]
         tags.sort()
 
         if tags:
