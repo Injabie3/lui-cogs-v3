@@ -697,28 +697,22 @@ class Tags(commands.Cog):
             await ctx.send(e)
             return
 
-        if not tag.is_generic:
-            can_delete = checks.role_or_permissions(ctx, lambda r: r.name == 'Bot Admin', manage_messages=True)
-        else:
-            can_delete = checks.is_owner_check(ctx)
-
-        can_delete = can_delete or tag.owner_id == ctx.message.author.id
-
-        # Get admin and mod roles.
-        adminRoleName = self.bot.settings.get_server_admin(ctx.message.guild)
-        modRoleName = self.bot.settings.get_server_mod(ctx.message.guild)
-
-        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
-        
         # Check and see if the user is not the tag owner, or is not a mod, or is not an admin.
-        if not can_delete and adminRole not in ctx.message.author.roles and \
-                modRole not in ctx.message.author.roles:
+        can_delete = await self.bot.is_owner(ctx.author)
+        if not tag.is_generic:
+            if list(set(await self.bot.get_mod_roles(ctx.guild)) & set(ctx.author.roles)):
+                can_delete = True
+            elif list(set(await self.bot.get_admin_roles(ctx.guild)) & set(ctx.author.roles)):
+                can_delete = True
+
+        can_delete = can_delete or tag.owner_id == str(ctx.message.author.id)
+
+        if not can_delete:
             await ctx.send('You do not have permissions to delete this tag.')
             return
 
         if isinstance(tag, TagAlias):
-            location = server.id
+            location = str(server.id)
             db = self.config.get(location)
             del db[lookup]
             msg = 'Tag alias successfully removed.'
@@ -728,7 +722,7 @@ class Tags(commands.Cog):
             msg = 'Tag and all corresponding aliases successfully removed.'
 
             if server is not None:
-                alias_db = self.config.get(server.id)
+                alias_db = self.config.get(str(server.id))
                 aliases = [key for key, t in alias_db.items() if isinstance(t, TagAlias) and t.original == lookup]
                 for alias in aliases:
                     alias_db.pop(alias, None)
