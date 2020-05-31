@@ -726,26 +726,26 @@ class Tags(commands.Cog):
         # aliasCog = self.bot.get_cog('Alias')
         # await aliasCog.del_alias(ctx.message.server, lookup)
 
-    @tag.command(pass_context=True, aliases=['owner'])
-    async def info(self, ctx, *, name : str):
+    @tag.command(name="info", aliases=['owner'])
+    async def info(self, ctx: Context, *, name : str):
         """Retrieves info about a tag.
         The info includes things like the owner and how many times it was used.
         """
 
         lookup = name.lower()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup, redirect=False)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            return await ctx.send(e)
 
         embed = await tag.embed(ctx, self.get_possible_tags(server))
-        await self.bot.say(embed=embed, content="")
+        await ctx.send(embed=embed)
 
     @info.error
-    async def info_error(self, error, ctx):
+    async def info_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.bot.say('Missing tag name to get info of.')
+            await ctx.send('Missing tag name to get info of.')
 
     @tag.command(pass_context=True)
     async def raw(self, ctx, *, name: str):
