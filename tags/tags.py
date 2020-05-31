@@ -519,10 +519,10 @@ class Tags(commands.Cog):
             yield (chr(emoji), tag)
             emoji += 1
 
-    @tag.command(pass_context=True)
-    async def stats(self, ctx):
+    @tag.command(name="stats")
+    async def stats(self, ctx: Context):
         """Gives stats about the tag database."""
-        server = ctx.message.server
+        server = ctx.message.guild
         generic = self.config.get('generic', {})
         e = discord.Embed()
         e.add_field(name='Generic', value='%s tags\n%s uses' % (len(generic), sum(t.uses for t in generic.values())))
@@ -545,11 +545,11 @@ class Tags(commands.Cog):
         for emoji, tag in self.top_three_tags(db):
             e.add_field(name=emoji + ' Server Tag', value=fmt.format(tag))
 
-        await self.bot.say(embed=e,content="")
+        await ctx.send(embed=e)
 
-    @tag.command(pass_context=True)
-    @checks.sensei_or_mod_or_permissions(manage_messages=True)
-    async def edit(self, ctx, name : str, *, content : str):
+    @tag.command()
+    # @checks.sensei_or_mod_or_permissions(manage_messages=True) # TODO Fix this later.
+    async def edit(self, ctx: Context, name : str, *, content : str):
         """Modifies an existing tag that you own.
         This command completely replaces the original text. If you edit
         a tag via private message then the tag is looked up in the generic
@@ -558,32 +558,34 @@ class Tags(commands.Cog):
 
         content = self.clean_tag_content(content)
         lookup = name.lower()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup, redirect=False)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            await self.bot.say(e)
+            return
 
         if isinstance(tag, TagAlias):
-            return await self.bot.say('Cannot edit tag aliases. Remake it if you want to re-point it.')
+            await ctx.send('Cannot edit tag aliases. Remake it if you want to re-point it.')
+            return
 
         # Get admin and mod roles.
-        adminRoleName = self.bot.settings.get_server_admin(ctx.message.server)
-        modRoleName = self.bot.settings.get_server_mod(ctx.message.server)
+        adminRoleName = self.bot.settings.get_server_admin(ctx.message.guild)
+        modRoleName = self.bot.settings.get_server_mod(ctx.message.guild)
 
-        adminRole = discord.utils.get(ctx.message.server.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.server.roles, name=modRoleName) 
+        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
+        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
         
         # Check and see if the user is not the tag owner, or is not a mod, or is not an admin.
         if (tag.owner_id != ctx.message.author.id and adminRole not in ctx.message.author.roles 
                 and modRole not in ctx.message.author.roles):
-            await self.bot.say('Only the tag owner can edit this tag.')
+            await ctx.send('Only the tag owner can edit this tag.')
             return
 
         db = self.config.get(tag.location)
         tag.content = content
         await self.config.put(tag.location, db)
-        await self.bot.say('Tag successfully edited.')
+        await ctx.send('Tag successfully edited.')
 
     @tag.command(pass_context=True, no_pm=True)
     @checks.sensei_or_mod_or_permissions(manage_messages=True)
