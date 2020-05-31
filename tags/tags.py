@@ -323,7 +323,7 @@ class Tags(commands.Cog):
 
             await ctx.send(file=DUMP_OUT)
 
-    @tag.command(name="create", aliases=['add'])
+    @tag.command(name="add", aliases=['create'])
     @commands.guild_only()
     # @checks.sensei_or_mod_or_permissions(manage_messages=True) # TODO Fix this later.
     async def create(self, ctx: Context, name : str, *, content : str):
@@ -340,7 +340,7 @@ class Tags(commands.Cog):
         #     return
 
         limit = self.settings.get(KEY_MAX, DEFAULT_MAX)
-        if await self.user_exceeds_tag_limit(ctx.message.server, ctx.message.author):
+        if await self.user_exceeds_tag_limit(ctx.guild, ctx.author):
             await ctx.send("You have too many commands. The maximum number of commands "
                            "per user is {}, please delete some first!".format(limit))
             return
@@ -358,7 +358,7 @@ class Tags(commands.Cog):
             await ctx.send('A tag with the name of "{}" already exists.'.format(name))
             return
 
-        db[lookup] = TagInfo(name, content, ctx.message.author.id,
+        db[lookup] = TagInfo(name, content, str(ctx.message.author.id),
                              location=location,
                              created_at=datetime.datetime.utcnow().timestamp())
 
@@ -371,6 +371,9 @@ class Tags(commands.Cog):
     async def create_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Tag ' + str(error))
+        else:
+            raise error
+
 
     @tag.command(name="generic")
     @checks.mod_or_permissions(administrator=True)
