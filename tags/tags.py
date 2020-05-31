@@ -909,18 +909,18 @@ class Tags(commands.Cog):
         await ctx.send("Successfully removed all {} tags that belong to {}".format(
                        len(tags), member.display_name))
 
-    @tag.command(pass_context=True)
-    async def search(self, ctx, *, query : str):
+    @tag.command(name="search")
+    async def search(self, ctx: Context, *, query : str):
         """Searches for a tag.
         This searches both the generic and server-specific database. If it's
         a private message, then only generic tags are searched.
         The query must be at least 2 characters.
         """
-
-        server = ctx.message.server
+        server = ctx.message.guild
         query = query.lower()
         if len(query) < 2:
-            return await self.bot.say('The query length must be at least two characters.')
+            await ctx.send('The query length must be at least two characters.')
+            return
 
         tags = self.get_possible_tags(server)
         results = [tag.name for key, tag in tags.items() if query in key]
@@ -931,28 +931,31 @@ class Tags(commands.Cog):
                 p.embed.colour = 0x738bd7 # blurple
                 await p.paginate()
             except Exception as e:
-                await self.bot.say(e)
+                await ctx.send(e)
         else:
-            await self.bot.say('No tags found.')
+            await ctx.send('No tags found.')
 
     @search.error
-    async def search_error(self, error, ctx):
+    async def search_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.bot.say('Missing query to search for.')
+            await ctx.send('Missing query to search for.')
     
-    @tag.command(name="toggledm", pass_context=True, no_pm=True)
+    @tag.command(name="toggledm")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
-    async def toggledm(self, ctx):
+    async def toggledm(self, ctx: Context):
         """Toggle sending DM for list of tags."""
         self.dm = self.settings.get("dm", False)
         if self.dm:
             self.dm = False
             await self.settings.put("dm", False)
-            await self.bot.say("\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will be sent **in the channel they were requested**.")
+            await ctx.send("\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will "
+                           "be sent **in the channel they were requested**.")
         else:
             self.dm = True
             await self.settings.put("dm", True)
-            await self.bot.say("\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will be sent **in a DM**.")
+            await ctx.send("\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will "
+                           "be sent **in a DM**.")
 
 def setup(bot):
     bot.add_cog(Tags(bot))
