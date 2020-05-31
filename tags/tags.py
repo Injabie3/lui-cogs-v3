@@ -814,35 +814,36 @@ class Tags(commands.Cog):
         else:
             await ctx.send('{0.name} has no tags.'.format(owner))
 
-    @tag.command(name='all', pass_context=True, no_pm=True)
+    @tag.command(name="all")
+    @commands.guild_only()
     async def _all(self, ctx):
         """Lists all server-specific tags for this server."""
 
-        tags = [tag.name for tag in self.config.get(ctx.message.server.id, {}).values()]
+        tags = [tag.name for tag in self.config.get(ctx.message.guild.id, {}).values()]
         tags.sort()
 
         if tags:
             try:
                 self.dm = self.settings.get("dm", False)
                 if self.dm:
-                    await self.bot.say("Check your DMs.")
-                    msg = "Here are a list of tags for {}:\n```".format(ctx.message.server.name)
+                    await ctx.send("Check your DMs.")
+                    msg = "Here are a list of tags for {}:\n```".format(ctx.message.guild.name)
                     for item in tags:
                         if len(msg) + len(item) > 1990:
                             msg += "```"
-                            await self.bot.send_message(ctx.message.author, msg)
+                            await ctx.author.send(msg)
                             msg = "```"
                         msg += item + "\n"
                     msg += "```"
-                    await self.bot.send_message(ctx.message.author, msg)
+                    await ctx.author.send(msg)
                 else:
                     p = Pages(self.bot, message=ctx.message, entries=tags, per_page=15)
                     p.embed.colour =  0x738bd7 # blurple
                     await p.paginate()
             except Exception as e:
-                await self.bot.say(e)
+                await ctx.send(e)
         else:
-            await self.bot.say('This server has no server-specific tags.')
+            await ctx.send('This server has no server-specific tags.')
 
     @tag.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(manage_messages=True)
