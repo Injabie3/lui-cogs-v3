@@ -845,29 +845,36 @@ class Tags(commands.Cog):
         else:
             await ctx.send('This server has no server-specific tags.')
 
-    @tag.command(pass_context=True, no_pm=True)
+    @tag.command(name="purge")
+    @commands.guild_only()
     @checks.mod_or_permissions(manage_messages=True)
-    async def purge(self, ctx, member: discord.Member):
+    async def purge(self, ctx: Context, member: discord.Member):
         """Removes all server-specific tags by a user.
         You must have Manage Messages permissions to use this.
         """
-
-        db = self.config.get(ctx.message.server.id, {})
+        db = self.config.get(ctx.message.guild.id, {})
         tags = [key for key, tag in db.items() if tag.owner_id == member.id]
 
-        if not ctx.message.channel.permissions_for(ctx.message.server.me).add_reactions:
-            return await self.bot.say('Bot cannot add reactions.')
+        # TODO I'm pretty sure there's a decorator for the following.
+        if not ctx.message.channel.permissions_for(ctx.message.guild.me).add_reactions:
+            await ctx.send('Bot cannot add reactions.')
+            return
 
         if not tags:
-            return await self.bot.say('This user has no server-specific tags.')
+            await ctx.send('This user has no server-specific tags.')
+            return
 
-        msg = await self.bot.say('This will delete %s tags are you sure? **This action cannot be reversed**.\n\n' \
-                                 'React with either \N{WHITE HEAVY CHECK MARK} to confirm or \N{CROSS MARK} to deny.' % len(tags))
+        msg = await ctx.send("This will delete {} tags. Are you sure? **This action "
+                             "cannot be reversed**.\n\nReact with either "
+                             "\N{WHITE HEAVY CHECK MARK} to confirm or \N{CROSS MARK} "
+                             "to deny.".format(len(tags)))
 
         cancel = False
         author_id = ctx.message.author.id
         def check(reaction, user):
             nonlocal cancel
+            if reaction.message != ctx.message:
+                return False
             if user.id != author_id:
                 return False
 
@@ -881,17 +888,26 @@ class Tags(commands.Cog):
         for emoji in ('\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}'):
             await self.bot.add_reaction(msg, emoji)
 
-        react = await self.bot.wait_for_reaction(message=msg, check=check, timeout=60.0)
-        if react is None or cancel:
-            await self.bot.delete_message(msg)
-            return await self.bot.say('Cancelling.')
+        try:
+            # We set cancel in the check function
+            await self.bot.wait_for("reaction_add", check=check, timeout=60.0)
+        except asyncio.TimeoutError:
+            await ctx.delete()
+            await ctx.send("Cancelling")
+            return
+
+        if cancel:
+            await ctx.delete()
+            await ctx.send("Cancelling.")
+            return
 
         for key in tags:
             db.pop(key)
 
         await self.config.put(ctx.message.server.id, db)
-        await self.bot.delete_message(msg)
-        await self.bot.say('Successfully removed all %s tags that belong to %s' % (len(tags), member.display_name))
+        await ctx.delete()
+        await ctx.send("Successfully removed all {} tags that belong to {}".format(
+                       len(tags), member.display_name))
 
     @tag.command(pass_context=True)
     async def search(self, ctx, *, query : str):
