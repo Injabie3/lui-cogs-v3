@@ -439,7 +439,8 @@ class Tags(commands.Cog):
         await ctx.send('Tag alias "{}" that points to "{.name}" successfully '
                        'created.'.format(new_name, original))
 
-    @tag.command(pass_context=True, ignore_extra=False, no_pm=True)
+    @tag.command(ignore_extra=False)
+    @commands.guild_only()
     @checks.sensei_or_mod_or_permissions(administrator=True)
     async def make(self, ctx):
         """Interactive makes a tag for you.
@@ -449,38 +450,46 @@ class Tags(commands.Cog):
         """
         if await self.user_exceeds_tag_limit(ctx):
             limit = self.settings.get(KEY_MAX, DEFAULT_MAX)
-            await self.bot.say("You have too many commands. The maximum number of commands "
-                               "per user is {}, please delete some first!".format(limit))
+            await ctx.send("You have too many commands. The maximum number of commands "
+                           f"per user is {limit}, please delete some first!")
             return
 
         message = ctx.message
         location = self.get_database_location(message)
         db = self.config.get(location, {})
 
-        await self.bot.say('Hello. What would you like the name tag to be?')
+        await ctx.send('Hello. What would you like the name tag to be?')
 
-        def check(msg):
+        def check(msg: discord.Message):
+            return msg.author == ctx.message.author and msg.channel == ctx.message.channel:
+
+        def name_check(msg: discord.Message):
+            if not check( msg ):
+                return False
+            # Original author and channel matches.
             try:
                 self.verify_lookup(msg.content.lower())
                 return True
             except:
                 return False
 
-        name = await self.bot.wait_for_message(author=message.author, channel=message.channel, timeout=60.0, check=check)
-        if name is None:
-            await self.bot.say('You took too long. Goodbye.')
+        try:
+            name = await self.bot.wait_for("message", timeout=60.0, check=name_check)
+        except asyncio.TimeoutError:
+            await ctx.send('You took too long. Goodbye.')
             return
 
         lookup = name.content.lower()
         if lookup in db:
             fmt = 'Sorry. A tag with that name exists already. Redo the command {0.prefix}tag make.'
-            await self.bot.say(fmt.format(ctx))
+            await ctx.send(fmt.format(ctx))
             return
 
-        await self.bot.say('Alright. So the name is {0.content}. What about the tag\'s content?'.format(name))
-        content = await self.bot.wait_for_message(author=name.author, channel=name.channel, timeout=300.0)
-        if content is None:
-            await self.bot.say('You took too long. Goodbye.')
+        await ctx.send('Alright. So the name is {0.content}. What about the tag\'s content?'.format(name))
+        try:
+            content = await self.bot.wait_for("message", check=check, timeout=300.0)
+        except asyncio.TimeoutError:
+            await ctx.send('You took too long. Goodbye.')
             return
 
         if len(content.content) == 0 and len(content.attachments) > 0:
@@ -493,15 +502,15 @@ class Tags(commands.Cog):
                              location=location,
                              created_at=datetime.datetime.utcnow().timestamp())
         await self.config.put(location, db)
-        await self.bot.say('Cool. I\'ve made your {0.content} tag.'.format(name))
+        await ctx.send('Cool. I\'ve made your {0.content} tag.'.format(name))
         
-        aliasCog = self.bot.get_cog('Alias')
-        await aliasCog.add_alias(ctx.message.server, lookup, "tag {}".format(lookup))
+        # aliasCog = self.bot.get_cog('Alias')
+        # await aliasCog.add_alias(ctx.message.server, lookup, "tag {}".format(lookup))
 
     @make.error
-    async def tag_make_error(self, error, ctx):
+    async def tag_make_error(self, ctx: Context, error):
         if isinstance(error, commands.TooManyArguments):
-            await self.bot.say('Please call just {0.prefix}tag make'.format(ctx))
+            await ctx.send('Please call just {0.prefix}tag make'.format(ctx))
 
     def top_three_tags(self, db):
         emoji = 129351 # ord(':first_place:')
