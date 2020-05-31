@@ -747,18 +747,19 @@ class Tags(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Missing tag name to get info of.')
 
-    @tag.command(pass_context=True)
-    async def raw(self, ctx, *, name: str):
+    @tag.command(name="raw")
+    async def raw(self, ctx: Context, *, name: str):
         """Gets the raw content of the tag.
         This is with markdown escaped. Useful for editing.
         """
 
         lookup = name.lower()
-        server = ctx.message.server
+        server = ctx.message.guild
         try:
             tag = self.get_tag(server, lookup)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            await ctx.send(e)
+            return
 
         transformations = {
             re.escape(c): '\\' + c
@@ -769,21 +770,22 @@ class Tags(commands.Cog):
             return transformations.get(re.escape(obj.group(0)), '')
 
         pattern = re.compile('|'.join(transformations.keys()))
-        await self.bot.say(pattern.sub(replace, tag.content))
+        await ctx.send(pattern.sub(replace, tag.content))
 
-    @tag.command(name='list', pass_context=True)
-    async def _list(self, ctx, *, member : discord.Member = None):
+    @tag.command(name="list")
+    async def _list(self, ctx: Context, *, member : discord.Member = None):
         """Lists all the tags that belong to you or someone else.
         This includes the generic tags as well. If this is done in a private
         message then you will only get the generic tags you own and not the
         server specific tags.
         """
-
         owner = ctx.message.author if member is None else member
-        server = ctx.message.server
-        tags = [tag.name for tag in self.config.get('generic', {}).values() if tag.owner_id == owner.id]
+        server = ctx.message.guild
+        tags = [tag.name for tag in self.config.get('generic', {}).values()
+                if tag.owner_id == owner.id]
         if server is not None:
-            tags.extend(tag.name for tag in self.config.get(server.id, {}).values() if tag.owner_id == owner.id)
+            tags.extend(tag.name for tag in self.config.get(server.id, {}).values()
+                        if tag.owner_id == owner.id)
 
         tags.sort()
 
@@ -791,25 +793,26 @@ class Tags(commands.Cog):
             try:
                 self.dm = self.settings.get("dm", False)
                 if self.dm:
-                    await self.bot.say("Check your DMs.")
+                    await ctx.send("Check your DMs.")
                     msg = "Here are a list of tags for {}:\n```".format(ctx.message.author.mention)
                     for item in tags:
                         if len(msg) + len(item) > 1990:
                             msg += "```"
-                            await self.bot.send_message(ctx.message.author, msg)
+                            await ctx.author.send(msg)
                             msg = "```"
                         msg += item + "\n"
                     msg += "```"
-                    await self.bot.send_message(ctx.message.author, msg)
+                    await ctx.author.send(msg)
                 else:
                     p = Pages(self.bot, message=ctx.message, entries=tags)
                     p.embed.colour = 0x738bd7 # blurple
-                    p.embed.set_author(name=owner.display_name, icon_url=owner.avatar_url or owner.default_avatar_url)
+                    p.embed.set_author(name=owner.display_name, icon_url=owner.avatar_url or
+                                       owner.default_avatar_url)
                     await p.paginate()
             except Exception as e:
-                await self.bot.say(e)
+                await ctx.send(e)
         else:
-            await self.bot.say('{0.name} has no tags.'.format(owner))
+            await ctx.send('{0.name} has no tags.'.format(owner))
 
     @tag.command(name='all', pass_context=True, no_pm=True)
     async def _all(self, ctx):
