@@ -394,9 +394,10 @@ class Tags(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Tag ' + str(error))
 
-    @tag.command(pass_context=True, no_pm=True)
+    @tag.command(name="alias")
+    @commands.guild_only()
     @checks.mod_or_permissions(administrator=True)
-    async def alias(self, ctx, new_name: str, *, old_name: str):
+    async def alias(self, ctx: Context, new_name: str, *, old_name: str):
         """Creates an alias for a pre-existing tag.
         You own the tag alias. However, when the original
         tag is deleted the alias is deleted as well.
@@ -407,7 +408,7 @@ class Tags(commands.Cog):
         """
 
         message = ctx.message
-        server = ctx.message.server
+        server = ctx.guild
         lookup = new_name.lower().strip()
         old = old_name.lower()
 
@@ -416,24 +417,27 @@ class Tags(commands.Cog):
         try:
             original = tags[old]
         except KeyError:
-            return await self.bot.say('Pointed to tag does not exist.')
+            return await ctx.send('Pointed to tag does not exist.')
 
         if isinstance(original, TagAlias):
-            return await self.bot.say('Cannot make an alias to an alias.')
+            return await ctx.send('Cannot make an alias to an alias.')
 
         try:
             self.verify_lookup(lookup)
         except RuntimeError as e:
-            return await self.bot.say(e)
+            await ctx.send(e)
+            return
 
         if lookup in db:
-            return await self.bot.say('A tag with this name already exists.')
+            await ctx.send('A tag with this name already exists.')
+            return
 
         db[lookup] = TagAlias(name=new_name, original=old, owner_id=ctx.message.author.id,
                               created_at=datetime.datetime.utcnow().timestamp())
 
         await self.config.put(server.id, db)
-        await self.bot.say('Tag alias "{}" that points to "{.name}" successfully created.'.format(new_name, original))
+        await ctx.send('Tag alias "{}" that points to "{.name}" successfully '
+                       'created.'.format(new_name, original))
 
     @tag.command(pass_context=True, ignore_extra=False, no_pm=True)
     @checks.sensei_or_mod_or_permissions(administrator=True)
