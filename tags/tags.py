@@ -360,9 +360,9 @@ class Tags(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Tag ' + str(error))
 
-    @tag.command(pass_context=True)
+    @tag.command(name="generic")
     @checks.mod_or_permissions(administrator=True)
-    async def generic(self, ctx, name : str, *, content : str):
+    async def generic(self, ctx: Context, name : str, *, content : str):
         """Creates a new generic tag owned by you.
         Unlike the create tag subcommand,  this will always attempt to create
         a generic tag and not a server-specific one.
@@ -372,27 +372,27 @@ class Tags(commands.Cog):
         try:
             self.verify_lookup(lookup)
         except RuntimeError as e:
-            await self.bot.say(str(e))
+            await ctx.send(str(e))
             return
 
         db = self.config.get('generic', {})
         if lookup in db:
-            await self.bot.say('A tag with the name of "{}" already exists.'.format(name))
+            await ctx.send('A tag with the name of "{}" already exists.'.format(name))
             return
 
         db[lookup] = TagInfo(name, content, ctx.message.author.id,
                              location='generic',
                              created_at=datetime.datetime.utcnow().timestamp())
         await self.config.put('generic', db)
-        await self.bot.say('Tag "{}" successfully created.'.format(name))
+        await ctx.send('Tag "{}" successfully created.'.format(name))
         
-        aliasCog = self.bot.get_cog('Alias')
-        await aliasCog.add_alias(ctx.message.server, name, "tag {}".format(name))
+        # aliasCog = self.bot.get_cog('Alias')
+        # await aliasCog.add_alias(ctx.message.server, name, "tag {}".format(name))
 
     @generic.error
-    async def generic_error(self, error, ctx):
+    async def generic_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await self.bot.say('Tag ' + str(error))
+            await ctx.send('Tag ' + str(error))
 
     @tag.command(pass_context=True, no_pm=True)
     @checks.mod_or_permissions(administrator=True)
