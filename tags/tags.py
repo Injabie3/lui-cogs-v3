@@ -134,8 +134,20 @@ class Tags(commands.Cog):
         self.settings = Config('settings.json', cogname='tags')
         self.lock = Lock()
                                                  
-    def get_database_location(self, message):
-        return 'generic' if message.channel.is_private else message.server.id
+    def get_database_location(self, message: discord.Message):
+        """Get the database of tags.
+
+        Parameters:
+        -----------
+        message: discord.Message
+            The message that invoked the call.
+
+        Returns:
+        --------
+        str
+            The guild ID if the message was from a guild, else 'generic'
+        """
+        return 'generic' if message.channel.type == discord.DMChannel else str(message.guild.id)
 
     def clean_tag_content(self, content):
         return content.replace('@everyone', '@\u200beveryone').replace('@here', '@\u200bhere')
@@ -172,31 +184,32 @@ class Tags(commands.Cog):
                 raise RuntimeError('Tag not found.')
             raise RuntimeError('Tag not found. Did you mean...\n' + '\n'.join(possible_matches))
 
-    async def user_exceeds_tag_limit(self, server, user: discord.Member):
+    async def user_exceeds_tag_limit(self, server: discord.Guild, user: discord.Member):
         """Check to see if user has too many tags.
-        Accepts:
-        --------
-        server
+
+        Parameters:
+        -----------
+        server: discord.Guild
             A specific server to check for too many tags
-        user
+        user: discord.Member
             The user being checked for being over the limit
 
         Returns:
         --------
         bool
-            True if too many tags, False if okay.
+            True if too many tags, else False.
         """
 
-        if user.id == self.bot.settings.owner or user.id in self.bot.settings.co_owners:
+        if await self.bot.is_owner(user):
             # No limit for bot owner
             return False
 
         if server:
             # No limit for mods and admins of server.
-            mod_role = self.bot.settings.get_server_mod(server).lower()
-            admin_role = self.bot.settings.get_server_admin(server).lower()
+            mod_roles = await self.bot.get_mod_roles(server)
+            admin_roles = await self.bot.get_admin_roles(server)
             roles = [role.name for role in user.roles]
-            if admin_role in roles or mod_role in roles:
+            if list(set(admin_roles) & set(roles)) or list(set(mod_role) & set(roles)):
                 return False
 
         tags = [tag.name for tag in self.config.get('generic', {}).values()
