@@ -4,7 +4,6 @@
 # DATE LAST MODIFIED: 2017-04-13
 
 from .config import Config
-from .utils.paginator import Pages
 
 import csv
 import json
@@ -21,7 +20,7 @@ import logging
 from redbot.core import checks, commands
 from redbot.core.bot import Red
 from redbot.core.commands.context import Context
-
+from redbot.core.utils.paginator import Pages
 DEFAULT_MAX = 50 # Default max number of tags per user.
 KEY_MAX = "max"
 DUMP_IN = "data/tags/tags.json"
@@ -441,7 +440,7 @@ class Tags(commands.Cog):
 
     @tag.command(ignore_extra=False)
     @commands.guild_only()
-    @checks.sensei_or_mod_or_permissions(administrator=True)
+    # @checks.sensei_or_mod_or_permissions(administrator=True) # TODO Fix this later
     async def make(self, ctx):
         """Interactive makes a tag for you.
         This walks you through the process of creating a tag with
@@ -461,7 +460,7 @@ class Tags(commands.Cog):
         await ctx.send('Hello. What would you like the name tag to be?')
 
         def check(msg: discord.Message):
-            return msg.author == ctx.message.author and msg.channel == ctx.message.channel:
+            return msg.author == ctx.message.author and msg.channel == ctx.message.channel
 
         def name_check(msg: discord.Message):
             if not check( msg ):
@@ -589,7 +588,7 @@ class Tags(commands.Cog):
 
     @tag.command(name="transfer")
     @commands.guild_only()
-    @checks.sensei_or_mod_or_permissions(manage_messages=True)
+    # @checks.sensei_or_mod_or_permissions(manage_messages=True) # TODO Fix this later
     async def transfer(self, ctx: Context, tag_name, user: discord.Member):
         """Transfer your tag to another user.
 
@@ -665,7 +664,7 @@ class Tags(commands.Cog):
                            "cancelled.".format(user.name))
 
     @tag.command(name="delete", aliases=["del", "remove", "rm"])
-    @checks.sensei_or_mod_or_permissions(manage_messages=True)
+    # @checks.sensei_or_mod_or_permissions(manage_messages=True) # TODO Fix this later
     async def remove(self, ctx: Context, *, name : str):
         """Removes a tag that you own.
         The tag owner can always delete their own tags. If someone requests
@@ -804,7 +803,7 @@ class Tags(commands.Cog):
                     msg += "```"
                     await ctx.author.send(msg)
                 else:
-                    p = Pages(self.bot, message=ctx.message, entries=tags)
+                    p = Pages(ctx=ctx, entries=tags, show_entry_count=True)
                     p.embed.colour = 0x738bd7 # blurple
                     p.embed.set_author(name=owner.display_name, icon_url=owner.avatar_url or
                                        owner.default_avatar_url)
@@ -837,7 +836,7 @@ class Tags(commands.Cog):
                     msg += "```"
                     await ctx.author.send(msg)
                 else:
-                    p = Pages(self.bot, message=ctx.message, entries=tags, per_page=15)
+                    p = Pages(ctx=ctx, entries=tags, per_page=15, show_entry_count=True)
                     p.embed.colour =  0x738bd7 # blurple
                     await p.paginate()
             except Exception as e:
@@ -927,7 +926,7 @@ class Tags(commands.Cog):
 
         if results:
             try:
-                p = Pages(self.bot, message=ctx.message, entries=results, per_page=15)
+                p = Pages(ctx=ctx, entries=results, per_page=15, show_entry_count=True)
                 p.embed.colour = 0x738bd7 # blurple
                 await p.paginate()
             except Exception as e:
