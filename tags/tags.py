@@ -290,7 +290,7 @@ class Tags(commands.Cog):
     @checks.mod_or_permissions()
     async def dump(self, ctx: Context):
         """Dumps server-specific tags to a CSV file, sorted by number of uses."""
-        sid = ctx.message.server.id
+        sid = str(ctx.guild.id)
         with self.lock:
             with open(DUMP_IN, "r") as inputFile, open(DUMP_OUT, "w") as outputFile:
                 tags = json.load(inputFile)
@@ -322,7 +322,7 @@ class Tags(commands.Cog):
                     data = list(tag.values()) + [owner]
                     csvWriter.writerow(data)
 
-            await ctx.send(file=DUMP_OUT)
+            await ctx.send(file=discord.File(DUMP_OUT))
 
     @tag.command(name="add", aliases=['create'])
     @commands.guild_only()
