@@ -206,17 +206,18 @@ class Tags(commands.Cog):
 
         if server:
             # No limit for mods and admins of server.
+            # Methods below return role IDs.
             mod_roles = await self.bot.get_mod_roles(server)
             admin_roles = await self.bot.get_admin_roles(server)
-            roles = [role.name for role in user.roles]
-            if list(set(admin_roles) & set(roles)) or list(set(mod_role) & set(roles)):
+            roles = user.roles
+            if list(set(admin_roles) & set(roles)) or list(set(mod_roles) & set(roles)):
                 return False
 
         tags = [tag.name for tag in self.config.get('generic', {}).values()
-                if tag.owner_id == user.id]
+                if tag.owner_id == str(user.id)]
         if server:
-            tags.extend(tag.name for tag in self.config.get(server.id, {}).values()
-                        if tag.owner_id == user.id)
+            tags.extend(tag.name for tag in self.config.get(str(server.id), {}).values()
+                        if tag.owner_id == str(user.id))
         limit = self.settings.get(KEY_MAX, DEFAULT_MAX)
         if len(tags) >= limit:
             return True
