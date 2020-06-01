@@ -60,7 +60,7 @@ class TagInfo:
 
         owner = discord.utils.find(lambda m: m.id == self.owner_id, ctx.bot.get_all_members())
         if owner is None:
-            owner = await ctx.bot.get_user_info(self.owner_id)
+            owner = await ctx.bot.fetch_user(self.owner_id)
 
         e.set_author(name=str(owner), icon_url=owner.avatar_url or owner.default_avatar_url)
         e.set_footer(text='Generic' if self.is_generic else 'Server-specific')
@@ -93,7 +93,7 @@ class TagAlias:
 
         owner = discord.utils.find(lambda m: m.id == self.owner_id, ctx.bot.get_all_members())
         if owner is None:
-            owner = await ctx.bot.get_user_info(self.owner_id)
+            owner = await ctx.bot.get_user(self.owner_id)
 
         e.set_author(name=str(owner), icon_url=owner.avatar_url or owner.default_avatar_url)
         return e
