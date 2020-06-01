@@ -408,6 +408,8 @@ class Tags(commands.Cog):
     async def generic_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Tag ' + str(error))
+        else:
+            raise error
 
     @tag.command(name="alias")
     @commands.guild_only()
@@ -526,6 +528,8 @@ class Tags(commands.Cog):
     async def tag_make_error(self, ctx: Context, error):
         if isinstance(error, commands.TooManyArguments):
             await ctx.send('Please call just {0.prefix}tag make'.format(ctx))
+        else:
+            raise error
 
     def top_three_tags(self, db):
         emoji = 129351 # ord(':first_place:')
@@ -755,6 +759,8 @@ class Tags(commands.Cog):
     async def info_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Missing tag name to get info of.')
+        else:
+            raise error
 
     @tag.command(name="raw")
     async def raw(self, ctx: Context, *, name: str):
@@ -948,6 +954,8 @@ class Tags(commands.Cog):
     async def search_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Missing query to search for.')
+        else:
+            raise error
     
     @tag.command(name="toggledm")
     @commands.guild_only()
