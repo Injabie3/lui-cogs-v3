@@ -581,23 +581,22 @@ class Tags(commands.Cog):
         try:
             tag = self.get_tag(server, lookup, redirect=False)
         except RuntimeError as e:
-            await self.bot.say(e)
+            await ctx.send(e)
             return
 
         if isinstance(tag, TagAlias):
             await ctx.send('Cannot edit tag aliases. Remake it if you want to re-point it.')
             return
 
-        # Get admin and mod roles.
-        adminRoleName = self.bot.settings.get_server_admin(ctx.message.guild)
-        modRoleName = self.bot.settings.get_server_mod(ctx.message.guild)
-
-        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
+        mod_roles = await self.bot.get_mod_roles(server)
+        admin_roles = await self.bot.get_admin_roles(server)
+        roles = ctx.author.roles
         
         # Check and see if the user is not the tag owner, or is not a mod, or is not an admin.
-        if (tag.owner_id != ctx.message.author.id and adminRole not in ctx.message.author.roles 
-                and modRole not in ctx.message.author.roles):
+        if (tag.owner_id != str(ctx.message.author.id) and
+                not list(set(admin_roles) & set(roles)) and
+                not list(set(mod_roles) & set(roles)) and
+                not await self.bot.is_owner(ctx.author)):
             await ctx.send('Only the tag owner can edit this tag.')
             return
 
@@ -629,31 +628,31 @@ class Tags(commands.Cog):
         except RuntimeError as e:
             await ctx.send(e)
             return
-        
-        adminRoleName = self.bot.settings.get_server_admin(server)
-        modRoleName = self.bot.settings.get_server_mod(server)
-        ownerID = self.bot.settings.owner
 
-        adminRole = discord.utils.get(ctx.message.guild.roles, name=adminRoleName)
-        modRole = discord.utils.get(ctx.message.guild.roles, name=modRoleName)
-    
+        mod_roles = await self.bot.get_mod_roles(server)
+        admin_roles = await self.bot.get_admin_roles(server)
+
         sensei = discord.utils.get(ctx.message.guild.roles, name="Sensei")
-        
-        #checks for mod/admin/owner of the tag
-        if (tag.owner_id != ctx.message.author.id and adminRole not in ctx.message.author.roles 
-                and modRole not in ctx.message.author.roles and ctx.message.author.id != ownerID 
-                and ctx.message.author.id not in ctx.bot.settings.co_owners):
+
+        # Check and see if the user requesting the transfer is not the tag owner, or
+        # is not a mod, or is not an admin.
+        if (tag.owner_id != str(ctx.message.author.id) and
+                not list(set(admin_roles) & set(ctx.author.roles)) and
+                not list(set(mod_roles) & set(ctx.author.roles)) and
+                not await self.bot.is_owner(ctx.author)):
             await ctx.send("Only the tag owner can transfer this tag.")
             return
 
-        #checks if the user in question has permissions to create tags
-        if (sensei not in user.roles and adminRole not in user.roles and modRole not in user.roles 
-                and user.id != ownerID and user.id not in ctx.bot.settings.co_owners):
+        # Check if the user to transfer to has permissions to create tags
+        if (sensei not in user.roles and
+                not list(set(admin_roles) & set(user.roles)) and
+                not list(set(mod_roles) & set(user.roles)) and
+                not await self.bot.is_owner(user)):
             await ctx.send("The person you are trying to transfer to cannot create commands.")
             return
 
-        #checks if the user has exceeded the tag limit
-        if await self.user_exceeds_tag_limit(ctx.message.server, user):
+        # Check if the user to transfer to has exceeded the tag limit
+        if await self.user_exceeds_tag_limit(ctx.guild, user):
             await ctx.send("The person you are trying to transfer a tag to already "
                            "has too many commands!")
             return
@@ -664,7 +663,7 @@ class Tags(commands.Cog):
                         ctx.message.author.mention))
 
         def check(msg: discord.Message):
-            return msg.author == ctx.author and msg.channel == ctx.channel
+            return msg.author == user and msg.channel == ctx.channel
         try:
             response = await self.bot.wait_for("message", check=check, timeout=15)
         except asyncio.TimeoutError:
@@ -675,7 +674,7 @@ class Tags(commands.Cog):
         if response.content.lower() == 'yes':
             #The user has answered yes; transfering tag
             db = self.config.get(tag.location)
-            tag.owner_id = user.id
+            tag.owner_id = str(user.id)
             await self.config.put(tag.location, db)
             await ctx.send("Tag successfully transferred from the current owner "
                            "to {}.".format(user.mention))
