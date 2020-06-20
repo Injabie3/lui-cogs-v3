@@ -15,14 +15,20 @@ KEY_TIME = "time"
 KEY_MSG = "msg"
 KEY_TIME_BETWEEN = "timeSinceLastRespect"
 KEY_MSGS_BETWEEN = "msgsSinceLastRespect"
-HEARTS = [":green_heart:", ":heart:", ":black_heart:", ":yellow_heart:",
-          ":purple_heart:", ":blue_heart:"]
-DEFAULT_TIME_BETWEEN = timedelta(seconds=30) # Time between paid respects.
-DEFAULT_MSGS_BETWEEN = 20 # The number of messages in between
+HEARTS = [
+    ":green_heart:",
+    ":heart:",
+    ":black_heart:",
+    ":yellow_heart:",
+    ":purple_heart:",
+    ":blue_heart:",
+]
+DEFAULT_TIME_BETWEEN = timedelta(seconds=30)  # Time between paid respects.
+DEFAULT_MSGS_BETWEEN = 20  # The number of messages in between
 TEXT_RESPECTS = "paid their respects"
 
 BASE_GUILD = {KEY_TIME_BETWEEN: 30, KEY_MSGS_BETWEEN: 20}
-BASE_CHANNEL = {KEY_MSG : None, KEY_TIME : None, KEY_USERS : []}
+BASE_CHANNEL = {KEY_MSG: None, KEY_TIME: None, KEY_USERS: []}
 
 
 class Respects(commands.Cog):
@@ -44,13 +50,12 @@ class Respects(commands.Cog):
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
 
     @commands.command(name="f")
@@ -70,9 +75,11 @@ class Respects(commands.Cog):
             try:
                 await ctx.message.delete()
             except (discord.Forbidden, discord.NotFound):
-                await ctx.send("I currently cannot delete messages. Please give me the"
-                               " \"Manage Messages\" permission to allow this feature to"
-                               " work!")
+                await ctx.send(
+                    "I currently cannot delete messages. Please give me the"
+                    ' "Manage Messages" permission to allow this feature to'
+                    " work!"
+                )
 
     @checks.mod_or_permissions(manage_messages=True)
     @commands.group(name="setf")
@@ -91,20 +98,25 @@ class Respects(commands.Cog):
             The number of messages between messages.  Should be between 1 and 100
         """
         if messages < 1 or messages > 100:
-            await ctx.send(":negative_squared_cross_mark: Please enter a number "
-                           "between 1 and 100!")
+            await ctx.send(
+                ":negative_squared_cross_mark: Please enter a number " "between 1 and 100!"
+            )
             return
 
         await self.config.guild(ctx.message.guild).msgsSinceLastRespect.set(messages)
         timeBetween = await self.config.guild(ctx.message.guild).timeSinceLastRespect()
-        await ctx.send(":white_check_mark: **Respects - Messages**: A new respect will be "
-                       "created after **{}** messages and **{}** seconds have passed "
-                       "since the previous one.".format(messages, timeBetween))
-        self.logger.info("%s#%s (%s) changed the messages between respects to %s messages",
-                         ctx.message.author.name,
-                         ctx.message.author.discriminator,
-                         ctx.message.author.id,
-                         messages)
+        await ctx.send(
+            ":white_check_mark: **Respects - Messages**: A new respect will be "
+            "created after **{}** messages and **{}** seconds have passed "
+            "since the previous one.".format(messages, timeBetween)
+        )
+        self.logger.info(
+            "%s#%s (%s) changed the messages between respects to %s messages",
+            ctx.message.author.name,
+            ctx.message.author.discriminator,
+            ctx.message.author.id,
+            messages,
+        )
 
     @setf.command(name="show")
     @commands.guild_only()
@@ -131,21 +143,25 @@ class Respects(commands.Cog):
             The number of seconds that must pass.  Should be between 1 and 100
         """
         if seconds < 1 or seconds > 100:
-            await ctx.send(":negative_squared_cross_mark: Please enter a number "
-                           "between 1 and 100!")
+            await ctx.send(
+                ":negative_squared_cross_mark: Please enter a number " "between 1 and 100!"
+            )
             return
 
         await self.config.guild(ctx.guild).timeSinceLastRespect.set(seconds)
         messagesBetween = await self.config.guild(ctx.guild).msgsSinceLastRespect()
-        await ctx.send(":white_check_mark: **Respects - Time**: A new respect will be "
-                       "created after **{}** messages and **{}** seconds have passed "
-                       "since the previous one.".format(messagesBetween, seconds))
-        self.logger.info("%s#%s (%s) changed the time between respects to %s seconds",
-                         ctx.message.author.name,
-                         ctx.message.author.discriminator,
-                         ctx.message.author.id,
-                         seconds)
-
+        await ctx.send(
+            ":white_check_mark: **Respects - Time**: A new respect will be "
+            "created after **{}** messages and **{}** seconds have passed "
+            "since the previous one.".format(messagesBetween, seconds)
+        )
+        self.logger.info(
+            "%s#%s (%s) changed the time between respects to %s seconds",
+            ctx.message.author.name,
+            ctx.message.author.discriminator,
+            ctx.message.author.id,
+            seconds,
+        )
 
     async def checkLastRespect(self, ctx):
         """Check to see if respects have been paid already.
@@ -167,20 +183,23 @@ class Respects(commands.Cog):
 
         prevMsgs = []
 
-        async for msg in ctx.channel.history(limit=guildData[KEY_MSGS_BETWEEN],
-                                             before=ctx.message):
+        async for msg in ctx.channel.history(
+            limit=guildData[KEY_MSGS_BETWEEN], before=ctx.message
+        ):
             prevMsgs.append(msg.id)
 
         exceedMessages = chData[KEY_MSG] not in prevMsgs
-        exceedTime = (datetime.now() - datetime.fromtimestamp(chData[KEY_TIME]) >
-                      timedelta(seconds=guildData[KEY_TIME_BETWEEN]))
+        exceedTime = datetime.now() - datetime.fromtimestamp(chData[KEY_TIME]) > timedelta(
+            seconds=guildData[KEY_TIME_BETWEEN]
+        )
 
-        self.logger.debug("Messages between: %s, Time between: %s",
-                          guildData[KEY_MSGS_BETWEEN], guildData[KEY_TIME_BETWEEN])
-        self.logger.debug("Last respect time: %s",
-                          datetime.fromtimestamp(chData[KEY_TIME]))
-        self.logger.debug("exceedMessages: %s, exceedTime: %s",
-                          exceedMessages, exceedTime)
+        self.logger.debug(
+            "Messages between: %s, Time between: %s",
+            guildData[KEY_MSGS_BETWEEN],
+            guildData[KEY_TIME_BETWEEN],
+        )
+        self.logger.debug("Last respect time: %s", datetime.fromtimestamp(chData[KEY_TIME]))
+        self.logger.debug("exceedMessages: %s, exceedTime: %s", exceedMessages, exceedTime)
 
         if exceedMessages and exceedTime:
             self.logger.debug("We've exceeded the messages/time between respects")
@@ -215,15 +234,18 @@ class Respects(commands.Cog):
                     oldRespect = await ctx.channel.fetch_message(chData[KEY_MSG])
                     await oldRespect.delete()
                 except (discord.Forbidden, discord.NotFound):
-                    await ctx.send("I currently cannot delete messages, please give me \"Manage"
-                                   " Message\" permissions to allow this feature to work!")
+                    await ctx.send(
+                        'I currently cannot delete messages, please give me "Manage'
+                        ' Message" permissions to allow this feature to work!'
+                    )
                 finally:
                     chData[KEY_MSG] = None
 
             if len(chData[KEY_USERS]) == 1:
-                message = "**{}** has paid their respects {}".format(ctx.author.name,
-                                                                     choice(HEARTS))
-            elif len(chData[KEY_USERS]) == 2: # 2 users, no comma.
+                message = "**{}** has paid their respects {}".format(
+                    ctx.author.name, choice(HEARTS)
+                )
+            elif len(chData[KEY_USERS]) == 2:  # 2 users, no comma.
                 user1 = ctx.author
                 uid2 = chData[KEY_USERS][0]
                 user2 = discord.utils.get(ctx.guild.members, id=uid2)

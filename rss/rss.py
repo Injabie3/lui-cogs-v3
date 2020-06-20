@@ -11,57 +11,61 @@ import aiohttp
 import feedparser
 from bs4 import BeautifulSoup
 import discord
-from redbot.core  import checks, Config, commands, data_manager
+from redbot.core import checks, Config, commands, data_manager
 from redbot.core.bot import Red
 
 KEY_CHANNEL = "post_channel"
 KEY_INTERVAL = "check_interval"
 KEY_LAST_POST_TIME = "last_post_time"
 KEY_FEEDS = "rss_feed_urls"
-RSS_IMAGE_URL = ("https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Feed-icon.svg/"
-                 "1200px-Feed-icon.svg.png")
+RSS_IMAGE_URL = (
+    "https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Feed-icon.svg/"
+    "1200px-Feed-icon.svg.png"
+)
+
 
 def date2epoch(date):
     """Converts a datetime date into epoch for storage in JSON."""
     try:
-        epoch = datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %z').timestamp()
+        epoch = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S %z").timestamp()
     except ValueError:
-        epoch = datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z').timestamp()
+        epoch = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S %Z").timestamp()
         return epoch
 
     return epoch
 
+
 def epoch2date(epoch):
     """Converts an epoch time into a datetime date from storage in JSON."""
-    date = datetime.fromtimestamp(epoch).strftime('%a, %d %b %Y %I:%M%p')
+    date = datetime.fromtimestamp(epoch).strftime("%a, %d %b %Y %I:%M%p")
     return date
+
 
 def _getLatestPostTime(feedItems):
     publishedTimes = []
     for item in feedItems:
-        publishedTimes.append(date2epoch(item['published']))
+        publishedTimes.append(date2epoch(item["published"]))
     if publishedTimes:
         return max(publishedTimes)
-    return None #lets be explicit :)
+    return None  # lets be explicit :)
+
 
 def _isNewItem(latestPostTime, itemPostTime):
     return latestPostTime < itemPostTime
 
+
 class RSSFeed(commands.Cog):
     """RSS cog"""
+
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=5842647,
-                                      force_registration=True)
-        defaultGlobal = {
-            "interval": 60
-                }
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
+        defaultGlobal = {"interval": 60}
         defaultGuild = {
             "channelId": None,
             "rssFeedUrls": {},
-
-                }
+        }
         self.config.register_global(**defaultGlobal)
         self.config.register_guild(**defaultGuild)
 
@@ -71,13 +75,12 @@ class RSSFeed(commands.Cog):
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
 
     @checks.mod_or_permissions(manage_messages=True)
@@ -95,20 +98,26 @@ class RSSFeed(commands.Cog):
             The number of minutes between checks, between 1 and 180 inclusive.
         """
         if minutes < 1 or minutes > 180:
-            await ctx.send(":negative_squared_cross_mark: **RSS - Check Interval:** "
-                           "The interval must be between 1 and 180 minutes!")
+            await ctx.send(
+                ":negative_squared_cross_mark: **RSS - Check Interval:** "
+                "The interval must be between 1 and 180 minutes!"
+            )
             return
 
-        await self.config.interval.set(minutes*60)
+        await self.config.interval.set(minutes * 60)
 
-        await ctx.send(":white_check_mark: **RSS - Check Interval:** Interval set to "
-                       "**{}** minutes".format(minutes))
+        await ctx.send(
+            ":white_check_mark: **RSS - Check Interval:** Interval set to "
+            "**{}** minutes".format(minutes)
+        )
 
-        self.logger.info("%s#%s (%s) changed the RSS check interval to %s minutes",
-                         ctx.message.author.name,
-                         ctx.message.author.discriminator,
-                         ctx.message.author.id,
-                         minutes)
+        self.logger.info(
+            "%s#%s (%s) changed the RSS check interval to %s minutes",
+            ctx.message.author.name,
+            ctx.message.author.discriminator,
+            ctx.message.author.id,
+            minutes,
+        )
 
     @_rss.command(name="channel", pass_context=True, no_pm=True)
     async def setChannel(self, ctx, channel: discord.TextChannel):
@@ -120,14 +129,18 @@ class RSSFeed(commands.Cog):
             The channel to post new RSS news items to.
         """
         await self.config.guild(ctx.guild).channelId.set(channel.id)
-        await ctx.send(":white_check_mark: **RSS - Channel**: New updates will now "
-                       "be posted to {}".format(channel.mention))
-        self.logger.info("%s#%s (%s) changed the RSS post channel to %s (%s)",
-                         ctx.message.author.name,
-                         ctx.message.author.discriminator,
-                         ctx.message.author.id,
-                         channel.name,
-                         channel.id)
+        await ctx.send(
+            ":white_check_mark: **RSS - Channel**: New updates will now "
+            "be posted to {}".format(channel.mention)
+        )
+        self.logger.info(
+            "%s#%s (%s) changed the RSS post channel to %s (%s)",
+            ctx.message.author.name,
+            ctx.message.author.discriminator,
+            ctx.message.author.id,
+            channel.name,
+            channel.id,
+        )
 
     @_rss.command(name="show", pass_context=False, no_pm=True)
     async def showSettings(self, ctx):
@@ -139,7 +152,7 @@ class RSSFeed(commands.Cog):
             await ctx.send("Invalid channel, please set a channel and try again!")
             return
         msg += "Posting Channel: #{}\n".format(channel.name)
-        msg += "Check Interval:  {} minutes\n".format(await self.config.interval()/60)
+        msg += "Check Interval:  {} minutes\n".format(await self.config.interval() / 60)
         msg += "```"
 
         await ctx.send(msg)
@@ -173,7 +186,7 @@ class RSSFeed(commands.Cog):
         feed = feedparser.parse(rssUrl)
 
         for item in feed.entries:
-            itemPostTime = date2epoch(item['published'])
+            itemPostTime = date2epoch(item["published"])
             if _isNewItem(latestPostTime, itemPostTime):
                 news.append(item)
 
@@ -220,17 +233,19 @@ class RSSFeed(commands.Cog):
                     embed.url = item.link.replace(" ", "%20")
 
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(item.link.replace(' ', '%20')) as resp:
+                        async with session.get(item.link.replace(" ", "%20")) as resp:
                             page = await resp.text()
 
                     soup = BeautifulSoup(page, "html.parser")
 
-                    #ugly, but want a nicer "human readable" date
-                    embed.add_field(name="Date Published",
-                                    value=epoch2date(date2epoch(item.published)),
-                                    inline=False)
+                    # ugly, but want a nicer "human readable" date
+                    embed.add_field(
+                        name="Date Published",
+                        value=epoch2date(date2epoch(item.published)),
+                        inline=False,
+                    )
 
-                    #Handle empty summary case
+                    # Handle empty summary case
                     value = BeautifulSoup(item.summary, "html.parser").get_text()
                     if value:
                         embed.add_field(name="Summary", value=value, inline=False)
@@ -242,9 +257,10 @@ class RSSFeed(commands.Cog):
                     except (KeyError, TypeError) as error:
                         self.logger.error("Image URL error: %s", error)
 
-                    embed.set_footer(text="This update is from "
-                                     "{}".format(item.title_detail.base),
-                                     icon_url=RSS_IMAGE_URL)
+                    embed.set_footer(
+                        text="This update is from " "{}".format(item.title_detail.base),
+                        icon_url=RSS_IMAGE_URL,
+                    )
 
                     # Keep this in a try block in case of Discord's explicit filter.
                     try:
@@ -255,7 +271,7 @@ class RSSFeed(commands.Cog):
                         self.logger.error("Embed: %s", embed.to_dict())
 
             try:
-                await asyncio.sleep(await self.config.interval()) # pylint: disable=no-member
+                await asyncio.sleep(await self.config.interval())  # pylint: disable=no-member
             except asyncio.CancelledError as error:
                 self.logger.error("The asyncio sleep was cancelled!")
                 self.logger.error(error)

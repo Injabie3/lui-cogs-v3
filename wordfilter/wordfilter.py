@@ -15,28 +15,19 @@ from redbot.core.utils import paginator
 from redbot.core.bot import Red
 
 COLOUR = discord.Colour
-COLOURS = [COLOUR.purple(),
-           COLOUR.red(),
-           COLOUR.blue(),
-           COLOUR.orange(),
-           COLOUR.green()]
-PATTERN_CHANNEL_ID = r'<#(\d+)>'
-BASE = \
-{
- "channelAllowed" : [],
- "filters" : [],
- "commandDenied" : [],
- "toggleMod" : False
-}
+COLOURS = [COLOUR.purple(), COLOUR.red(), COLOUR.blue(), COLOUR.orange(), COLOUR.green()]
+PATTERN_CHANNEL_ID = r"<#(\d+)>"
+BASE = {"channelAllowed": [], "filters": [], "commandDenied": [], "toggleMod": False}
 
-class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
+
+class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
     """Word Filter cog, for all your word filtering needs."""
 
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
-        self.config.register_guild(**BASE) # Register default (empty) settings.
+        self.config.register_guild(**BASE)  # Register default (empty) settings.
 
         # Initialize logger, and save to cog folder.
         saveFolder = data_manager.cog_data_path(cog_instance=self)
@@ -44,13 +35,12 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
 
         # self.commandBlacklist = dataIO.load_json(PATH_BLACKLIST)
@@ -76,11 +66,15 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if word not in filters:
             filters.append(word)
             await self.config.guild(ctx.guild).filters.set(filters)
-            await user.send("`Word Filter:` `{0}` was added to the filter in the "
-                            "guild **{1}**".format(word, guildName))
+            await user.send(
+                "`Word Filter:` `{0}` was added to the filter in the "
+                "guild **{1}**".format(word, guildName)
+            )
         else:
-            await user.send("`Word Filter:` The word `{0}` is already in the filter "
-                            "for guild **{1}**".format(word, guildName))
+            await user.send(
+                "`Word Filter:` The word `{0}` is already in the filter "
+                "for guild **{1}**".format(word, guildName)
+            )
 
     @wordFilter.command(name="del", aliases=["delete", "remove", "rm"])
     @commands.guild_only()
@@ -92,13 +86,17 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         filters = await self.config.guild(ctx.guild).filters()
 
         if not filters or word not in filters:
-            await user.send("`Word Filter:` The word `{0}` is not in the filter for "
-                            "guild **{1}**".format(word, guildName))
+            await user.send(
+                "`Word Filter:` The word `{0}` is not in the filter for "
+                "guild **{1}**".format(word, guildName)
+            )
         else:
             filters.remove(word)
             await self.config.guild(ctx.guild).filters.set(filters)
-            await user.send("`Word Filter:` `{0}` removed from the filter in the "
-                            "guild **{1}**".format(word, guildName))
+            await user.send(
+                "`Word Filter:` `{0}` removed from the filter in the "
+                "guild **{1}**".format(word, guildName)
+            )
 
     @wordFilter.command(name="list", aliases=["ls"])
     @commands.guild_only()
@@ -116,8 +114,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             for regex in filters:
                 display.append("`{}`".format(regex))
 
-            page = paginator.Pages(ctx=ctx, entries=display,
-                                   show_entry_count=True)
+            page = paginator.Pages(ctx=ctx, entries=display, show_entry_count=True)
             page.embed.title = "Filtered words for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
@@ -133,12 +130,16 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
 
         if toggleMod:
             toggleMod = False
-            await ctx.send(":negative_squared_cross_mark: Word Filter: Moderators "
-                           "(and higher) **will be** filtered.")
+            await ctx.send(
+                ":negative_squared_cross_mark: Word Filter: Moderators "
+                "(and higher) **will be** filtered."
+            )
         else:
             toggleMod = True
-            await ctx.send(":white_check_mark: Word Filter: Moderators (and higher "
-                           "**will not be** filtered.")
+            await ctx.send(
+                ":white_check_mark: Word Filter: Moderators (and higher "
+                "**will not be** filtered."
+            )
         await self.config.guild(ctx.guild).toggleMod.set(toggleMod)
 
     #########################################
@@ -167,13 +168,17 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         if cmd not in cmdDenied:
             cmdDenied.append(cmd)
             await self.config.guild(ctx.guild).commandDenied.set(cmdDenied)
-            await ctx.send(":white_check_mark: Word Filter: Command `{1}` is now "
-                           "blacklisted.  It will have the entire message filtered "
-                           "if it contains any filterable words, and its contents "
-                           "DM'd back to the user.".format(cmd))
+            await ctx.send(
+                ":white_check_mark: Word Filter: Command `{1}` is now "
+                "blacklisted.  It will have the entire message filtered "
+                "if it contains any filterable words, and its contents "
+                "DM'd back to the user.".format(cmd)
+            )
         else:
-            await ctx.send(":negative_squared_cross_mark: Word Filter: Command "
-                           "`{0}` is already blacklisted.".format(cmd))
+            await ctx.send(
+                ":negative_squared_cross_mark: Word Filter: Command "
+                "`{0}` is already blacklisted.".format(cmd)
+            )
 
     @_command.command(name="del", aliases=["delete", "remove", "rm"])
     @commands.guild_only()
@@ -189,13 +194,17 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         cmdDenied = await self.config.guild(ctx.guild).commandDenied()
 
         if not cmdDenied or cmd not in cmdDenied:
-            await self.bot.say(":negative_squared_cross_mark: Word Filter: Command "
-                               "`{0}` wasn't on the blacklist.".format(cmd))
+            await self.bot.say(
+                ":negative_squared_cross_mark: Word Filter: Command "
+                "`{0}` wasn't on the blacklist.".format(cmd)
+            )
         else:
             cmdDenied.remove(cmd)
             await self.config.guild(ctx.guild).commandDenied.set(cmdDenied)
-            await ctx.send(":white_check_mark: Word Filter: `{0}` removed from "
-                           "the command blacklist.".format(cmd))
+            await ctx.send(
+                ":white_check_mark: Word Filter: `{0}` removed from "
+                "the command blacklist.".format(cmd)
+            )
 
     @_command.command(name="list", aliases=["ls"])
     @commands.guild_only()
@@ -214,14 +223,14 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             for cmd in cmdDenied:
                 display.append("`{}`".format(cmd))
 
-            page = paginator.Pages(ctx=ctx, entries=display,
-                                   show_entry_count=True)
+            page = paginator.Pages(ctx=ctx, entries=display, show_entry_count=True)
             page.embed.title = "Blacklisted commands for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
         else:
-            await ctx.send("Sorry, there are no blacklisted commands in "
-                           "**{}**".format(guildName))
+            await ctx.send(
+                "Sorry, there are no blacklisted commands in " "**{}**".format(guildName)
+            )
 
     ############################################
     # COMMANDS - CHANNEL WHITELISTING SETTINGS #
@@ -243,18 +252,22 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
 
         match = re.search(PATTERN_CHANNEL_ID, channelName)
-        if match: # channel ID
+        if match:  # channel ID
             channel = discord.utils.get(ctx.message.guild.channels, id=match.group(1))
             channelName = channel.name
 
         if channelName not in channelAllowed:
             channelAllowed.append(channelName)
             await self.config.guild(ctx.guild).channelAllowed.set(channelAllowed)
-            await ctx.send(":white_check_mark: Word Filter: Channel with name "
-                           "`{0}` will not be filtered.".format(channelName))
+            await ctx.send(
+                ":white_check_mark: Word Filter: Channel with name "
+                "`{0}` will not be filtered.".format(channelName)
+            )
         else:
-            await ctx.send(":negative_squared_cross_mark: Word Filter: Channel "
-                           "`{0}` is already whitelisted.".format(channelName))
+            await ctx.send(
+                ":negative_squared_cross_mark: Word Filter: Channel "
+                "`{0}` is already whitelisted.".format(channelName)
+            )
 
     @_whitelist.command(name="del", aliases=["delete", "remove", "rm"])
     @commands.guild_only()
@@ -268,18 +281,22 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         channelAllowed = await self.config.guild(ctx.guild).channelAllowed()
 
         match = re.search(PATTERN_CHANNEL_ID, channelName)
-        if match: # channel ID
+        if match:  # channel ID
             channel = discord.utils.get(ctx.message.guild.channels, id=match.group(1))
             channelName = channel.name
 
         if not channelAllowed or channelName not in channelAllowed:
-            await ctx.send(":negative_squared_cross_mark: Word Filter: Channel "
-                           "`{0}` was already not whitelisted.".format(channelName))
+            await ctx.send(
+                ":negative_squared_cross_mark: Word Filter: Channel "
+                "`{0}` was already not whitelisted.".format(channelName)
+            )
         else:
             channelAllowed.remove(channelName)
             await self.config.guild(ctx.guild).channelAllowed.set(channelAllowed)
-            await ctx.send(":white_check_mark: Word Filter: `{0}` removed from "
-                           "the channel whitelist.".format(channelName))
+            await ctx.send(
+                ":white_check_mark: Word Filter: `{0}` removed from "
+                "the channel whitelist.".format(channelName)
+            )
 
     @_whitelist.command(name="list", aliases=["ls"])
     @commands.guild_only()
@@ -297,14 +314,14 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             for channel in channelAllowed:
                 display.append("`{}`".format(channel))
 
-            page = paginator.Pages(ctx=ctx, entries=display,
-                                   show_entry_count=True)
+            page = paginator.Pages(ctx=ctx, entries=display, show_entry_count=True)
             page.embed.title = "Whitelisted channels for: **{}**".format(guildName)
             page.embed.colour = discord.Colour.red()
             await page.paginate()
         else:
-            await ctx.send("Sorry, there are no whitelisted channels in "
-                           "**{}**".format(guildName))
+            await ctx.send(
+                "Sorry, there are no whitelisted channels in " "**{}**".format(guildName)
+            )
 
     async def checkMessageServerAndChannel(self, msg):
         """Checks to see if the message is in a server/channel eligible for
@@ -332,7 +349,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             for channels in whitelist:
                 if channels.lower() == msg.channel.name.lower():
                     return False
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
             # Most likely no whitelisted channels.
             self.logger.error("Exception occured while checking whitelist channels!")
             self.logger.error(error)
@@ -343,7 +360,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             if toggleMod:
                 if await self.bot.is_mod(msg.author) or await self.bot.is_admin(msg.author):
                     return False
-        except Exception as error: # pylint: disable=broad-except
+        except Exception as error:  # pylint: disable=broad-except
             self.logger.error("Exception occurred in checking keyToggleMod!")
             self.logger.error(error)
 
@@ -375,8 +392,9 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             return False
         return True
 
-    async def checkWords(self, msg, newMsg=None): \
-        # pylint: disable=too-many-locals, too-many-branches
+    async def checkWords(
+        self, msg, newMsg=None
+    ):  # pylint: disable=too-many-locals, too-many-branches
         """This method, given a message, will check to see if the message contains
         any filterable words, and if it does, deletes the original message and
         sends another message with the filterable words censored.
@@ -413,12 +431,12 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
 
         for prefix in await self.bot.get_prefix(msg):
             for cmd in commandDenied:
-                if checkMsg.startswith(prefix+cmd):
+                if checkMsg.startswith(prefix + cmd):
                     blacklistedCmd = True
 
         try:
             filteredMsg = _filterWord(filteredWords, filteredMsg)
-        except re.error as error: # pylint: disable=broad-except
+        except re.error as error:  # pylint: disable=broad-except
             self.logger.error("Exception!")
             self.logger.error(error)
             self.logger.info("Filtered message: %s", filteredMsg)
@@ -426,7 +444,7 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
         allFiltered = _isAllFiltered(filteredMsg)
 
         if filteredMsg == originalMsg:
-            return # no bad words, don't need to do anything else
+            return  # no bad words, don't need to do anything else
 
         await msg.delete()
         if blacklistedCmd:
@@ -438,9 +456,11 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             filterNotify = "{0.author.mention} was filtered!".format(msg)
             notifyMsg = await msg.channel.send(filterNotify)
             filterNotify = "You were filtered! Your message was: \n"
-            embed = discord.Embed(colour=random.choice(COLOURS),
-                                  description="{0.author.name}#{0.author.discriminator}: "
-                                  "{1}".format(msg, filteredMsg))
+            embed = discord.Embed(
+                colour=random.choice(COLOURS),
+                description="{0.author.name}#{0.author.discriminator}: "
+                "{1}".format(msg, filteredMsg),
+            )
             try:
                 await msg.author.send(filterNotify, embed=embed)
             except discord.errors.Forbidden as error:
@@ -455,13 +475,16 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
             await notifyMsg.delete()
         else:
             filterNotify = "{0.author.mention} was filtered! Message was: \n".format(msg)
-            embed = discord.Embed(colour=random.choice(COLOURS),
-                                  description="{0.author.name}#{0.author.discriminator}: "
-                                  "{1}".format(msg, filteredMsg))
+            embed = discord.Embed(
+                colour=random.choice(COLOURS),
+                description="{0.author.name}#{0.author.discriminator}: "
+                "{1}".format(msg, filteredMsg),
+            )
             await msg.channel.send(filterNotify, embed=embed)
 
-        self.logger.info("Author : %s#%s (%s)", msg.author.name,
-                         msg.author.discriminator, msg.author.id)
+        self.logger.info(
+            "Author : %s#%s (%s)", msg.author.name, msg.author.discriminator, msg.author.id
+        )
         self.logger.info("Message: %s", originalMsg)
 
     # Event listeners
@@ -473,21 +496,25 @@ class WordFilter(commands.Cog): # pylint: disable=too-many-instance-attributes
     async def on_message_edit(self, msg, newMsg):
         await self.checkWords(msg, newMsg)
 
+
 def _censorMatch(matchobj):
     matchLength = len(matchobj.group(0))
-    return '`' + ('*' * matchLength) + '`'
+    return "`" + ("*" * matchLength) + "`"
+
 
 def _filterWord(words, string):
     # Combine all filter words into one regex
-    numFilters = len(words)-1
-    reFormat = r'\b(?:' + (r'{}|')*numFilters + r'{})\b'
+    numFilters = len(words) - 1
+    reFormat = r"\b(?:" + (r"{}|") * numFilters + r"{})\b"
     regex = reFormat.format(*words)
 
     # Replace the offending string with the correct number of stars.
     return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
 
+
 def _isOneWord(string):
     return len(string.split()) == 1
+
 
 def _isAllFiltered(string):
     words = string.split()

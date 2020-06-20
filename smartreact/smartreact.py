@@ -13,23 +13,19 @@ from redbot.core.utils import paginator
 from redbot.core.bot import Red
 from redbot.core.commands.context import Context
 
-UPDATE_WAIT_DUR = 1200 # Autoupdate waits this much before updating
+UPDATE_WAIT_DUR = 1200  # Autoupdate waits this much before updating
 
-BASE_GUILD = \
-{
-    "emojis": {}
-}
+BASE_GUILD = {"emojis": {}}
+
 
 class SmartReact(commands.Cog):
     """Create automatic reactions when trigger words are typed in chat"""
 
     def __init__(self, bot: Red):
         self.bot = bot
-        self.config = Config.get_conf(self,
-                                      identifier=5842647,
-                                      force_registration=True)
-        self.config.register_guild(**BASE_GUILD) # Register default (empty) settings.
-        self.update_wait = False # boolean to check if already waiting
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
+        self.config.register_guild(**BASE_GUILD)  # Register default (empty) settings.
+        self.update_wait = False  # boolean to check if already waiting
 
         # Initialize logger, and save to cog folder.
         saveFolder = data_manager.cog_data_path(cog_instance=self)
@@ -37,13 +33,12 @@ class SmartReact(commands.Cog):
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
 
     @commands.group(name="react")
@@ -120,9 +115,13 @@ class SmartReact(commands.Cog):
         try:
             if emoji[:2] != "<:":
                 return emoji
-            self.logger.debug(emoji.split(':')[2][:-1])
-            return [emote for guild in self.bot.guilds for emote in guild.emojis
-                    if emote.id == int(emoji.split(':')[2][:-1])][0]
+            self.logger.debug(emoji.split(":")[2][:-1])
+            return [
+                emote
+                for guild in self.bot.guilds
+                for emote in guild.emojis
+                if emote.id == int(emoji.split(":")[2][:-1])
+            ][0]
         except IndexError:
             self.logger.error("Index error as follows", exc_info=True)
             return None
@@ -169,7 +168,7 @@ class SmartReact(commands.Cog):
         ValueError
             Emoji is not in the nameList
         """
-        locv = nameList.index(compare_emoji.split(':')[1].lower())
+        locv = nameList.index(compare_emoji.split(":")[1].lower())
         self.logger.debug("Updated emoji value: %s", guild.emojis[locv])
         return str(guild.emojis[locv])
 
@@ -187,24 +186,24 @@ class SmartReact(commands.Cog):
             for emoji in emojiList.keys():
                 # Update any emojis in the trigger words
                 for idx, word in enumerate(emojiList[emoji]):
-                    if not ':' in word: # Hackishly makes sure it's a custom emoji
+                    if not ":" in word:  # Hackishly makes sure it's a custom emoji
                         continue
 
                     try:
                         updated_emoji = self.get_updated_emoji(namesList, word, guild)
                     except ValueError:
-                        continue # Don't care if doesn't exist
+                        continue  # Don't care if doesn't exist
                     if word != updated_emoji:
                         emojiList[emoji][idx] = updated_emoji
 
-                if not ':' in emoji:
+                if not ":" in emoji:
                     continue
 
                 # Update the emoji key
                 try:
                     new_emoji_key = self.get_updated_emoji(namesList, emoji, guild)
                 except ValueError:
-                    continue # Don't care if doesn't exist
+                    continue  # Don't care if doesn't exist
                 if emoji != new_emoji_key:
                     emojiList[new_emoji_key] = emojiList.pop(emoji)
         # self.settings[server.id] = settings
@@ -269,11 +268,9 @@ class SmartReact(commands.Cog):
                         emojiDict.pop(str(emoji))
                     await ctx.send("Removed this smart reaction.")
                 else:
-                    await ctx.send("That emoji is not used as a reaction "
-                                   "for that word.")
+                    await ctx.send("That emoji is not used as a reaction " "for that word.")
             else:
-                await ctx.send("There are no smart reactions which use "
-                               "this emoji.")
+                await ctx.send("There are no smart reactions which use " "this emoji.")
 
     @commands.Cog.listener("on_guild_emojis_update")
     async def emojis_update_listener(self, guild: discord.Guild, before, after):
@@ -305,10 +302,13 @@ class SmartReact(commands.Cog):
         react_dict = await self.config.guild(message.guild).emojis()
 
         # For matching non-word characters and emojis
-        end_sym = r'([\W:\\<>._]+|$)'
-        st_sym = r'([\W:\\<>._]+|^)'
+        end_sym = r"([\W:\\<>._]+|$)"
+        st_sym = r"([\W:\\<>._]+|^)"
         for emoji in react_dict:
-            if any(re.search(st_sym + w + end_sym, message.content, re.IGNORECASE) for w in react_dict[emoji]):
+            if any(
+                re.search(st_sym + w + end_sym, message.content, re.IGNORECASE)
+                for w in react_dict[emoji]
+            ):
                 fixed_emoji = self.fix_custom_emoji(emoji)
                 if fixed_emoji:
                     try:

@@ -16,8 +16,7 @@ import json
 KEY_BDAY_ROLE = "birthdayRole"
 KEY_BDAY_USERS = "birthdayUsers"
 UID = "5842647"  # When typed on a T9 keyboard: luicogs
-BASE = \
-{UID: {"GUILD": {}, "MEMBER": {}}}
+BASE = {UID: {"GUILD": {}, "MEMBER": {}}}
 
 v3Json = BASE
 

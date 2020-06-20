@@ -14,9 +14,8 @@ Original data remains untouched.
 
 import json
 
-UID = "5842647" # When typed on a T9 keyboard: luicogs
-BASE = \
-{UID: {"GUILD": {}}}
+UID = "5842647"  # When typed on a T9 keyboard: luicogs
+BASE = {UID: {"GUILD": {}}}
 
 v3Json = BASE
 

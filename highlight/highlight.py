@@ -25,29 +25,24 @@ KEY_WORDS = "words"
 KEY_WORDS_IGNORE = "ignoreWords"
 KEY_IGNORE = "ignoreChannelID"
 
-BASE_GUILD_MEMBER = \
-{
+BASE_GUILD_MEMBER = {
     KEY_BLACKLIST: [],
     KEY_TIMEOUT: DEFAULT_TIMEOUT,
     KEY_WORDS: [],
-    KEY_WORDS_IGNORE: []
+    KEY_WORDS_IGNORE: [],
 }
 
-BASE_GUILD = \
-{
-    KEY_IGNORE: None
-}
+BASE_GUILD = {KEY_IGNORE: None}
 
 
 class Highlight(commands.Cog):
     """Slack-like feature to be notified based on specific words."""
+
     def __init__(self, bot: Red):
         super().__init__()
         self.bot = bot
         self.lock = Lock()
-        self.config = Config.get_conf(self,
-                                      identifier=5842647,
-                                      force_registration=True)
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_member(**BASE_GUILD_MEMBER)
         self.config.register_guild(**BASE_GUILD)
 
@@ -61,15 +56,13 @@ class Highlight(commands.Cog):
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
-
 
     async def _sleepThenDelete(self, msg, time):
         await asyncio.sleep(time)  # pylint: disable=no-member
@@ -98,7 +91,7 @@ class Highlight(commands.Cog):
             self.highlights[guildId][userId] = {
                 KEY_WORDS: [],
                 KEY_BLACKLIST: [],
-                KEY_TIMEOUT: DEFAULT_TIMEOUT
+                KEY_TIMEOUT: DEFAULT_TIMEOUT,
             }
             return
 
@@ -113,6 +106,7 @@ class Highlight(commands.Cog):
     async def highlight(self, ctx):
         """Slack-like feature to be notified based on specific words outside of
         at-mentions."""
+
     @highlight.command(name="add")
     @commands.guild_only()
     async def addHighlight(self, ctx, *, word: str):
@@ -123,14 +117,15 @@ class Highlight(commands.Cog):
             if len(userWords) < MAX_WORDS_HIGHLIGHT and word not in userWords:
                 # user can only have MAX_WORDS_HIGHLIGHT words
                 userWords.append(word)
-                await ctx.send("Highlight word added, {}".format(userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "Highlight word added, {}".format(userName), delete_after=DELETE_TIME
+                )
             else:
                 await ctx.send(
                     "Sorry {}, you already have {} words highlighted, or you "
-                    "are trying to add a duplicate word".format(
-                        userName, MAX_WORDS_HIGHLIGHT),
-                    delete_after=DELETE_TIME)
+                    "are trying to add a duplicate word".format(userName, MAX_WORDS_HIGHLIGHT),
+                    delete_after=DELETE_TIME,
+                )
         await ctx.message.delete()
 
     @highlight.command(name="del", aliases=["delete", "remove", "rm"])
@@ -142,12 +137,14 @@ class Highlight(commands.Cog):
         async with self.config.member(ctx.author).words() as userWords:
             if word in userWords:
                 userWords.remove(word)
-                await ctx.send("Highlight word removed, {}".format(userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "Highlight word removed, {}".format(userName), delete_after=DELETE_TIME
+                )
             else:
-                await ctx.send("Sorry {}, you don't have this word "
-                               "highlighted".format(userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "Sorry {}, you don't have this word " "highlighted".format(userName),
+                    delete_after=DELETE_TIME,
+                )
         await ctx.message.delete()
 
     @highlight.command(name="list", aliases=["ls"])
@@ -162,29 +159,32 @@ class Highlight(commands.Cog):
                 for word in userWords:
                     msg += "{}\n".format(word)
 
-                embed = discord.Embed(description=msg,
-                                      colour=discord.Colour.red())
-                embed.set_author(name=ctx.message.author.name,
-                                 icon_url=ctx.message.author.avatar_url)
+                embed = discord.Embed(description=msg, colour=discord.Colour.red())
+                embed.set_author(
+                    name=ctx.message.author.name, icon_url=ctx.message.author.avatar_url
+                )
                 try:
                     await ctx.message.author.send(embed=embed)
                 except discord.Forbidden:
                     await ctx.send(
-                        "{}, you do not have DMs enabled, please enable them!".
-                        format(ctx.message.author.mention),
-                        delete_after=DELETE_TIME)
+                        "{}, you do not have DMs enabled, please enable them!".format(
+                            ctx.message.author.mention
+                        ),
+                        delete_after=DELETE_TIME,
+                    )
                 else:
-                    await ctx.send("Please check your DMs.",
-                                   delete_after=DELETE_TIME)
+                    await ctx.send("Please check your DMs.", delete_after=DELETE_TIME)
             else:
-                await ctx.send("Sorry {}, you have no highlighted words "
-                               "currently".format(userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "Sorry {}, you have no highlighted words " "currently".format(userName),
+                    delete_after=DELETE_TIME,
+                )
 
     @highlight.group(name="blacklist", aliases=["bl"])
     @commands.guild_only()
     async def userBlacklist(self, ctx: Context):
         """Blacklist certain users from triggering your words."""
+
     @userBlacklist.command(name="add")
     @commands.guild_only()
     async def userBlAdd(self, ctx: Context, user: discord.Member):
@@ -200,12 +200,12 @@ class Highlight(commands.Cog):
         async with self.config.member(ctx.author).blacklist() as userBl:
             if user.id not in userBl:
                 userBl.append(user.id)
-                await ctx.send("{} added to the blacklist, {}".format(
-                    user.name, userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "{} added to the blacklist, {}".format(user.name, userName),
+                    delete_after=DELETE_TIME,
+                )
             else:
-                await ctx.send("This user is already on the blacklist!",
-                               delete_after=DELETE_TIME)
+                await ctx.send("This user is already on the blacklist!", delete_after=DELETE_TIME)
         await ctx.message.delete()
 
     @userBlacklist.command(name="del", aliases=["delete", "remove", "rm"])
@@ -223,12 +223,12 @@ class Highlight(commands.Cog):
         async with self.config.member(ctx.author).blacklist() as userBl:
             if user.id in userBl:
                 userBl.remove(user.id)
-                await ctx.send("{} removed from blacklist, {}".format(
-                    user.name, userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "{} removed from blacklist, {}".format(user.name, userName),
+                    delete_after=DELETE_TIME,
+                )
             else:
-                await ctx.send("This user is not on the blacklist!",
-                               delete_after=DELETE_TIME)
+                await ctx.send("This user is not on the blacklist!", delete_after=DELETE_TIME)
         await ctx.message.delete()
 
     @userBlacklist.command(name="clear", aliases=["cls"])
@@ -238,12 +238,13 @@ class Highlight(commands.Cog):
 
         Will ask for confirmation.
         """
-        await ctx.send("Are you sure you want to clear your blacklist?  Type "
-                       "`yes` to continue, otherwise type something else.")
+        await ctx.send(
+            "Are you sure you want to clear your blacklist?  Type "
+            "`yes` to continue, otherwise type something else."
+        )
 
         def check(msg):
-            return (msg.author == ctx.message.author
-                    and msg.channel == ctx.message.channel)
+            return msg.author == ctx.message.author and msg.channel == ctx.message.channel
 
         response = await self.bot.wait_for("message", timeout=10, check=check)
 
@@ -264,34 +265,32 @@ class Highlight(commands.Cog):
             if userBl:
                 msg = ""
                 for userId in userBl:
-                    userObj = discord.utils.get(ctx.message.guild.members,
-                                                id=userId)
+                    userObj = discord.utils.get(ctx.message.guild.members, id=userId)
                     if not userObj:
                         continue
                     msg += "{}\n".format(userObj.name)
                 if msg == "":
                     msg = "You have blacklisted users that are no longer in the guild."
 
-                embed = discord.Embed(description=msg,
-                                      colour=discord.Colour.red())
-                embed.title = "Blacklisted users on {}".format(
-                    ctx.message.guild.name)
-                embed.set_author(name=userName,
-                                 icon_url=ctx.message.author.avatar_url)
+                embed = discord.Embed(description=msg, colour=discord.Colour.red())
+                embed.title = "Blacklisted users on {}".format(ctx.message.guild.name)
+                embed.set_author(name=userName, icon_url=ctx.message.author.avatar_url)
                 try:
                     await ctx.message.author.send(embed=embed)
                 except discord.Forbidden:
                     await ctx.send(
-                        "{}, you do not have DMs enabled, please enable them!".
-                        format(ctx.message.author.mention),
-                        delete_after=DELETE_TIME)
+                        "{}, you do not have DMs enabled, please enable them!".format(
+                            ctx.message.author.mention
+                        ),
+                        delete_after=DELETE_TIME,
+                    )
                 else:
-                    await ctx.send("Please check your DMs.",
-                                   delete_after=DELETE_TIME)
+                    await ctx.send("Please check your DMs.", delete_after=DELETE_TIME)
             else:
-                await ctx.send("Sorry {}, you have no backlisted users "
-                               "currently".format(userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "Sorry {}, you have no backlisted users " "currently".format(userName),
+                    delete_after=DELETE_TIME,
+                )
 
     @highlight.group(name="ignore")
     @commands.guild_only()
@@ -304,6 +303,7 @@ class Highlight(commands.Cog):
         - "X Y": does NOT triggers DM.
         - "X something something Y": does NOT trigger DM.
         """
+
     @wordIgnore.command(name="add")
     @commands.guild_only()
     async def wordIgnoreAdd(self, ctx: Context, *, word: str):
@@ -319,15 +319,16 @@ class Highlight(commands.Cog):
         async with self.config.member(ctx.author).ignoreWords() as ignoreWords:
             if len(ignoreWords) < MAX_WORDS_IGNORE and word not in ignoreWords:
                 ignoreWords.append(word)
-                await ctx.send("{} added to the ignore list, {}".format(
-                    word, userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "{} added to the ignore list, {}".format(word, userName),
+                    delete_after=DELETE_TIME,
+                )
             else:
                 await ctx.send(
                     "Sorry {}, you are already ignoring {} words, or you are "
-                    "trying to add a duplicate word".format(
-                        userName, MAX_WORDS_IGNORE),
-                    delete_after=DELETE_TIME)
+                    "trying to add a duplicate word".format(userName, MAX_WORDS_IGNORE),
+                    delete_after=DELETE_TIME,
+                )
         await ctx.message.delete()
 
     @wordIgnore.command(name="del", aliases=["delete", "remove", "rm"])
@@ -339,12 +340,14 @@ class Highlight(commands.Cog):
         async with self.config.member(ctx.author).ignoreWords() as ignoreWords:
             if word in ignoreWords:
                 ignoreWords.remove(word)
-                await ctx.send("{} removed from the ignore list, {}".format(
-                    word, userName),
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "{} removed from the ignore list, {}".format(word, userName),
+                    delete_after=DELETE_TIME,
+                )
             else:
-                await ctx.send("You are not currently ignoring this word!",
-                               delete_after=DELETE_TIME)
+                await ctx.send(
+                    "You are not currently ignoring this word!", delete_after=DELETE_TIME
+                )
         await ctx.message.delete()
 
     @wordIgnore.command(name="list", aliases=["ls"])
@@ -359,24 +362,26 @@ class Highlight(commands.Cog):
                 for word in userWords:
                     msg += "{}\n".format(word)
 
-                embed = discord.Embed(description=msg,
-                                      colour=discord.Colour.red())
-                embed.set_author(name=ctx.message.author.name,
-                                 icon_url=ctx.message.author.avatar_url)
+                embed = discord.Embed(description=msg, colour=discord.Colour.red())
+                embed.set_author(
+                    name=ctx.message.author.name, icon_url=ctx.message.author.avatar_url
+                )
                 try:
                     await ctx.message.author.send(embed=embed)
                 except discord.Forbidden:
                     await ctx.send(
-                        "{}, you do not have DMs enabled, please enable them!".
-                        format(ctx.message.author.mention),
-                        delete_after=DELETE_TIME)
+                        "{}, you do not have DMs enabled, please enable them!".format(
+                            ctx.message.author.mention
+                        ),
+                        delete_after=DELETE_TIME,
+                    )
                 else:
                     await ctx.send("Please check your DMs.")
             else:
                 await ctx.send(
-                    "Sorry {}, you currently do not have any ignored "
-                    "words.".format(userName),
-                    delete_after=DELETE_TIME)
+                    "Sorry {}, you currently do not have any ignored " "words.".format(userName),
+                    delete_after=DELETE_TIME,
+                )
 
     @highlight.command(name="timeout")
     @commands.guild_only()
@@ -395,14 +400,12 @@ class Highlight(commands.Cog):
             Maximum timeout is 3600 seconds (1 hour).
         """
         if seconds < 0 or seconds > 3600:
-            await ctx.send(
-                "Please specify a timeout between 0 and 3600 seconds!")
+            await ctx.send("Please specify a timeout between 0 and 3600 seconds!")
             return
 
         await self.config.member(ctx.author).timeout.set(seconds)
 
-        await ctx.send("Timeout set to {} seconds.".format(seconds),
-                       delete_after=DELETE_TIME)
+        await ctx.send("Timeout set to {} seconds.".format(seconds), delete_after=DELETE_TIME)
         await ctx.message.delete()
 
     def _triggeredRecently(self, msg, uid, timeout=DEFAULT_TIMEOUT):
@@ -437,8 +440,11 @@ class Highlight(commands.Cog):
         timeoutVal = timedelta(seconds=timeout)
         lastTrig = self.lastTriggered[sid][cid][uid]
         self.logger.debug(
-            "Timeout %s, last triggered %s, message timestamp %s", timeoutVal,
-            lastTrig, msg.created_at)
+            "Timeout %s, last triggered %s, message timestamp %s",
+            timeoutVal,
+            lastTrig,
+            msg.created_at,
+        )
         if msg.created_at - lastTrig < timeoutVal:
             # User has been triggered recently.
             return True
@@ -477,8 +483,7 @@ class Highlight(commands.Cog):
             return
 
         user = msg.author
-        channelBlId = await self.config.guild(msg.channel.guild
-                                              ).ignoreChannelID()
+        channelBlId = await self.config.guild(msg.channel.guild).ignoreChannelID()
 
         # Prevent messages in a blacklisted channel from triggering highlight word
         # Prevent bots from triggering your highlight word.
@@ -511,8 +516,7 @@ class Highlight(commands.Cog):
                 continue
 
             # Handle case where message author has been blacklisted by the user.
-            if KEY_BLACKLIST in data.keys(
-            ) and msg.author.id in data[KEY_BLACKLIST]:
+            if KEY_BLACKLIST in data.keys() and msg.author.id in data[KEY_BLACKLIST]:
                 continue
 
             # Handle case where message contains words being ignored byu the user.
@@ -520,8 +524,7 @@ class Highlight(commands.Cog):
                 self.logger.debug("Checking for ignored words")
                 for word in data[KEY_WORDS_IGNORE]:
                     if self._isWordMatch(word, msg.content):
-                        self.logger.debug(
-                            "%s is being ignored, skipping user.", word)
+                        self.logger.debug("%s is being ignored, skipping user.", word)
                         isWordIgnored = True
                         break
 
@@ -534,12 +537,9 @@ class Highlight(commands.Cog):
             for word in data[KEY_WORDS]:
                 active = _isActive(currentUserId, msg, activeMessages)
                 match = self._isWordMatch(word, msg.content)
-                timeout = data[KEY_TIMEOUT] if KEY_TIMEOUT in data.keys(
-                ) else DEFAULT_TIMEOUT
-                triggeredRecently = self._triggeredRecently(
-                    msg, currentUserId, timeout)
-                if match and not active and not triggeredRecently \
-                        and user.id != currentUserId:
+                timeout = data[KEY_TIMEOUT] if KEY_TIMEOUT in data.keys() else DEFAULT_TIMEOUT
+                triggeredRecently = self._triggeredRecently(msg, currentUserId, timeout)
+                if match and not active and not triggeredRecently and user.id != currentUserId:
                     hiliteUser = msg.guild.get_member(currentUserId)
                     if not hiliteUser:
                         # Handle case where user is no longer in the guild of interest.
@@ -553,57 +553,54 @@ class Highlight(commands.Cog):
 
         await asyncio.gather(*tasks)  # pylint: disable=no-member
 
-    async def _notifyUser(self, user: discord.Member, message: discord.Message,
-                          word: str):
+    async def _notifyUser(self, user: discord.Member, message: discord.Message, word: str):
         """Notify the user of the triggered highlight word."""
         msgs = []
         try:
             async for msg in message.channel.history(limit=6, around=message):
                 msgs.append(msg)
         except aiohttp.ClientResponseError as error:
-            self.logger.error("Client response error within discord.py!",
-                              exc_info=True)
+            self.logger.error("Client response error within discord.py!", exc_info=True)
             self.logger.error(error)
         except aiohttp.ServerDisconnectedError as error:
-            self.logger.error("Server disconnect error within discord.py!",
-                              exc_info=True)
+            self.logger.error("Server disconnect error within discord.py!", exc_info=True)
             self.logger.error(error)
         msgContext = sorted(msgs, key=lambda r: r.created_at)
         msgUrl = message.jump_url
         notifyMsg = (
             "In #{1.channel.name}, you were mentioned with highlight word "
-            "**{0}**:".format(word, message))
+            "**{0}**:".format(word, message)
+        )
         embedMsg = ""
         msgStillThere = False
         for msg in msgContext:
             time = msg.created_at
-            time = time.replace(tzinfo=timezone.utc).astimezone(
-                tz=None).strftime('%H:%M:%S %Z')
+            time = time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%H:%M:%S %Z")
             escapedMsg = chat_formatting.escape(msg.content, formatting=True)
-            embedMsg += ("[{0}] {1.author.name}#{1.author.discriminator}: {2}"
-                         "\n".format(time, msg, escapedMsg))
+            embedMsg += "[{0}] {1.author.name}#{1.author.discriminator}: {2}" "\n".format(
+                time, msg, escapedMsg
+            )
             if self._isWordMatch(word, msg.content):
                 msgStillThere = True
         if not msgStillThere:
             return
-        embed = discord.Embed(title=user.name,
-                              description=embedMsg,
-                              colour=discord.Colour.red())
-        embed.add_field(name="Context",
-                        value="[Click to Jump]({})".format(msgUrl))
-        time = message.created_at.replace(tzinfo=timezone.utc).astimezone(
-            tz=None)
-        footer = "Triggered at | {}".format(
-            time.strftime('%a, %d %b %Y %I:%M%p %Z'))
+        embed = discord.Embed(title=user.name, description=embedMsg, colour=discord.Colour.red())
+        embed.add_field(name="Context", value="[Click to Jump]({})".format(msgUrl))
+        time = message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None)
+        footer = "Triggered at | {}".format(time.strftime("%a, %d %b %Y %I:%M%p %Z"))
         embed.set_footer(text=footer)
         try:
             await user.send(content=notifyMsg, embed=embed)
-            self.logger.info("%s#%s (%s) was successfully triggered.",
-                             user.name, user.discriminator, user.id)
+            self.logger.info(
+                "%s#%s (%s) was successfully triggered.", user.name, user.discriminator, user.id
+            )
         except discord.errors.Forbidden as error:
             self.logger.error(
                 "Could not notify %s#%s (%s)!  They probably has DMs disabled!",
-                user.name, user.discriminator, user.id)
+                user.name,
+                user.discriminator,
+                user.id,
+            )
 
     # Event listeners
     @commands.Cog.listener("on_message")
@@ -615,18 +612,17 @@ class Highlight(commands.Cog):
     async def onGuildChannelCreate(self, channel: discord.abc.GuildChannel):
         """Background listener to check if dark-hour has been created."""
         self.logger.info(
-            "New Channel creation has been detected. Name: %s, ID: %s",
-            channel.name, channel.id)
+            "New Channel creation has been detected. Name: %s, ID: %s", channel.name, channel.id
+        )
         if channel.name == "dark-hour":
-            await self.config.guild(channel.guild
-                                    ).ignoreChannelID.set(channel.id)
+            await self.config.guild(channel.guild).ignoreChannelID.set(channel.id)
             self.logger.info(
                 "Dark hour has been detected and channel id %s "
-                "will be blacklisted from highlights.", channel.id)
+                "will be blacklisted from highlights.",
+                channel.id,
+            )
         else:
-            self.logger.info(
-                "New channel is not called dark hour and will not be "
-                "blacklisted")
+            self.logger.info("New channel is not called dark hour and will not be " "blacklisted")
 
     @commands.Cog.listener("on_guild_channel_delete")
     async def onGuildChannelDelete(self, channel: discord.abc.GuildChannel):
@@ -635,12 +631,12 @@ class Highlight(commands.Cog):
         if channelBlId and channel.id == channelBlId:
             await self.config.guild(channel.guild).ignoreChannelID.set(None)
             self.logger.info(
-                "Dark hour deletion has been detected and channelBlId has "
-                "been reset")
+                "Dark hour deletion has been detected and channelBlId has " "been reset"
+            )
         else:
             self.logger.info(
-                "Deleted channel is not dark hour so dark hour ID remains "
-                "unchanged")
+                "Deleted channel is not dark hour so dark hour ID remains " "unchanged"
+            )
 
     def _isWordMatch(self, word, string):
         """See if the word/regex matches anything in string.
@@ -658,7 +654,7 @@ class Highlight(commands.Cog):
             Whether or not word is in string.
         """
         try:
-            regex = r'\b{}\b'.format(re.escape(word.lower()))
+            regex = r"\b{}\b".format(re.escape(word.lower()))
             return bool(re.search(regex, string.lower()))
         except Exception as error:  # pylint: disable=broad-except
             self.logger.error("Regex error: %s", word)
@@ -690,7 +686,6 @@ def _isActive(userId, originalMessage, messages, timeout=DEFAULT_TIMEOUT):
     """
     for msg in messages:
         deltaSinceMsg = originalMessage.created_at - msg.created_at
-        if msg.author.id == userId and deltaSinceMsg <= timedelta(
-                seconds=timeout):
+        if msg.author.id == userId and deltaSinceMsg <= timedelta(seconds=timeout):
             return True
     return False

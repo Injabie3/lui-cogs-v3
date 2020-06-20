@@ -15,19 +15,32 @@ from redbot.core.commands.context import Context
 
 WEBCAM_GAGLARDI = (
     "http://ns-webcams.its.sfu.ca/public/images/gaglardi-current.jpg"
-    "?nocache=0.8678792633247998&update=15000&timeout=1800000&offset=4")
-WEBCAM_TRS = ("http://ns-webcams.its.sfu.ca/public/images/towers-current.jpg"
-              "?nocache=0.9550930672504077&update=15000&timeout=1800000")
-WEBCAM_TRN = ("http://ns-webcams.its.sfu.ca/public/images/towern-current.jpg"
-              "?nocache=1&update=15000&timeout=1800000")
-WEBCAM_UDN = ("http://ns-webcams.its.sfu.ca/public/images/udn-current.jpg"
-              "?nocache=1&update=15000&timeout=1800000&offset=4")
-WEBCAM_AQPOND = ("http://ns-webcams.its.sfu.ca/public/images/aqn-current.jpg"
-                 "?nocache=1&update=15000&timeout=1800000")
-WEBCAM_SUB = ("http://ns-webcams.its.sfu.ca/public/images/aqsw-current.jpg"
-              "?nocache=0.3346598630889852&update=15000&timeout=1800000")
-WEBCAM_TFF = ("http://ns-webcams.its.sfu.ca/public/images/terryfox-current.jpg"
-              "?nocache=1&update=15000&timeout=1800000")
+    "?nocache=0.8678792633247998&update=15000&timeout=1800000&offset=4"
+)
+WEBCAM_TRS = (
+    "http://ns-webcams.its.sfu.ca/public/images/towers-current.jpg"
+    "?nocache=0.9550930672504077&update=15000&timeout=1800000"
+)
+WEBCAM_TRN = (
+    "http://ns-webcams.its.sfu.ca/public/images/towern-current.jpg"
+    "?nocache=1&update=15000&timeout=1800000"
+)
+WEBCAM_UDN = (
+    "http://ns-webcams.its.sfu.ca/public/images/udn-current.jpg"
+    "?nocache=1&update=15000&timeout=1800000&offset=4"
+)
+WEBCAM_AQPOND = (
+    "http://ns-webcams.its.sfu.ca/public/images/aqn-current.jpg"
+    "?nocache=1&update=15000&timeout=1800000"
+)
+WEBCAM_SUB = (
+    "http://ns-webcams.its.sfu.ca/public/images/aqsw-current.jpg"
+    "?nocache=0.3346598630889852&update=15000&timeout=1800000"
+)
+WEBCAM_TFF = (
+    "http://ns-webcams.its.sfu.ca/public/images/terryfox-current.jpg"
+    "?nocache=1&update=15000&timeout=1800000"
+)
 ROAD_API = "http://www.sfu.ca/security/sfuroadconditions/api/3/current"
 
 CAMPUSES = "campuses"
@@ -41,6 +54,7 @@ ANNOUNCE = "announcements"
 
 class SFURoads(commands.Cog):  # pylint: disable=too-few-public-methods
     """Various SFU Utilities."""
+
     def __init__(self, bot: Red):
         self.bot = bot
 
@@ -94,8 +108,7 @@ class SFURoads(commands.Cog):  # pylint: disable=too-few-public-methods
             await ctx.send(":warning: This webcam is currently unavailable!")
             return
 
-        camPhoto = discord.File(BytesIO(fetchedData.content),
-                                filename="cam.jpg")
+        camPhoto = discord.File(BytesIO(fetchedData.content), filename="cam.jpg")
         await ctx.send(file=camPhoto)
 
     @commands.command(name="report")
@@ -110,23 +123,23 @@ class SFURoads(commands.Cog):  # pylint: disable=too-few-public-methods
 
         # We need to use BeautifulSoup to parse the HTML within the JSON.
         if results[CAMPUSES][BUR][ANNOUNCE]:
-            announce = BeautifulSoup(results[CAMPUSES][BUR][ANNOUNCE],
-                                     "html.parser").get_text()
+            announce = BeautifulSoup(results[CAMPUSES][BUR][ANNOUNCE], "html.parser").get_text()
             roads = results[CAMPUSES][BUR][ROADS][STATUS]
-            burnAnnounce = ("**__Roads__**:\n{}\n\n**__Announcements__**:"
-                            "\n{}".format(roads, announce))
+            burnAnnounce = "**__Roads__**:\n{}\n\n**__Announcements__**:" "\n{}".format(
+                roads, announce
+            )
         else:
             burnAnnounce = "No updates."
 
         if results[CAMPUSES][SUR][ANNOUNCE]:
-            surreyAnnounce = BeautifulSoup(results[CAMPUSES][SUR][ANNOUNCE],
-                                           "html.parser").get_text()
+            surreyAnnounce = BeautifulSoup(
+                results[CAMPUSES][SUR][ANNOUNCE], "html.parser"
+            ).get_text()
         else:
             surreyAnnounce = "No updates."
 
         if results[CAMPUSES][VAN][ANNOUNCE]:
-            vanAnnounce = BeautifulSoup(results[CAMPUSES][VAN][ANNOUNCE],
-                                        "html.parser").get_text()
+            vanAnnounce = BeautifulSoup(results[CAMPUSES][VAN][ANNOUNCE], "html.parser").get_text()
         else:
             vanAnnounce = "No updates."
 
@@ -134,8 +147,8 @@ class SFURoads(commands.Cog):  # pylint: disable=too-few-public-methods
         embed.add_field(name="Vancouver", value=vanAnnounce)
         embed.add_field(name="Surrey", value=surreyAnnounce)
 
-        lastUpdated = datetime.datetime.fromtimestamp(
-            results["lastUpdated"] / 1000).strftime("%Y-%m-%d %H:%M:%S")
-        embed.set_footer(
-            text="This report was last updated on {}".format(lastUpdated))
+        lastUpdated = datetime.datetime.fromtimestamp(results["lastUpdated"] / 1000).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        embed.set_footer(text="This report was last updated on {}".format(lastUpdated))
         await ctx.send(embed=embed)

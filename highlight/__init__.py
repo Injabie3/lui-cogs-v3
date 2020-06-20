@@ -13,10 +13,12 @@ import os
 from redbot.core.bot import Red
 from .highlight import Highlight
 
+
 def checkFolders():
     """Make sure folder for logs is available."""
     if not os.path.exists(LOG_FOLDER):
         os.makedirs(LOG_FOLDER)
+
 
 def setup(bot: Red):
     """Add the cog to the bot."""

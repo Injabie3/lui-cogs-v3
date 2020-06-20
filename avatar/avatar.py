@@ -10,6 +10,7 @@ from redbot.core.bot import Red
 
 class Avatar(commands.Cog):
     """The Avatar collector."""
+
     def __init__(self, bot: Red):
         self.bot = bot
         self.saveFolder = data_manager.cog_data_path(cog_instance=self)
@@ -17,13 +18,12 @@ class Avatar(commands.Cog):
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
-            handler = logging.FileHandler(filename=str(self.saveFolder) +
-                                          "/info.log",
-                                          encoding="utf-8",
-                                          mode="a")
+            handler = logging.FileHandler(
+                filename=str(self.saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
             handler.setFormatter(
-                logging.Formatter("%(asctime)s %(message)s",
-                                  datefmt="[%d/%m/%Y %H:%M:%S]"))
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
             self.logger.addHandler(handler)
 
     @commands.group(name="avatar")
@@ -31,6 +31,7 @@ class Avatar(commands.Cog):
     @commands.guild_only()
     async def _avatar(self, ctx: Context):
         """Avatar commands."""
+
     @_avatar.command(name="save")
     async def _saveAvatars(self, ctx: Context):
         """Save all avatars in the current guild."""
@@ -45,9 +46,12 @@ class Avatar(commands.Cog):
         if oldUser.avatar == updatedUser.avatar:
             return
 
-        self.logger.info("%s#%s (%s) updated their avatar, saving image",
-                         updatedUser.name, updatedUser.discriminator,
-                         updatedUser.id)
+        self.logger.info(
+            "%s#%s (%s) updated their avatar, saving image",
+            updatedUser.name,
+            updatedUser.discriminator,
+            updatedUser.id,
+        )
         await self.saveAvatar(updatedUser)
 
     async def saveAvatar(self, user: discord.User):

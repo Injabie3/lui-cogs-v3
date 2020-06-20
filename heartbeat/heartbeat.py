@@ -1,7 +1,7 @@
 import discord
 
-import asyncio #Used for task loop.
-import os #Used to create folder at first load.
+import asyncio  # Used for task loop.
+import os  # Used to create folder at first load.
 from datetime import datetime
 import logging
 import requests
@@ -18,12 +18,8 @@ LOGGER = logging.getLogger("red.luicogs.Heartbeat")
 
 MIN_INTERVAL = 10
 
-DEFAULT_GLOBAL = \
-{
-    KEY_INSTANCE_NAME: "Ren",
-    KEY_INTERVAL: 295,
-    KEY_PUSH_URL: None
-}
+DEFAULT_GLOBAL = {KEY_INSTANCE_NAME: "Ren", KEY_INTERVAL: 295, KEY_PUSH_URL: None}
+
 
 class Heartbeat(commands.Cog):
     """Heartbeat for uptime checks"""
@@ -31,15 +27,12 @@ class Heartbeat(commands.Cog):
     def __init__(self, bot: Red):
         self.bot = bot
         self.time_interval = 295
-        self.config = Config.get_conf(self,
-                                      identifier=5842647,
-                                      force_registration=True)
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_global(**DEFAULT_GLOBAL)
         self.bgTask = self.bot.loop.create_task(self._loop())
 
     async def _loop(self):
-        LOGGER.info("Heartbeat is running, pinging at %s second intervals",
-                    self.time_interval)
+        LOGGER.info("Heartbeat is running, pinging at %s second intervals", self.time_interval)
         while self == self.bot.get_cog("Heartbeat"):
             try:
                 await asyncio.sleep(await self.config.interval())
