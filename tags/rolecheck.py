@@ -37,6 +37,5 @@ def role_or_mod_or_permissions(role=None, **perms):
         if role:
             roles.append(role.lower())
         return await role_or_permissions(ctx, lambda r: r.name.lower() in roles, **perms)
-        return retVal
 
     return commands.check(predicate)
