@@ -114,7 +114,7 @@ class Welcome(commands.Cog): # pylint: disable=too-many-instance-attributes
     ####################
 
     #[p]welcome
-    @commands.group(name="welcome")
+    @commands.group(name="welcomeset")
     @commands.guild_only()
     @checks.mod_or_permissions()
     async def welcome(self, ctx: Context):
