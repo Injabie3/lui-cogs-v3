@@ -49,13 +49,17 @@ class SFUCourses(commands.Cog):
 
         embed = discord.Embed(title=result["Title"])
         # print(result)
-        embed.add_field(name="Description", value=result["Description"])
+        embed.add_field(name="Description",
+                        inline=False,
+                        value=result["Description"])
         embed.add_field(name="Details",
+                        inline=False,
                         value="{} [More Info](https://www.sfu.ca/outlines."
                         "html?{})".format(result["Details"],
                                           result["Outline"].lower()))
         if result["Prerequisites"]:
             embed.add_field(name="Prerequisites",
+                            inline=False,
                             value=result["Prerequisites"])
         embed.add_field(name="Instructor",
                         value=result["Instructor"],
