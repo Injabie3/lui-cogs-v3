@@ -152,8 +152,6 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
         """Blacklist command settings. (help for more info)
         Settings for controlling filtering on commands.
         """
-        if str(ctx.invoked_subcommand).lower() == "word_filter command":
-            await send_cmd_help(ctx)
 
     @_command.command(name="add")
     @commands.guild_only()
