@@ -14,7 +14,7 @@ class Avatar(commands.Cog):
     def __init__(self, bot: Red):
         self.bot = bot
         self.saveFolder = data_manager.cog_data_path(cog_instance=self)
-        self.logger = logging.getLogger("red.Avatar")
+        self.logger = logging.getLogger("red.luicogs.Avatar")
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
