@@ -44,7 +44,7 @@ class Birthday(commands.Cog):
 
         # Initialize logger, and save to cog folder.
         saveFolder = data_manager.cog_data_path(cog_instance=self)
-        self.logger = logging.getLogger("red.Birthday")
+        self.logger = logging.getLogger("red.luicogs.Birthday")
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
