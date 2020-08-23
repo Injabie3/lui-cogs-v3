@@ -27,7 +27,7 @@ class RoleAssigner(commands.Cog):
 
         # Initialize logger and save to cog folder.
         saveFolder = data_manager.cog_data_path(cog_instance=self)
-        self.logger = logging.getLogger("red.RoleAssigner")
+        self.logger = logging.getLogger("red.luicogs.RoleAssigner")
         if self.logger.level == 0:
             # Prevents the self.logger from being loaded again in case of module reload.
             self.logger.setLevel(logging.INFO)
