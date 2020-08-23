@@ -8,12 +8,7 @@ import random
 import discord
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.commands.context import Context
-
-MAX_LENGTH = 2000  # For a message
-
-KEY_ROLES = "roles"
-
-BASE_GUILD = {KEY_ROLES: []}
+from .constants import *
 
 
 class RoleAssigner(commands.Cog):
