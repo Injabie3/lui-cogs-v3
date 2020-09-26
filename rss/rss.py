@@ -191,6 +191,7 @@ class RSSFeed(commands.Cog):
         for item in feed.entries:
             itemPostTime = date2epoch(item["published"])
             if _isNewItem(latestPostTime, itemPostTime):
+                item.title_detail.base = rssUrl
                 news.append(item)
 
         if not news:
