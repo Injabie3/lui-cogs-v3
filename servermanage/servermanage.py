@@ -3,6 +3,8 @@ import logging
 import time
 import asyncio
 from datetime import datetime, timedelta
+from os.path import splitext
+from pathlib import Path
 import discord
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.commands.context import Context
@@ -10,6 +12,22 @@ from redbot.core.utils import paginator
 from redbot.core.bot import Red
 
 BASE_GUILD = {"icons": {}, "dates": {}}
+
+
+class Exceptions(Exception):
+    pass
+
+
+class InvalidAttachmentsError(Exceptions):
+    pass
+
+
+class InvalidFileError(Exceptions):
+    pass
+
+
+class InvalidImageError(Exceptions):
+    pass
 
 
 class ServerManage(commands.Cog):
@@ -46,6 +64,37 @@ class ServerManage(commands.Cog):
         # self.bgTask.cancel()
         pass
 
+    @staticmethod
+    def validateImageAttachment(message):
+        """Check to see if the message contains a valid image attachment.
+
+        Parameters
+        ----------
+        message: discord.Message
+            The message you wish to check.
+
+        Raises
+        ------
+        InvalidFileError
+            The attachment uploaded is not an image.
+        InvalidImageError:
+            The image uploaded is not a PNG or GIF.
+        InvalidAttachmentsError:
+            There isn't exactly one attachment.
+        """
+        attachments = message.attachments
+        if len(attachments) != 1:
+            raise InvalidAttachmentsError
+
+        image = attachments[0]
+
+        # Perform file validation: check width/height and file extension.
+        if not image.height and not image.width:
+            raise InvalidFileError
+
+        if splitext(image.filename)[1].lower() not in [".png", ".gif"]:
+            raise InvalidImageError
+
     @commands.group(name="servermanage", aliases=["sm"])
     @commands.guild_only()
     @checks.mod_or_permissions()
@@ -67,6 +116,36 @@ class ServerManage(commands.Cog):
         image: attachment
             The server icon, included as an attachment.
         """
+        try:
+            self.validateImageAttachment(ctx.message)
+        except InvalidAttachmentsError:
+            await ctx.send("Please attach one file!")
+            return
+        except InvalidFileError:
+            await ctx.send("The file is not an image, please upload an image!")
+            return
+        except InvalidImageError:
+            await ctx.send("Please upload a PNG or GIF image!")
+
+        await ctx.send("We made it here")
+        # Check to see if this exists already
+        icons = await self.config.guild(ctx.guild).icons()
+        if iconName in icons.keys():
+            await ctx.send("This icon already exists!")
+            return
+
+        # Save the image.
+        saveFolder = data_manager.cog_data_path(cog_instance=self)
+        image = ctx.message.attachments[0]
+        extension = splitext(image.filename)[1].lower()
+        directory = "{}/{}/icons/".format(str(saveFolder), ctx.guild.id)
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        filepath = f"{directory}{iconName}{extension}"
+        await ctx.message.attachments[0].save(filepath, use_cached=True)
+        async with self.config.guild(ctx.guild).icons() as icons:
+            icons[iconName] = {}
+            icons[iconName]["filename"] = f"{iconName}{extension}"
+        await ctx.send("Icon saved!")
 
     @serverIcons.command(name="remove", aliases=["del", "delete", "rm"])
     async def iconRemove(self, ctx: Context, iconName: str):
