@@ -45,3 +45,49 @@ class ServerManage(commands.Cog):
         # TODO add task later
         # self.bgTask.cancel()
         pass
+
+    @commands.group(name="servermanage", aliases=["sm"])
+    @commands.guild_only()
+    @checks.mod_or_permissions()
+    async def serverManage(self, ctx: Context):
+        """Manage server icons and banners."""
+
+    @serverManage.group(name="icons")
+    async def serverIcons(self, ctx: Context):
+        """Manage server icons."""
+
+    @serverIcons.command(name="add", aliases=["create"])
+    async def iconAdd(self, ctx: Context, iconName: str):
+        """Add a server icon to the database.
+
+        Parameters
+        ----------
+        iconName: str
+            The name of the icon you wish to add.
+        image: attachment
+            The server icon, included as an attachment.
+        """
+
+    @serverIcons.command(name="remove", aliases=["del", "delete", "rm"])
+    async def iconRemove(self, ctx: Context, iconName: str):
+        """Remove a server icon from the database.
+
+        Parameters
+        ----------
+        iconName: str
+            The icon name you wish to remove.
+        """
+
+    @serverIcons.command(name="show")
+    async def iconShow(self, ctx: Context, iconName: str):
+        """Show a server icon from the database.
+
+        Parameters
+        ----------
+        iconName: str
+            The icon name you wish to show.
+        """
+
+    @serverIcons.command(name="list", aliases=["ls"])
+    async def iconList(self, ctx: Context):
+        """List the dates associated with server icons."""
