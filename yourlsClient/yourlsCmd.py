@@ -53,8 +53,8 @@ class YOURLS(commands.Cog):
             await ctx.send("Please configure the YOURLS API first.")
             return
         try:
-            yourls.YOURLSClient(api, sig)
-            stats = self.yourls.db_stats()
+            shortener = yourls.YOURLSClient(api, signature=sig)
+            stats = shortener.db_stats()
         except HTTPError:
             await ctx.send("An error occurred")
         else:
