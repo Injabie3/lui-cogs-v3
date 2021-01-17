@@ -45,7 +45,7 @@ class YOURLS(commands.Cog):
 
     @yourlsBase.command(name="stats")
     async def stats(self, ctx: Context):
-        """Get YOURLS statistics."""
+        """Get instance-wide statistics."""
         # TODO Put into helper.
         api = await self.config.guild(ctx.guild).api()
         sig = await self.config.guild(ctx.guild).signature()
@@ -54,13 +54,24 @@ class YOURLS(commands.Cog):
             return
         try:
             shortener = yourls.YOURLSClient(api, signature=sig)
-            stats = shortener.db_stats()
+            urls, stats = shortener.stats("top", limit=3)
+            embed = discord.Embed()
+            emoji = 129351  # first_place
+            for url in urls:
+                actualEmoji = chr(emoji)
+                print(url)
+                value = f"**URL**: {url.shorturl}\n"
+                value += f"**Clicks**: {url.clicks}"
+                embed.add_field(name=f"{actualEmoji} URL", value=value, inline=False)
+                emoji += 1
+
         except HTTPError:
             await ctx.send("An error occurred")
         else:
             await ctx.send(
-                f"Tracking **{stats.total_links}** links, **{stats.total_clicks}** "
-                "clicks, and counting!"
+                content=f"Tracking **{stats.total_links}** links, **{stats.total_clicks}** "
+                "clicks, and counting!",
+                embed=embed,
             )
 
     @yourlsBase.group(name="settings")
