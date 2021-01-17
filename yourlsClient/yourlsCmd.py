@@ -2,6 +2,7 @@
 
 Control Your Own URL Shortener instance.
 """
+from datetime import timezone
 import logging
 import discord
 from redbot.core import Config, checks, commands, data_manager
@@ -73,6 +74,48 @@ class YOURLS(commands.Cog):
                 "clicks, and counting!",
                 embed=embed,
             )
+
+    @yourlsBase.command(name="info")
+    async def urlInfo(self, ctx: Context, keyword: str):
+        """Get keyword-specific information.
+
+        Parameters
+        ----------
+        keyword: str
+            The keyword used for the shortened URL.
+            e.g. The keyword of `https://example.com/discord` is `discord`.
+        """
+        # TODO Put into helper.
+        api = await self.config.guild(ctx.guild).api()
+        sig = await self.config.guild(ctx.guild).signature()
+        if not (api and sig):
+            await ctx.send("Please configure the YOURLS API first.")
+            return
+        try:
+            shortener = yourls.YOURLSClient(api, signature=sig)
+            urlStats = shortener.url_stats(keyword)
+            urlDate = urlStats.date.replace(tzinfo=timezone.utc).astimezone(tz=None)
+            urlDate = urlDate.strftime("%a, %d %b %Y %I:%M%p %Z")
+            embed = discord.Embed()
+            embed.title = f"URL stats for {keyword}"
+            embed.add_field(name="Short URL", value=f"{urlStats.shorturl}", inline=False)
+            if len(urlStats.url) > 1024:
+                embed.add_field(name="Long URL", value=f"Too long to be displayed.", inline=False)
+            else:
+                embed.add_field(name="Long URL", value=f"{urlStats.url}", inline=False)
+            embed.add_field(name="Date Created", value=f"{urlDate}", inline=False)
+            embed.add_field(name="Clicks", value=f"{urlStats.clicks}", inline=False)
+            # TODO escape the shorturl?
+            embed.add_field(
+                name="More Info (Login Required)",
+                value=f"[Detailed Statistics]({urlStats.shorturl}+)",
+                inline=False,
+            )
+        except HTTPError as error:
+            await ctx.send(f"{error}")
+            self.logger.error(error)
+        else:
+            await ctx.send(embed=embed)
 
     @yourlsBase.group(name="settings")
     async def settingsBase(self, ctx: Context):
