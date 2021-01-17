@@ -47,14 +47,8 @@ class YOURLS(commands.Cog):
     @yourlsBase.command(name="stats")
     async def stats(self, ctx: Context):
         """Get instance-wide statistics."""
-        # TODO Put into helper.
-        api = await self.config.guild(ctx.guild).api()
-        sig = await self.config.guild(ctx.guild).signature()
-        if not (api and sig):
-            await ctx.send("Please configure the YOURLS API first.")
-            return
         try:
-            shortener = yourls.YOURLSClient(api, signature=sig)
+            shortener = await self.fetchYourlsClient(ctx.guild)
             urls, stats = shortener.stats("top", limit=3)
             embed = discord.Embed()
             emoji = 129351  # first_place
@@ -68,6 +62,8 @@ class YOURLS(commands.Cog):
 
         except HTTPError:
             await ctx.send("An error occurred")
+        except RuntimeError as error:
+            await ctx.send(error)
         else:
             await ctx.send(
                 content=f"Tracking **{stats.total_links}** links, **{stats.total_clicks}** "
@@ -85,14 +81,8 @@ class YOURLS(commands.Cog):
             The keyword used for the shortened URL.
             e.g. The keyword of `https://example.com/discord` is `discord`.
         """
-        # TODO Put into helper.
-        api = await self.config.guild(ctx.guild).api()
-        sig = await self.config.guild(ctx.guild).signature()
-        if not (api and sig):
-            await ctx.send("Please configure the YOURLS API first.")
-            return
         try:
-            shortener = yourls.YOURLSClient(api, signature=sig)
+            shortener = await self.fetchYourlsClient(ctx.guild)
             urlStats = shortener.url_stats(keyword)
             urlDate = urlStats.date.replace(tzinfo=timezone.utc).astimezone(tz=None)
             urlDate = urlDate.strftime("%a, %d %b %Y %I:%M%p %Z")
@@ -114,6 +104,8 @@ class YOURLS(commands.Cog):
         except HTTPError as error:
             await ctx.send(f"{error}")
             self.logger.error(error)
+        except RuntimeError as error:
+            await ctx.send(error)
         else:
             await ctx.send(embed=embed)
 
@@ -145,3 +137,22 @@ class YOURLS(commands.Cog):
         await self.config.guild(ctx.guild).signature.set(signature)
         await ctx.send(f"API signature set.")
         await ctx.message.delete()
+
+    async def fetchYourlsClient(self, guild: discord.Guild):
+        """Create the YOURLS client.
+
+        Parameters
+        ----------
+        guild: discord.Guild
+            The guild to look up the YOURLS API configuration for.
+
+        Raises
+        ------
+        RuntimeError
+            Unable to create the YOURLS client because of missing information.
+        """
+        api = await self.config.guild(guild).api()
+        sig = await self.config.guild(guild).signature()
+        if not (api and sig):
+            raise RuntimeError("Please configure the YOURLS API first.")
+        return yourls.YOURLSClient(api, signature=sig)
