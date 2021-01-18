@@ -95,7 +95,6 @@ class YOURLS(commands.Cog):
                 embed.add_field(name="Long URL", value=f"{urlStats.url}", inline=False)
             embed.add_field(name="Date Created", value=f"{urlDate}", inline=False)
             embed.add_field(name="Clicks", value=f"{urlStats.clicks}", inline=False)
-            # TODO escape the shorturl?
             embed.add_field(
                 name="More Info (Login Required)",
                 value=f"[Detailed Statistics]({urlStats.shorturl}+)",
@@ -145,6 +144,11 @@ class YOURLS(commands.Cog):
         ----------
         guild: discord.Guild
             The guild to look up the YOURLS API configuration for.
+
+        Returns
+        -------
+        yourls.YOURLSClient
+            The YOURLS client, which you can use to interact with your YOURLS instance.
 
         Raises
         ------
