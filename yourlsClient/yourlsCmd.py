@@ -9,8 +9,8 @@ from redbot.core import Config, checks, commands, data_manager
 from redbot.core.bot import Red
 from redbot.core.commands.context import Context
 
+from requests.exceptions import HTTPError, RequestException
 import yourls
-from requests.exceptions import HTTPError
 
 
 BASE_GUILD = {
@@ -59,11 +59,16 @@ class YOURLS(commands.Cog):
                 value += f"**Clicks**: {url.clicks}"
                 embed.add_field(name=f"{actualEmoji} URL", value=value, inline=False)
                 emoji += 1
-
-        except HTTPError:
-            await ctx.send("An error occurred")
         except RuntimeError as error:
             await ctx.send(error)
+        except HTTPError as error:
+            self.logger.error(error)
+            await ctx.send(f"{error}")
+        except RequestException as error:
+            self.logger.error(error)
+            await ctx.send(
+                f"There was an unexpected problem! Please check your console for details!"
+            )
         else:
             await ctx.send(
                 content=f"Tracking **{stats.total_links}** links, **{stats.total_clicks}** "
@@ -100,11 +105,16 @@ class YOURLS(commands.Cog):
                 value=f"[Detailed Statistics]({urlStats.shorturl}+)",
                 inline=False,
             )
-        except HTTPError as error:
-            await ctx.send(f"{error}")
-            self.logger.error(error)
         except RuntimeError as error:
             await ctx.send(error)
+        except HTTPError as error:
+            self.logger.error(error)
+            await ctx.send(f"{error}")
+        except RequestException as error:
+            self.logger.error(error)
+            await ctx.send(
+                f"There was an unexpected problem! Please check your console for details!"
+            )
         else:
             await ctx.send(embed=embed)
 
