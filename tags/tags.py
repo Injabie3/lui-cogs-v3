@@ -5,6 +5,7 @@
 
 from .config import Config
 from .constants import *
+from .exceptions import *
 from .rolecheck import role_or_mod_or_permissions
 
 import csv
@@ -271,9 +272,11 @@ class Tags(commands.Cog):
     def checkValidCommandName(self, name: str):
         """Check to see if we can use the name as a tag"""
         if name in self.tagCommands:
-            raise RuntimeError("This tag name is reserved, please use a different name!")
+            raise ReservedTagNameError("This tag name is reserved, please use a different name!")
         if any(char.isspace() for char in name):
-            raise RuntimeError("There is a space in the tag name, please use a different name!")
+            raise SpaceInTagNameError(
+                "There is a space in the tag name, please use a different name!"
+            )
 
     async def canModifyTag(self, tag, member: discord.Member, guild: discord.Guild):
         """Check to see if a user can modify a given tag.
@@ -1190,3 +1193,23 @@ class Tags(commands.Cog):
             await ctx.send(
                 "\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will " "be sent **in a DM**."
             )
+
+    @tag.command(name="runtests")
+    @checks.is_owner()
+    async def runTests(self, ctx: Context):
+        """Run tests."""
+        # Test checkValidCommandName
+        name = "validtagname"
+        self.checkValidCommandName(name)
+        name = "add"
+        try:
+            self.checkValidCommandName(name)
+        except ReservedTagNameError:
+            pass
+
+        name = "name with space"
+        try:
+            self.checkValidCommandName(name)
+        except SpaceInTagNameError:
+            pass
+        await ctx.send("Tests passed!")
