@@ -146,6 +146,8 @@ class Tags(commands.Cog):
         self.configV3 = ConfigV3.get_conf(self, identifier=5842647, force_registration=True)
         self.configV3.register_guild(**BASE)  # Register default (empty) settings.
         self.lock = Lock()
+        tagGroup = self.get_commands()[0]
+        self.tagCommands = tagGroup.all_commands.keys()
 
     def get_database_location(self, message: discord.Message):
         """Get the database of tags.
@@ -265,6 +267,13 @@ class Tags(commands.Cog):
                     "This name cannot be used because there is already an internal command with this name."
                 )
         return aliasCog
+
+    def checkValidCommandName(self, name: str):
+        """Check to see if we can use the name as a tag"""
+        if name in self.tagCommands:
+            raise RuntimeError("This tag name is reserved, please use a different name!")
+        if any(char.isspace() for char in name):
+            raise RuntimeError("There is a space in the tag name, please use a different name!")
 
     async def canModifyTag(self, tag, member: discord.Member, guild: discord.Guild):
         """Check to see if a user can modify a given tag.
@@ -450,6 +459,7 @@ class Tags(commands.Cog):
         """
         try:
             aliasCog = self.checkAliasCog(name)
+            self.checkValidCommandName(name)
         except RuntimeError as error:
             return await ctx.send(error)
 
@@ -638,6 +648,13 @@ class Tags(commands.Cog):
             return
 
         lookup = name.content.lower()
+
+        try:
+            self.checkValidCommandName(lookup)
+        except RuntimeError as error:
+            await ctx.send(f"{error}")
+            return
+
         if lookup in db:
             fmt = (
                 "Sorry. A tag with that name exists already. Redo the command {0.prefix}tag make."
