@@ -78,6 +78,36 @@ class YOURLS(commands.Cog):
                 embed=embed,
             )
 
+    @yourlsBase.command(name="add", aliases=["shorten"])
+    async def add(self, ctx: Context, keyword: str, longUrl: str):
+        """Create a new, shortened URL.
+
+        Parameters
+        ----------
+        keyword: str
+            The keyword you want to use to refer to the long URL.
+        longUrl: str
+            The long URL you wish to shorten.
+        """
+        try:
+            shortener = await self.fetchYourlsClient(ctx.guild)
+            url = shortener.shorten(longUrl, keyword=keyword)
+        except YOURLSNotConfigured as error:
+            await ctx.send(error)
+        except yourls.exceptions.YOURLSKeywordExistsError as error:
+            await ctx.send(
+                f"Keyword {error.keyword} is already used, please choose another keyword!"
+            )
+        except yourls.exceptions.YOURLSURLExistsError as error:
+            await ctx.send(f"The long URL was already shortened before, see {error.url.shorturl}")
+        except HTTPError as error:
+            if error.response.status_code == 429:
+                await ctx.send("You're creating URLs too fast, please try again shortly.")
+            else:
+                raise HTTPError(error)
+        else:
+            await ctx.send(f"Short URL created: <{url.shorturl}>")
+
     @yourlsBase.command(name="info")
     async def urlInfo(self, ctx: Context, keyword: str):
         """Get keyword-specific information.
