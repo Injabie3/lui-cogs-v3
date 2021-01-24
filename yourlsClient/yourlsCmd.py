@@ -11,6 +11,7 @@ from redbot.core.commands.context import Context
 
 from requests.exceptions import HTTPError, RequestException
 import yourls
+from yourls import YOURLSClientBase, YOURLSAPIMixin
 
 from .exceptions import *
 
@@ -19,6 +20,16 @@ BASE_GUILD = {
     "api": None,
     "signature": None,
 }
+
+
+class YOURLSDeleteMixin(object):
+    def delete(self, short):
+        data = dict(action="delete", shorturl=short)
+        self._api_request(params=data)
+
+
+class YOURLSClient(YOURLSDeleteMixin, YOURLSAPIMixin, YOURLSClientBase):
+    """YOURLS client with API delete support."""
 
 
 class YOURLS(commands.Cog):
@@ -201,4 +212,4 @@ class YOURLS(commands.Cog):
         sig = await self.config.guild(guild).signature()
         if not (api and sig):
             raise YOURLSNotConfigured("Please configure the YOURLS API first.")
-        return yourls.YOURLSClient(api, signature=sig)
+        return YOURLSClient(api, signature=sig)
