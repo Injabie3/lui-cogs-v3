@@ -119,6 +119,30 @@ class YOURLS(commands.Cog):
         else:
             await ctx.send(f"Short URL created: <{url.shorturl}>")
 
+    @yourlsBase.command(name="del", aliases=["delete", "remove", "rm"])
+    async def delete(self, ctx: Context, keyword: str):
+        """Delete a shortened URL.
+
+        Parameters
+        ----------
+        keyword: str
+            The keyword used to refer to the long URL.
+        """
+        try:
+            shortener = await self.fetchYourlsClient(ctx.guild)
+            url = shortener.delete(keyword)
+        except YOURLSNotConfigured as error:
+            await ctx.send(error)
+        except HTTPError as error:
+            if error.response.status_code == 429:
+                await ctx.send("You're deleting URLs too fast, please try again shortly.")
+            elif error.response.status_code == 404:
+                await ctx.send(f"{keyword} was not a shortened URL.")
+            else:
+                raise HTTPError(error)
+        else:
+            await ctx.send(f"Short URL deleted.")
+
     @yourlsBase.command(name="info")
     async def urlInfo(self, ctx: Context, keyword: str):
         """Get keyword-specific information.
