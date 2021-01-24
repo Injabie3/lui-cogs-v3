@@ -12,6 +12,8 @@ from redbot.core.commands.context import Context
 from requests.exceptions import HTTPError, RequestException
 import yourls
 
+from .exceptions import *
+
 
 BASE_GUILD = {
     "api": None,
@@ -162,11 +164,11 @@ class YOURLS(commands.Cog):
 
         Raises
         ------
-        RuntimeError
+        YOURLSNotConfigured
             Unable to create the YOURLS client because of missing information.
         """
         api = await self.config.guild(guild).api()
         sig = await self.config.guild(guild).signature()
         if not (api and sig):
-            raise RuntimeError("Please configure the YOURLS API first.")
+            raise YOURLSNotConfigured("Please configure the YOURLS API first.")
         return yourls.YOURLSClient(api, signature=sig)
