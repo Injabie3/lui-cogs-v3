@@ -1,0 +1,11 @@
+{
+    "name" : "YOURLSClient",
+    "author" : ["Injabie3#1660"],
+    "short" : "Manage your YOURLS client",
+    "description" : "This cog allows you to manage a YOURLS instance on a per-guild basis.",
+    "install_msg" : "Thanks for installing the YOURLS client. Please run [p]yourls to see all the relevant commands.",
+    "requirements" : ["yourls"],
+    "tags" : ["url-shortener"],
+    "permissions" : [],
+    "end_user_data_statement": "This cog stores the API endpoint and signature in order to connect and authenticate to your YOURLS instance."
+}
