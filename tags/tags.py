@@ -878,18 +878,11 @@ class Tags(commands.Cog):
         newName: str
             The new tag name.
         """
-        # TODO Consolidate into helper method later.
-        if self.settings.get(KEY_USE_ALIAS, False):
-            aliasCog = self.bot.get_cog("Alias")
-            if not aliasCog:
-                await ctx.send("Could not access the Alias cog. Please load it and " "try again.")
-                return
-            elif aliasCog.is_command(newName):
-                await ctx.send(
-                    "This name cannot be used because there is already "
-                    "an internal command with this name."
-                )
-                return
+        try:
+            aliasCog = self.checkAliasCog(newName)
+            self.checkValidCommandName(newName)
+        except RuntimeError as error:
+            return await ctx.send(error)
 
         lookup = newName.lower().strip()
         try:
