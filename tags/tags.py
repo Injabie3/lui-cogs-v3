@@ -884,16 +884,17 @@ class Tags(commands.Cog):
         except RuntimeError as error:
             return await ctx.send(error)
 
-        lookup = newName.lower().strip()
+        newName = newName.lower().strip()
+        oldName = oldName.lower()
         try:
-            self.verify_lookup(lookup)
-            tag = self.get_tag(ctx.guild, oldName.lower(), redirect=False)
+            self.verify_lookup(newName)
+            tag = self.get_tag(ctx.guild, oldName, redirect=False)
         except RuntimeError as e:
             return await ctx.send(e)
 
         location = self.get_database_location(ctx.message)
         db = self.config.get(location, {})
-        if lookup in db:
+        if newName in db:
             await ctx.send('A tag with the name of "{}" already exists.'.format(newName))
             return
 
@@ -917,8 +918,8 @@ class Tags(commands.Cog):
         await self.config.put(location, db)
         if self.settings.get(KEY_USE_ALIAS, False):
             # Alias is already loaded.
-            await aliasCog.add_alias(ctx, lookup, "tag {}".format(lookup))
-            await aliasCog.del_alias(ctx, oldName.lower())
+            await aliasCog.add_alias(ctx, newName, "tag {}".format(newName))
+            await aliasCog.del_alias(ctx, oldName)
         await ctx.send('Tag "{}" successfully renamed to "{}".'.format(oldName, newName))
 
     @tag.command(name="delete", aliases=["del", "remove", "rm"])
