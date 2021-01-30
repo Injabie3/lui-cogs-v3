@@ -1270,4 +1270,28 @@ class Tags(commands.Cog):
             self.checkValidCommandName(name)
         except SpaceInTagNameError:
             pass
+
+        # Test rename command after creating
+        await ctx.invoke(self.create, name="runTestCommandTest1", content="This is a test tag")
+        location = self.get_database_location(ctx.message)
+        db = self.config.get(location, {})
+        assert "runTestCommandTest1".lower() in db
+        await ctx.invoke(self.rename, oldName="runTestCommandTest1", newName="runTestCommandTest2")
+        db = self.config.get(location, {})
+        assert "runTestCommandTest1".lower() not in db
+        assert "runTestCommandTest2".lower() in db
+
+        # Test renaming to a command, this should not work.
+        await ctx.invoke(self.rename, oldName="runTestCommandTest2", newName="add")
+        db = self.config.get(location, {})
+        assert "runTestCommandTest2".lower() in db
+        assert "add".lower() not in db
+        await ctx.invoke(self.remove, name="runTestCommandTest2")
+
+        # Test renaming a non-existent command
+        await ctx.invoke(self.rename, oldName="runTestCommandTest1", newName="runTestCommandTest2")
+        db = self.config.get(location, {})
+        assert "runTestCommandTest1".lower() not in db
+        assert "runTestCommandTest2".lower() not in db
+
         await ctx.send("Tests passed!")
