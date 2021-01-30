@@ -103,15 +103,42 @@ class YOURLS(commands.Cog):
         try:
             shortener = await self.fetchYourlsClient(ctx.guild)
             url = shortener.shorten(longUrl, keyword=keyword)
+            self.logger.info(
+                "%s (%s) added a short URL at %s for %s (%s)",
+                ctx.author.name,
+                ctx.author.id,
+                url.shorturl,
+                ctx.guild.name,
+                ctx.guild.id,
+            )
         except YOURLSNotConfigured as error:
             await ctx.send(error)
         except yourls.exceptions.YOURLSKeywordExistsError as error:
+            self.logger.debug(
+                "%s (%s) attempted to add a short URL for %s (%s), but the keyword %s was "
+                "already in use.",
+                ctx.author.name,
+                ctx.author.id,
+                keyword,
+                ctx.guild.name,
+                ctx.guild.id,
+                exc_info=True,
+            )
             await ctx.send(
                 f"Keyword {error.keyword} is already used, please choose another keyword!"
             )
         except yourls.exceptions.YOURLSURLExistsError as error:
             await ctx.send(f"The long URL was already shortened before, see {error.url.shorturl}")
         except HTTPError as error:
+            self.logger.error(
+                "%s (%s) attempted to add a short URL for %s (%s), but something went "
+                "wrong. Please see the traceback for more info",
+                ctx.author.name,
+                ctx.author.id,
+                ctx.guild.name,
+                ctx.guild.id,
+                exc_info=True,
+            )
             if error.response.status_code == 429:
                 await ctx.send("You're creating URLs too fast, please try again shortly.")
             else:
@@ -131,9 +158,27 @@ class YOURLS(commands.Cog):
         try:
             shortener = await self.fetchYourlsClient(ctx.guild)
             url = shortener.delete(keyword)
+            self.logger.info(
+                "%s (%s) deleted the short URL %s for %s (%s)",
+                ctx.author.name,
+                ctx.author.id,
+                keyword,
+                ctx.guild.name,
+                ctx.guild.id,
+            )
         except YOURLSNotConfigured as error:
             await ctx.send(error)
         except HTTPError as error:
+            self.logger.error(
+                "%s (%s) attempted to delete the short URL %s for %s (%s), but something went "
+                "wrong. Please see the traceback for more info",
+                ctx.author.name,
+                ctx.author.id,
+                keyword,
+                ctx.guild.name,
+                ctx.guild.id,
+                exc_info=True,
+            )
             if error.response.status_code == 429:
                 await ctx.send("You're deleting URLs too fast, please try again shortly.")
             elif error.response.status_code == 404:
@@ -199,6 +244,13 @@ class YOURLS(commands.Cog):
             The URL to the YOURLS API endpoint.
         """
         await self.config.guild(ctx.guild).api.set(apiEndpoint)
+        self.logger.info(
+            "%s (%s) modified the YOURLS API endpoint for %s (%s)",
+            ctx.author.name,
+            ctx.author.id,
+            ctx.guild.name,
+            ctx.guild.id,
+        )
         await ctx.send(f"API endpoint set to {apiEndpoint}")
 
     @settingsBase.command(name="signature", aliases=["sig"])
@@ -211,6 +263,13 @@ class YOURLS(commands.Cog):
             The signature to access the YOURLS API endpoint.
         """
         await self.config.guild(ctx.guild).signature.set(signature)
+        self.logger.info(
+            "%s (%s) modified the YOURLS signature for %s (%s)",
+            ctx.author.name,
+            ctx.author.id,
+            ctx.guild.name,
+            ctx.guild.id,
+        )
         await ctx.send(f"API signature set.")
         await ctx.message.delete()
 
