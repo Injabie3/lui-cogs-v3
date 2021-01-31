@@ -75,10 +75,12 @@ class YOURLS(commands.Cog):
         except RuntimeError as error:
             await ctx.send(error)
         except HTTPError as error:
-            self.logger.error(error)
-            await ctx.send(f"{error}")
+            self.logger.error(error, exc_info=True)
+            await ctx.send(
+                f"Something went wrong, please try again or check if the server is online."
+            )
         except RequestException as error:
-            self.logger.error(error)
+            self.logger.error(error, exc_info=True)
             await ctx.send(
                 f"There was an unexpected problem! Please check your console for details!"
             )
@@ -220,8 +222,10 @@ class YOURLS(commands.Cog):
         except RuntimeError as error:
             await ctx.send(error)
         except HTTPError as error:
-            self.logger.error(error)
-            await ctx.send(f"{error}")
+            self.logger.error(error, exc_info=True)
+            await ctx.send(
+                f"Something went wrong, please try again or check if the server is online."
+            )
         except RequestException as error:
             self.logger.error(error)
             await ctx.send(
