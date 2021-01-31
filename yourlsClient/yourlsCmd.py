@@ -2,6 +2,7 @@
 
 Control Your Own URL Shortener instance.
 """
+import asyncio
 from datetime import timezone
 import logging
 import discord
@@ -36,6 +37,7 @@ class YOURLSClient(YOURLSDeleteMixin, YOURLSAPIMixin, YOURLSClientBase):
 class YOURLS(commands.Cog):
     def __init__(self, bot: Red):
         super().__init__()
+        self.bot = bot
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         self.config.register_guild(**BASE_GUILD)
 
@@ -154,6 +156,21 @@ class YOURLS(commands.Cog):
         keyword: str
             The keyword used to refer to the long URL.
         """
+
+        def check(msg: discord.Message):
+            return msg.author == ctx.message.author and msg.channel == ctx.message.channel
+
+        await ctx.send(f"Are you sure you want to delete? Please type `yes` to confirm.")
+        try:
+            response = await self.bot.wait_for("message", timeout=60.0, check=check)
+        except asyncio.TimeoutError:
+            await ctx.send("You took too long, not deleting the short URL.")
+            return
+
+        if response.content.lower() != "yes":
+            await ctx.send("Not deleting the short URL.")
+            return
+
         try:
             shortener = await self.fetchYourlsClient(ctx.guild)
             url = shortener.delete(keyword)
