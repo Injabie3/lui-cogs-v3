@@ -20,6 +20,7 @@ BASE_GUILD = {
     "api": None,
     "signature": None,
 }
+DEFAULT_ERROR = "Something went wrong, please try again later, or check your console for details."
 
 
 class YOURLSDeleteMixin(object):
@@ -76,14 +77,10 @@ class YOURLS(commands.Cog):
             await ctx.send(error)
         except HTTPError as error:
             self.logger.error(error, exc_info=True)
-            await ctx.send(
-                f"Something went wrong, please try again or check if the server is online."
-            )
+            await ctx.send(DEFAULT_ERROR)
         except RequestException as error:
             self.logger.error(error, exc_info=True)
-            await ctx.send(
-                f"There was an unexpected problem! Please check your console for details!"
-            )
+            await ctx.send(DEFAULT_ERROR)
         else:
             await ctx.send(
                 content=f"Tracking **{stats.total_links}** links, **{stats.total_clicks}** "
@@ -144,7 +141,7 @@ class YOURLS(commands.Cog):
             if error.response.status_code == 429:
                 await ctx.send("You're creating URLs too fast, please try again shortly.")
             else:
-                raise HTTPError(error)
+                await ctx.send(DEFAULT_ERROR)
         else:
             await ctx.send(f"Short URL created: <{url.shorturl}>")
 
@@ -186,7 +183,7 @@ class YOURLS(commands.Cog):
             elif error.response.status_code == 404:
                 await ctx.send(f"{keyword} was not a shortened URL.")
             else:
-                raise HTTPError(error)
+                await ctx.send(DEFAULT_ERROR)
         else:
             await ctx.send(f"Short URL deleted.")
 
@@ -223,14 +220,10 @@ class YOURLS(commands.Cog):
             await ctx.send(error)
         except HTTPError as error:
             self.logger.error(error, exc_info=True)
-            await ctx.send(
-                f"Something went wrong, please try again or check if the server is online."
-            )
+            await ctx.send(DEFAULT_ERROR)
         except RequestException as error:
             self.logger.error(error)
-            await ctx.send(
-                f"There was an unexpected problem! Please check your console for details!"
-            )
+            await ctx.send(DEFAULT_ERROR)
         else:
             await ctx.send(embed=embed)
 
