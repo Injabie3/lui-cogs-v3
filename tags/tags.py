@@ -126,18 +126,22 @@ def tag_decoder(obj):
 
 class Tags(commands.Cog):
     """The tag related commands."""
+
     allowed_roles = defaultdict(lambda: set([]))
 
-    def setAllowedRoles(self, guild: "guild ID", roles: list):
-        self.allowed_roles[guild] = set(roles)
-    def addAllowedRole(self, guild: "guild ID", role):
-        self.allowed_roles[guild].add(role)
-    def removeAllowedRole(self, guild: "guild ID", role):
-        self.allowed_roles[guild].discard(role)
-    def getAllowedRoles(self):
-        # tiers = await self.configV3.guild(ctx.guild).tiers()
-        # return tiers.keys()
-        return list(self.allowed_roles)
+    # def setAllowedRoles(self, guild: discord.Guild, roles: list):
+    #     self.allowed_roles[guild.id] = set(roles)
+
+    # def getAllowedRoles(self):
+    #     # tiers = await self.configV3.guild(ctx.guild).tiers()
+    #     # return tiers.keys()
+    #     return list(self.allowed_roles)
+
+    def addAllowedRole(self, guild: discord.Guild, role: discord.Role):
+        self.allowed_roles[guild.id].add(str(role.id))
+
+    def removeAllowedRole(self, guild: discord.Guild, role: discord.Role):
+        self.allowed_roles[guild.id].discard(str(role.id))
 
     def __init__(self, bot):
         self.bot = bot
@@ -170,7 +174,8 @@ class Tags(commands.Cog):
         for guildId in guildIds.keys():
             guild = discord.utils.get(self.bot.guilds, id=guildId)
             async with self.configV3.guild(guild).tiers() as tiers:
-                self.allowed_roles[guildId] = tiers.keys()
+                self.allowed_roles[guildId] = set(tiers.keys())
+        # TODO debug logging print(self.allowed_roles.keys())
 
     def get_database_location(self, message: discord.Message):
         """Get the database of tags.
@@ -410,11 +415,11 @@ class Tags(commands.Cog):
             if num_tags == 0:
                 if str(role.id) in tiers.keys():
                     del tiers[str(role.id)]
-                    self.removeAllowedRole(ctx.guild, str(role.id))
+                    self.removeAllowedRole(ctx.guild, role)
                 await ctx.send(f"{role.name} will not be allowed to add tags")
             else:
                 tiers[role.id] = num_tags
-                self.addAllowedRole(ctx.guild, str(role.id))
+                self.addAllowedRole(ctx.guild, role)
                 await ctx.send(f"The tag limit for {role.name} was set to {num_tags}.")
 
     @settings.command(name="tiers")
