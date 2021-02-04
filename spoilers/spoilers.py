@@ -10,9 +10,10 @@ import os
 import re
 import discord
 from discord.ext import commands
-from cogs.utils.dataIO import dataIO
 
-from cogs.utils import config
+from redbot.core import Config, checks, commands, data_manager
+from redbot.core.commands.context import Context
+from redbot.core.bot import Red
 
 # Global variables
 KEY_MESSAGE = "message"
@@ -22,37 +23,35 @@ KEY_TIMESTAMP = "timestamp"
 KEY_EMBED = "embed"
 LOGGER = None
 PREFIX = "spoiler"
-SAVE_FOLDER = "data/lui-cogs/spoilers/" # Path to save folder.
-SAVE_FILE = "settings.json"
 COOLDOWN = 60
 
-def checkFolder():
-    """Used to create the data folder at first startup"""
-    if not os.path.exists(SAVE_FOLDER):
-        print("Creating " + SAVE_FOLDER + " folder...")
-        os.makedirs(SAVE_FOLDER)
+BASE_GUILD = { "messages": {} }
 
-def checkFiles():
-    """Used to initialize an empty database at first startup"""
-    theFile = SAVE_FOLDER + SAVE_FILE
-    if not dataIO.is_valid_json(theFile):
-        print("Creating default spoilers settings.json")
-        dataIO.save_json(theFile, {})
-
-class Spoilers: # pylint: disable=too-many-instance-attributes
+class Spoilers(commands.Cog)
     """Store messages for later retrieval."""
 
     #Class constructor
-    def __init__(self, bot):
+    def __init__(self, bot: Red):
         self.bot = bot
 
-        #The JSON keys for the settings:
-        checkFolder()
-        checkFiles()
-        self.settings = config.Config("settings.json",
-                                      cogname="lui-cogs/spoilers")
-        self.messages = self.settings.get("messages") if not None else {}
+        self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
+        # Register default (empty) settings.
+        self.config.register_guild(**BASE_GUILD)
         self.onCooldown = {}
+
+        # Initialize logger, and save to cog folder.
+        saveFolder = data_manager.cog_data_path(cog_instance=self)
+        self.logger = logging.getLogger("red.luicogs.Spoilers")
+        if self.logger.level == 0:
+            # Prevents the self.logger from being loaded again in case of module reload.
+            self.logger.setLevel(logging.INFO)
+            handler = logging.FileHandler(
+                filename=str(saveFolder) + "/info.log", encoding="utf-8", mode="a"
+            )
+            handler.setFormatter(
+                logging.Formatter("%(asctime)s %(message)s", datefmt="[%d/%m/%Y %H:%M:%S]")
+            )
+            self.logger.addHandler(handler)
 
     @commands.command(name="spoiler", pass_context=True)
     async def spoiler(self, ctx, *, msg):
