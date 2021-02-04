@@ -25,7 +25,7 @@ LOGGER = None
 PREFIX = "spoiler"
 COOLDOWN = 60
 
-BASE_GUILD = { "messages": {} }
+BASE = { "messages": {} }
 
 class Spoilers(commands.Cog)
     """Store messages for later retrieval."""
@@ -36,7 +36,7 @@ class Spoilers(commands.Cog)
 
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         # Register default (empty) settings.
-        self.config.register_guild(**BASE_GUILD)
+        self.config.register_global(**BASE)
         self.onCooldown = {}
 
         # Initialize logger, and save to cog folder.
@@ -84,9 +84,8 @@ class Spoilers(commands.Cog)
             await self.bot.delete_message(ctx.message)
             newMsg = await ctx.send(":warning: {} created a spoiler!  React to see "
                                     "the message!".format(ctx.message.author.mention))
-            if not self.messages:
-                self.messages = {}
-            async with self.config.guild(ctx.guild).messages() as messages:
+
+            async with self.config.messages() as messages:
                 messages[str(newMsg.id)] = store
             await newMsg.add_reaction("\N{INFORMATION SOURCE}")
             self.logger.info("%s#%s (%s) added a spoiler: %s",
