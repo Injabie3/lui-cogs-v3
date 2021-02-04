@@ -25,12 +25,13 @@ LOGGER = None
 PREFIX = "spoiler"
 COOLDOWN = 60
 
-BASE = { "messages": {} }
+BASE = {"messages": {}}
 
-class Spoilers(commands.Cog)
+
+class Spoilers(commands.Cog):
     """Store messages for later retrieval."""
 
-    #Class constructor
+    # Class constructor
     def __init__(self, bot: Red):
         self.bot = bot
 
@@ -58,12 +59,15 @@ class Spoilers(commands.Cog)
         """Create a message spoiler."""
         wordFilter = self.bot.get_cog("WordFilter")
         if not wordFilter:
-            await ctx.send("This cog requires the word filter cog to be loaded. Please load "
-                           "the cog and try again")
+            await ctx.send(
+                "This cog requires the word filter cog to be loaded. Please load "
+                "the cog and try again"
+            )
             return
         if wordFilter.containsFilterableWords(ctx.message):
-            await ctx.send("You have filtered words in your spoiler!  Please "
-                           "check it and try again!")
+            await ctx.send(
+                "You have filtered words in your spoiler!  Please " "check it and try again!"
+            )
             return
 
         try:
@@ -74,7 +78,7 @@ class Spoilers(commands.Cog)
             store[KEY_TIMESTAMP] = ctx.message.timestamp.strftime("%s")
             if ctx.message.embeds:
                 data = discord.Embed.from_data(ctx.message.embeds[0])
-                if data.type == 'image':
+                if data.type == "image":
                     store[KEY_EMBED] = data.url
             else:
                 imglinkPattern = r"(?i)http[^ ]+\.(?:png|jpg|jpeg|gif)"
@@ -82,23 +86,29 @@ class Spoilers(commands.Cog)
                 if match:
                     store[KEY_EMBED] = match.group(0)
             await self.bot.delete_message(ctx.message)
-            newMsg = await ctx.send(":warning: {} created a spoiler!  React to see "
-                                    "the message!".format(ctx.message.author.mention))
+            newMsg = await ctx.send(
+                ":warning: {} created a spoiler!  React to see "
+                "the message!".format(ctx.message.author.mention)
+            )
 
             async with self.config.messages() as messages:
                 messages[str(newMsg.id)] = store
             await newMsg.add_reaction("\N{INFORMATION SOURCE}")
-            self.logger.info("%s#%s (%s) added a spoiler: %s",
-                             ctx.message.author.name,
-                             ctx.message.author.discriminator,
-                             ctx.message.author.id,
-                             msg)
+            self.logger.info(
+                "%s#%s (%s) added a spoiler: %s",
+                ctx.message.author.name,
+                ctx.message.author.discriminator,
+                ctx.message.author.id,
+                msg,
+            )
         except discord.errors.Forbidden as error:
             await ctx.send("I'm not able to do that.")
             await newMsg.delete()
-            self.logger.error("Could not create a spoiler in server %s channel %s",
-                              ctx.message.server.name,
-                              ctx.message.channel.name)
+            self.logger.error(
+                "Could not create a spoiler in server %s channel %s",
+                ctx.message.server.name,
+                ctx.message.channel.name,
+            )
             self.logger.error(error)
 
     @commands.Cog.listener("on_socket_raw_receive")
@@ -114,8 +124,11 @@ class Spoilers(commands.Cog)
         data = json.loads(data)
         event = data.get("t")
         payload = data.get("d")
-        if event not in ("MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE",
-                         "MESSAGE_REACTION_REMOVE_ALL"):
+        if event not in (
+            "MESSAGE_REACTION_ADD",
+            "MESSAGE_REACTION_REMOVE",
+            "MESSAGE_REACTION_REMOVE_ALL",
+        ):
             return
 
         isReaction = event == "MESSAGE_REACTION_ADD"
@@ -124,36 +137,36 @@ class Spoilers(commands.Cog)
         if isReaction:
             msgId = payload["message_id"]
             if str(msgId) in spoilerMessages:
-                server = discord.utils.get(self.bot.guilds,
-                                           id=payload["guild_id"])
-                reactedUser = discord.utils.get(server.members,
-                                                id=payload["user_id"])
+                server = discord.utils.get(self.bot.guilds, id=payload["guild_id"])
+                reactedUser = discord.utils.get(server.members, id=payload["user_id"])
                 if reactedUser.bot:
                     return
 
-                channel = discord.utils.get(server.channels,
-                                            id=payload["channel_id"])
+                channel = discord.utils.get(server.channels, id=payload["channel_id"])
                 message = await channel.fetch_message(int(msgId))
 
                 if payload["emoji"]["id"]:
-                    emoji = discord.Emoji(name=payload["emoji"]["name"],
-                                          id=payload["emoji"]["id"],
-                                          server=server)
+                    emoji = discord.Emoji(
+                        name=payload["emoji"]["name"], id=payload["emoji"]["id"], server=server
+                    )
                 else:
                     emoji = payload["emoji"]["name"]
                 await message.remove_reaction(emoji, reactedUser)
 
-                if (msgId in self.onCooldown.keys() and
-                        reactedUser.id in self.onCooldown[msgId].keys() and
-                        self.onCooldown[msgId][reactedUser.id] > datetime.now()):
+                if (
+                    msgId in self.onCooldown.keys()
+                    and reactedUser.id in self.onCooldown[msgId].keys()
+                    and self.onCooldown[msgId][reactedUser.id] > datetime.now()
+                ):
                     return
                 msg = spoilerMessages[str(msgId)]
                 embed = discord.Embed()
-                userObj = discord.utils.get(server.members,
-                                            id=int(msg[KEY_AUTHOR_ID]))
+                userObj = discord.utils.get(server.members, id=int(msg[KEY_AUTHOR_ID]))
                 if userObj:
-                    embed.set_author(name="{0.name}#{0.discriminator}".format(userObj),
-                                     icon_url=userObj.avatar_url)
+                    embed.set_author(
+                        name="{0.name}#{0.discriminator}".format(userObj),
+                        icon_url=userObj.avatar_url,
+                    )
                 else:
                     embed.set_author(name=msg[KEY_AUTHOR_NAME])
                 if KEY_EMBED in msg:
@@ -164,11 +177,14 @@ class Spoilers(commands.Cog)
                     await reactedUser.send(embed=embed)
                     if msgId not in self.onCooldown.keys():
                         self.onCooldown[msgId] = {}
-                    self.onCooldown[msgId][reactedUser.id] = (datetime.now() +
-                                                              timedelta(seconds=COOLDOWN))
+                    self.onCooldown[msgId][reactedUser.id] = datetime.now() + timedelta(
+                        seconds=COOLDOWN
+                    )
                 except (discord.errors.Forbidden, discord.errors.HTTPException) as error:
-                    self.logger.error("Could not send DM to %s#%s (%s).",
-                                      reactedUser.name,
-                                      reactedUser.discriminator,
-                                      reactedUser.id)
+                    self.logger.error(
+                        "Could not send DM to %s#%s (%s).",
+                        reactedUser.name,
+                        reactedUser.discriminator,
+                        reactedUser.id,
+                    )
                     self.logger.error(error)
