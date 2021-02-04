@@ -53,23 +53,23 @@ class Spoilers(commands.Cog)
             )
             self.logger.addHandler(handler)
 
-    @commands.command(name="spoiler", pass_context=True)
-    async def spoiler(self, ctx, *, msg):
+    @commands.command(name="spoiler")
+    async def spoiler(self, ctx: Context, *, msg: str):
         """Create a message spoiler."""
         wordFilter = self.bot.get_cog("WordFilter")
         if not wordFilter:
-            await self.bot.say("This cog requires the word filter cog to be loaded. "
-                               "Please load the cog and try again")
+            await ctx.send("This cog requires the word filter cog to be loaded. Please load "
+                           "the cog and try again")
             return
         if wordFilter.containsFilterableWords(ctx.message):
-            await self.bot.say("You have filtered words in your spoiler!  Please "
-                               "check it and try again!")
+            await ctx.send("You have filtered words in your spoiler!  Please "
+                           "check it and try again!")
             return
 
         try:
             store = {}
             store[KEY_MESSAGE] = msg
-            store[KEY_AUTHOR_ID] = ctx.message.author.id
+            store[KEY_AUTHOR_ID] = str(ctx.message.author.id)
             store[KEY_AUTHOR_NAME] = "{0.name}#{0.discriminator}".format(ctx.message.author)
             store[KEY_TIMESTAMP] = ctx.message.timestamp.strftime("%s")
             if ctx.message.embeds:
@@ -82,25 +82,25 @@ class Spoilers(commands.Cog)
                 if match:
                     store[KEY_EMBED] = match.group(0)
             await self.bot.delete_message(ctx.message)
-            newMsg = await self.bot.say(":warning: {} created a spoiler!  React to see "
-                                        "the message!".format(ctx.message.author.mention))
+            newMsg = await ctx.send(":warning: {} created a spoiler!  React to see "
+                                    "the message!".format(ctx.message.author.mention))
             if not self.messages:
                 self.messages = {}
-            self.messages[newMsg.id] = store
-            await self.bot.add_reaction(newMsg, "\N{INFORMATION SOURCE}")
-            LOGGER.info("%s#%s (%s) added a spoiler: %s",
-                        ctx.message.author.name,
-                        ctx.message.author.discriminator,
-                        ctx.message.author.id,
-                        msg)
-            await self.settings.put("messages", self.messages)
+            async with self.config.guild(ctx.guild).messages() as messages:
+                messages[str(newMsg.id)] = store
+            await newMsg.add_reaction("\N{INFORMATION SOURCE}")
+            self.logger.info("%s#%s (%s) added a spoiler: %s",
+                             ctx.message.author.name,
+                             ctx.message.author.discriminator,
+                             ctx.message.author.id,
+                             msg)
         except discord.errors.Forbidden as error:
-            await self.bot.say("I'm not able to do that.")
-            await self.bot.delete_message(newMsg)
-            LOGGER.error("Could not create a spoiler in server %s channel %s",
-                         ctx.message.server.name,
-                         ctx.message.channel.name)
-            LOGGER.error(error)
+            await ctx.send("I'm not able to do that.")
+            await newMsg.delete()
+            self.logger.error("Could not create a spoiler in server %s channel %s",
+                              ctx.message.server.name,
+                              ctx.message.channel.name)
+            self.logger.error(error)
 
     async def checkForReaction(self, data):
         """Reaction listener (using socket data)
