@@ -101,6 +101,7 @@ class Spoilers(commands.Cog)
                               ctx.message.channel.name)
             self.logger.error(error)
 
+    @commands.Cog.listener("on_socket_raw_receive")
     async def checkForReaction(self, data):
         """Reaction listener (using socket data)
         Checks to see if a spoilered message is reacted, and if so, send a DM to the
@@ -118,12 +119,12 @@ class Spoilers(commands.Cog)
             return
 
         isReaction = event == "MESSAGE_REACTION_ADD"
-
+        spoilerMessages = await self.config.messages()
         # make sure the reaction is proper
         if isReaction:
             msgId = payload["message_id"]
-            if msgId in self.messages.keys():
-                server = discord.utils.get(self.bot.servers,
+            if str(msgId) in spoilerMessages:
+                server = discord.utils.get(self.bot.guilds,
                                            id=payload["guild_id"])
                 reactedUser = discord.utils.get(server.members,
                                                 id=payload["user_id"])
@@ -132,7 +133,7 @@ class Spoilers(commands.Cog)
 
                 channel = discord.utils.get(server.channels,
                                             id=payload["channel_id"])
-                message = await self.bot.get_message(channel, msgId)
+                message = await channel.fetch_message(int(msgId))
 
                 if payload["emoji"]["id"]:
                     emoji = discord.Emoji(name=payload["emoji"]["name"],
@@ -140,16 +141,16 @@ class Spoilers(commands.Cog)
                                           server=server)
                 else:
                     emoji = payload["emoji"]["name"]
-                await self.bot.remove_reaction(message, emoji, reactedUser)
+                await message.remove_reaction(emoji, reactedUser)
 
                 if (msgId in self.onCooldown.keys() and
                         reactedUser.id in self.onCooldown[msgId].keys() and
                         self.onCooldown[msgId][reactedUser.id] > datetime.now()):
                     return
-                msg = self.messages[msgId]
+                msg = spoilerMessages[str(msgId)]
                 embed = discord.Embed()
                 userObj = discord.utils.get(server.members,
-                                            id=msg[KEY_AUTHOR_ID])
+                                            id=int(msg[KEY_AUTHOR_ID]))
                 if userObj:
                     embed.set_author(name="{0.name}#{0.discriminator}".format(userObj),
                                      icon_url=userObj.avatar_url)
@@ -160,33 +161,14 @@ class Spoilers(commands.Cog)
                 embed.description = msg[KEY_MESSAGE]
                 embed.timestamp = datetime.fromtimestamp(int(msg[KEY_TIMESTAMP]))
                 try:
-                    await self.bot.send_message(reactedUser, embed=embed)
+                    await reactedUser.send(embed=embed)
                     if msgId not in self.onCooldown.keys():
                         self.onCooldown[msgId] = {}
                     self.onCooldown[msgId][reactedUser.id] = (datetime.now() +
                                                               timedelta(seconds=COOLDOWN))
                 except (discord.errors.Forbidden, discord.errors.HTTPException) as error:
-                    LOGGER.error("Could not send DM to %s#%s (%s).",
-                                 reactedUser.name,
-                                 reactedUser.discriminator,
-                                 reactedUser.id)
-                    LOGGER.error(error)
-
-def setup(bot):
-    """Add the cog to the bot."""
-    checkFolder()   # Make sure the data folder exists!
-    checkFiles()    # Make sure we have settings!
-    spoilersCog = Spoilers(bot)
-    global LOGGER # pylint: disable=global-statement
-    LOGGER = logging.getLogger("red.Spoilers")
-    if LOGGER.level == 0:
-        # Prevents the LOGGER from being loaded again in case of module reload.
-        LOGGER.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename="data/lui-cogs/spoilers/info.log",
-                                      encoding="utf-8",
-                                      mode="a")
-        handler.setFormatter(logging.Formatter("%(asctime)s %(message)s",
-                                               datefmt="[%d/%m/%Y %H:%M:%S]"))
-        LOGGER.addHandler(handler)
-    bot.add_listener(spoilersCog.checkForReaction, "on_socket_raw_receive")
-    bot.add_cog(spoilersCog)
+                    self.logger.error("Could not send DM to %s#%s (%s).",
+                                      reactedUser.name,
+                                      reactedUser.discriminator,
+                                      reactedUser.id)
+                    self.logger.error(error)
