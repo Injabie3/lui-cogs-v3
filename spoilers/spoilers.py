@@ -66,7 +66,7 @@ class Spoilers(commands.Cog):
             return
         if wordFilter.containsFilterableWords(ctx.message):
             await ctx.send(
-                "You have filtered words in your spoiler!  Please " "check it and try again!"
+                "You have filtered words in your spoiler!  Please check it and try again!"
             )
             return
 
@@ -75,7 +75,7 @@ class Spoilers(commands.Cog):
             store[KEY_MESSAGE] = msg
             store[KEY_AUTHOR_ID] = str(ctx.message.author.id)
             store[KEY_AUTHOR_NAME] = "{0.name}#{0.discriminator}".format(ctx.message.author)
-            store[KEY_TIMESTAMP] = ctx.message.timestamp.strftime("%s")
+            store[KEY_TIMESTAMP] = ctx.message.created_at.strftime("%s")
             if ctx.message.embeds:
                 data = discord.Embed.from_data(ctx.message.embeds[0])
                 if data.type == "image":
@@ -85,7 +85,7 @@ class Spoilers(commands.Cog):
                 match = re.search(imglinkPattern, msg)
                 if match:
                     store[KEY_EMBED] = match.group(0)
-            await self.bot.delete_message(ctx.message)
+            await ctx.message.delete()
             newMsg = await ctx.send(
                 ":warning: {} created a spoiler!  React to see "
                 "the message!".format(ctx.message.author.mention)
@@ -111,80 +111,62 @@ class Spoilers(commands.Cog):
             )
             self.logger.error(error)
 
-    @commands.Cog.listener("on_socket_raw_receive")
-    async def checkForReaction(self, data):
+    @commands.Cog.listener("on_raw_reaction_add")
+    async def checkForReaction(self, payload):
         """Reaction listener (using socket data)
         Checks to see if a spoilered message is reacted, and if so, send a DM to the
         user that reacted.
         """
-        # no binary frames
-        if isinstance(data, bytes):
-            return
-
-        data = json.loads(data)
-        event = data.get("t")
-        payload = data.get("d")
-        if event not in (
-            "MESSAGE_REACTION_ADD",
-            "MESSAGE_REACTION_REMOVE",
-            "MESSAGE_REACTION_REMOVE_ALL",
-        ):
-            return
-
-        isReaction = event == "MESSAGE_REACTION_ADD"
         spoilerMessages = await self.config.messages()
         # make sure the reaction is proper
-        if isReaction:
-            msgId = payload["message_id"]
-            if str(msgId) in spoilerMessages:
-                server = discord.utils.get(self.bot.guilds, id=payload["guild_id"])
-                reactedUser = discord.utils.get(server.members, id=payload["user_id"])
-                if reactedUser.bot:
-                    return
+        msgId = payload.message_id
+        if str(msgId) in spoilerMessages:
+            server = discord.utils.get(self.bot.guilds, id=payload.guild_id)
+            reactedUser = discord.utils.get(server.members, id=payload.user_id)
+            if reactedUser.bot:
+                return
 
-                channel = discord.utils.get(server.channels, id=payload["channel_id"])
-                message = await channel.fetch_message(int(msgId))
+            channel = discord.utils.get(server.channels, id=payload.channel_id)
+            message = await channel.fetch_message(int(msgId))
 
-                if payload["emoji"]["id"]:
-                    emoji = discord.Emoji(
-                        name=payload["emoji"]["name"], id=payload["emoji"]["id"], server=server
-                    )
-                else:
-                    emoji = payload["emoji"]["name"]
-                await message.remove_reaction(emoji, reactedUser)
+            if payload.emoji.id:
+                emoji = discord.Emoji(name=payload.emoji.name, id=payload.emoji.id, server=server)
+            else:
+                emoji = payload.emoji.name
+            await message.remove_reaction(emoji, reactedUser)
 
-                if (
-                    msgId in self.onCooldown.keys()
-                    and reactedUser.id in self.onCooldown[msgId].keys()
-                    and self.onCooldown[msgId][reactedUser.id] > datetime.now()
-                ):
-                    return
-                msg = spoilerMessages[str(msgId)]
-                embed = discord.Embed()
-                userObj = discord.utils.get(server.members, id=int(msg[KEY_AUTHOR_ID]))
-                if userObj:
-                    embed.set_author(
-                        name="{0.name}#{0.discriminator}".format(userObj),
-                        icon_url=userObj.avatar_url,
-                    )
-                else:
-                    embed.set_author(name=msg[KEY_AUTHOR_NAME])
-                if KEY_EMBED in msg:
-                    embed.set_image(url=msg[KEY_EMBED])
-                embed.description = msg[KEY_MESSAGE]
-                embed.timestamp = datetime.fromtimestamp(int(msg[KEY_TIMESTAMP]))
-                try:
-                    await reactedUser.send(embed=embed)
-                    if msgId not in self.onCooldown.keys():
-                        self.onCooldown[msgId] = {}
-                    self.onCooldown[msgId][reactedUser.id] = datetime.now() + timedelta(
-                        seconds=COOLDOWN
-                    )
-                except (discord.errors.Forbidden, discord.errors.HTTPException) as error:
-                    self.logger.error(
-                        "Could not send DM to %s#%s (%s).",
-                        reactedUser.name,
-                        reactedUser.discriminator,
-                        reactedUser.id,
-                    )
-                    self.logger.error(error)
+            if (
+                msgId in self.onCooldown.keys()
+                and reactedUser.id in self.onCooldown[msgId].keys()
+                and self.onCooldown[msgId][reactedUser.id] > datetime.now()
+            ):
+                return
+            msg = spoilerMessages[str(msgId)]
+            embed = discord.Embed()
+            userObj = discord.utils.get(server.members, id=int(msg[KEY_AUTHOR_ID]))
+            if userObj:
+                embed.set_author(
+                    name="{0.name}#{0.discriminator}".format(userObj),
+                    icon_url=userObj.avatar_url,
+                )
+            else:
+                embed.set_author(name=msg[KEY_AUTHOR_NAME])
+            if KEY_EMBED in msg:
+                embed.set_image(url=msg[KEY_EMBED])
+            embed.description = msg[KEY_MESSAGE]
+            embed.timestamp = datetime.fromtimestamp(int(msg[KEY_TIMESTAMP]))
+            try:
+                await reactedUser.send(embed=embed)
+                if msgId not in self.onCooldown.keys():
+                    self.onCooldown[msgId] = {}
+                self.onCooldown[msgId][reactedUser.id] = datetime.now() + timedelta(
+                    seconds=COOLDOWN
+                )
+            except (discord.errors.Forbidden, discord.errors.HTTPException) as error:
+                self.logger.error(
+                    "Could not send DM to %s#%s (%s).",
+                    reactedUser.name,
+                    reactedUser.discriminator,
+                    reactedUser.id,
+                )
+                self.logger.error(error)
