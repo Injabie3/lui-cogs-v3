@@ -330,7 +330,6 @@ class Tags(commands.Cog):
         """
         mod_roles = await self.bot.get_mod_roles(guild)
         admin_roles = await self.bot.get_admin_roles(guild)
-        sensei = discord.utils.get(guild.roles, name=ALLOWED_ROLE)
 
         # Check and see if the user requesting the transfer is not the tag owner, or
         # is not a mod, or is not an admin.
