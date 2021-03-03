@@ -842,7 +842,10 @@ class Tags(commands.Cog):
         # Check if the user to transfer to has permissions to create tags
         mod_roles = await self.bot.get_mod_roles(ctx.guild)
         admin_roles = await self.bot.get_admin_roles(ctx.guild)
-        allowed_server_roles = self.allowed_roles[server]
+        allowed_server_roles = [
+            discord.utils.get(ctx.guild.roles, id=int(r))
+            for r in self.allowed_roles.get(ctx.guild.id, [])
+        ]
 
         if (
             not list(set(allowed_server_roles) & set(user.roles))
