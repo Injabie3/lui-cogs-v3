@@ -536,6 +536,8 @@ class Tags(commands.Cog):
             await ctx.send("Tag " + str(error))
         elif isinstance(error, commands.CheckFailure):
             pass
+        elif isinstance(error, commands.UnexpectedQuoteError):
+            await ctx.send("Please do not use quotes in the tag name!")
         else:
             await ctx.send("Something went wrong, please check the logs for details.")
             raise error
@@ -577,7 +579,12 @@ class Tags(commands.Cog):
     async def generic_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("Tag " + str(error))
+        elif isinstance(error, commands.CheckFailure):
+            pass
+        elif isinstance(error, commands.UnexpectedQuoteError):
+            await ctx.send("Please do not use quotes in the tag name!")
         else:
+            await ctx.send("Something went wrong, please check the logs for details.")
             raise error
 
     @tag.command(name="alias")
@@ -736,7 +743,10 @@ class Tags(commands.Cog):
             await ctx.send("Please call just {0.prefix}tag make".format(ctx))
         elif isinstance(error, commands.CheckFailure):
             pass
+        elif isinstance(error, commands.UnexpectedQuoteError):
+            await ctx.send("Please do not use quotes in the tag name!")
         else:
+            await ctx.send("Something went wrong, please check the logs for details.")
             raise error
 
     def top_three_tags(self, db):
@@ -1040,6 +1050,7 @@ class Tags(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("Missing tag name to get info of.")
         else:
+            await ctx.send("Something went wrong, please check the logs for details.")
             raise error
 
     @tag.command(name="raw")
