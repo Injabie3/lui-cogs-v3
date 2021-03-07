@@ -161,7 +161,6 @@ class Tags(commands.Cog):
             loop=bot.loop,
             load_later=True,
         )
-        self.settings = Config(saveFolder, "settings-v2.json")
         self.configV3 = ConfigV3.get_conf(self, identifier=5842647, force_registration=True)
         self.configV3.register_guild(**BASE)  # Register default (empty) settings.
         self.lock = Lock()
