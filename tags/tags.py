@@ -229,7 +229,7 @@ class Tags(commands.Cog):
                 raise RuntimeError("Tag not found.")
             raise RuntimeError("Tag not found. Did you mean...\n" + "\n".join(possible_matches))
 
-    async def user_exceeds_tag_limit(self, server: discord.Guild, user: discord.Member):
+    async def userExceedsTagLimit(self, server: discord.Guild, user: discord.Member):
         """Check to see if user has too many tags.
 
         This check compares against all relevant roles that the member has, and will
@@ -494,7 +494,7 @@ class Tags(commands.Cog):
         except RuntimeError as error:
             return await ctx.send(error)
 
-        exceedsLimit, limit = await self.user_exceeds_tag_limit(ctx.guild, ctx.author)
+        exceedsLimit, limit = await self.userExceedsTagLimit(ctx.guild, ctx.author)
         if exceedsLimit:
             await ctx.send(
                 "You have too many commands. The maximum number of commands "
@@ -652,7 +652,7 @@ class Tags(commands.Cog):
         except RuntimeError as error:
             return await ctx.send(error)
 
-        exceedsLimit, limit = await self.user_exceeds_tag_limit(ctx.guild, ctx.author)
+        exceedsLimit, limit = await self.userExceedsTagLimit(ctx.guild, ctx.author)
         if exceedsLimit:
             await ctx.send(
                 "You have too many commands. The maximum number of commands "
@@ -867,7 +867,7 @@ class Tags(commands.Cog):
             return
 
         # Check if the user to transfer to has exceeded the tag limit
-        exceedsLimit, _ = await self.user_exceeds_tag_limit(ctx.guild, user)
+        exceedsLimit, _ = await self.userExceedsTagLimit(ctx.guild, user)
         if exceedsLimit:
             await ctx.send(
                 "The person you are trying to transfer a tag to is not allowed to have "
