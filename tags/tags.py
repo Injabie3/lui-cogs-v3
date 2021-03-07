@@ -1100,8 +1100,7 @@ class Tags(commands.Cog):
 
         if tags:
             try:
-                self.dm = self.settings.get("dm", False)
-                if self.dm:
+                if await self.configV3.guild(ctx.guild).dm():
                     await ctx.send("Check your DMs.")
                     msg = "Here are a list of tags for {}:\n```".format(ctx.message.author.mention)
                     for item in tags:
@@ -1135,8 +1134,7 @@ class Tags(commands.Cog):
 
         if tags:
             try:
-                self.dm = self.settings.get("dm", False)
-                if self.dm:
+                if await self.configV3.guild(ctx.guild).dm():
                     await ctx.send("Check your DMs.")
                     msg = "Here are a list of tags for {}:\n```".format(ctx.message.guild.name)
                     for item in tags:
@@ -1279,20 +1277,18 @@ class Tags(commands.Cog):
     @settings.command(name="toggledm")
     async def toggledm(self, ctx: Context):
         """Toggle sending DM for list of tags."""
-        self.dm = self.settings.get("dm", False)
-        if self.dm:
-            self.dm = False
-            await self.settings.put("dm", False)
+        if await self.configV3.guild(ctx.guild).dm():
+            dm = False
             await ctx.send(
                 "\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will "
                 "be sent **in the channel they were requested**."
             )
         else:
-            self.dm = True
-            await self.settings.put("dm", True)
+            dm = True
             await ctx.send(
                 "\N{WHITE HEAVY CHECK MARK} **Tags - DM**: Tag lists will " "be sent **in a DM**."
             )
+        await self.configV3.guild(ctx.guild).dm.set(dm)
 
     @tag.command(name="runtests")
     @checks.is_owner()
