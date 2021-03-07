@@ -284,9 +284,9 @@ class Tags(commands.Cog):
             return (True, limit)
         return (False, limit)
 
-    def checkAliasCog(self, name: str = None):
+    async def checkAliasCog(self, ctx: Context, name: str = None):
         aliasCog = None
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             aliasCog = self.bot.get_cog("Alias")
             if not aliasCog:
                 raise RuntimeError("Could not access the Alias cog. Please load it and try again.")
@@ -489,7 +489,7 @@ class Tags(commands.Cog):
         create can only be accessed in the server that it was created in.
         """
         try:
-            aliasCog = self.checkAliasCog(name)
+            aliasCog = await self.checkAliasCog(ctx, name)
             self.checkValidCommandName(name)
         except RuntimeError as error:
             return await ctx.send(error)
@@ -526,7 +526,7 @@ class Tags(commands.Cog):
         await self.config.put(location, db)
         await ctx.send('Tag "{}" successfully created.'.format(name))
 
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             # Alias is already loaded.
             await aliasCog.add_alias(ctx, lookup, "tag {}".format(lookup))
 
@@ -648,7 +648,7 @@ class Tags(commands.Cog):
         create command.
         """
         try:
-            aliasCog = self.checkAliasCog()
+            aliasCog = await self.checkAliasCog(ctx)
         except RuntimeError as error:
             return await ctx.send(error)
 
@@ -701,7 +701,7 @@ class Tags(commands.Cog):
             return
 
         # Alias is already loaded
-        if self.settings.get(KEY_USE_ALIAS, False) and aliasCog.is_command(lookup):
+        if await self.configV3.guild(ctx.guild).useAlias() and aliasCog.is_command(lookup):
             await ctx.send(
                 "This name cannot be used because there is already "
                 "an internal command with this name."
@@ -733,7 +733,7 @@ class Tags(commands.Cog):
         await self.config.put(location, db)
         await ctx.send("Cool. I've made your {0.content} tag.".format(name))
 
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             # Alias is already loaded.
             await aliasCog.add_alias(ctx, lookup, "tag {}".format(lookup))
 
@@ -957,7 +957,7 @@ class Tags(commands.Cog):
         del db[oldName]
 
         await self.config.put(location, db)
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             # Alias is already loaded.
             await aliasCog.add_alias(ctx, newName, "tag {}".format(newName))
             await aliasCog.del_alias(ctx, oldName)
@@ -974,7 +974,7 @@ class Tags(commands.Cog):
         Deleting a tag will delete all of its aliases as well.
         """
         try:
-            aliasCog = self.checkAliasCog()
+            aliasCog = await self.checkAliasCog(ctx)
         except RuntimeError as error:
             return await ctx.send(error)
 
@@ -1025,7 +1025,7 @@ class Tags(commands.Cog):
         await self.config.put(location, db)
         await ctx.send(msg)
 
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             # Alias is already loaded.
             await aliasCog.del_alias(ctx, lookup)
 
@@ -1262,7 +1262,7 @@ class Tags(commands.Cog):
     @settings.command(name="togglealias")
     async def togglealias(self, ctx: Context):
         """Toggle creating aliases for tags."""
-        if self.settings.get(KEY_USE_ALIAS, False):
+        if await self.configV3.guild(ctx.guild).useAlias():
             toAlias = False
             await ctx.send(
                 "\N{WHITE HEAVY CHECK MARK} **Tags - Aliasing**: Tags will "
@@ -1274,7 +1274,7 @@ class Tags(commands.Cog):
                 "\N{WHITE HEAVY CHECK MARK} **Tags - Aliasing**: Tags will "
                 "be created **with an alias**."
             )
-        await self.settings.put(KEY_USE_ALIAS, toAlias)
+        await self.configV3.guild(ctx.guild).useAlias.set(toAlias)
 
     @settings.command(name="toggledm")
     async def toggledm(self, ctx: Context):
