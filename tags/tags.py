@@ -538,7 +538,10 @@ class Tags(commands.Cog):
         elif isinstance(error, commands.UnexpectedQuoteError):
             await ctx.send("Please do not use quotes in the tag name!")
         else:
-            await ctx.send("Something went wrong, please check the logs for details.")
+            await ctx.send(
+                "Something went wrong, please try again or contact the bot owner(s) "
+                "if this continues."
+            )
             raise error
 
     @tag.command(name="generic")
@@ -583,7 +586,10 @@ class Tags(commands.Cog):
         elif isinstance(error, commands.UnexpectedQuoteError):
             await ctx.send("Please do not use quotes in the tag name!")
         else:
-            await ctx.send("Something went wrong, please check the logs for details.")
+            await ctx.send(
+                "Something went wrong, please try again or contact the bot owner(s) "
+                "if this continues."
+            )
             raise error
 
     @tag.command(name="alias")
