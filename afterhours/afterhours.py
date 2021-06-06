@@ -12,7 +12,7 @@ from redbot.core.bot import Red
 from redbot.core.commands.context import Context
 
 AH_CHANNEL = "after-hours"
-DEFAULT_GUILD = {"channelIds": {}, "afterHoursChannelIds": []}
+DEFAULT_GUILD = {"channelId": None, "channelIds": {}, "afterHoursChannelIds": []}
 STARBOARD = "highlights"
 DELETE_TIME = 32 * 60 * 60
 SLEEP_TIME = 60 * 60
@@ -53,7 +53,7 @@ class AfterHours(commands.Cog):
     async def backgroundLoop(self):
         """Background loop to garbage collect"""
         while True:
-            self.logger.info("Checking to see if we need to garbage collect")
+            self.logger.debug("Checking to see if we need to garbage collect")
             for guild in self.bot.guilds:
                 self.logger.debug("Checking guild %s", guild.id)
                 async with self.config.guild(guild).channelIds() as channels:
