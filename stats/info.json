@@ -1,0 +1,12 @@
+{
+    "name" : "Stats",
+    "author" : ["Injabie3#1660"],
+    "short" : "Display stats about your server",
+    "description" : "This cog allows you to show statistics about your server",
+    "hidden": true,
+    "install_msg" : "Thanks for installing Stats. Please note that this cog is a WIP, so no support will be given.",
+    "requirements" : [],
+    "tags" : ["info", "statistics", "stats"],
+    "permissions" : [],
+    "end_user_data_statement": "This cog doesn't store any user specific information."
+}
