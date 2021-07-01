@@ -235,7 +235,7 @@ class ServerManage(ServerManageCommands, commands.Cog, metaclass=ServerManageMet
         imageDict = {}
         imageDict["filename"] = f"{name}{extension}"
         filepath = self.getFullFilepath(ctx.guild, imageDict, imageType=imageType, mkdir=True)
-        await ctx.message.attachments[0].save(filepath, use_cached=True)
+        await ctx.message.attachments[0].save(filepath, use_cached=False)
         async with self.config.guild(ctx.guild).get_attr(imageType)() as images:
             images[name] = imageDict
         await ctx.send(f"Saved the {imageSingular} as {name}!")
