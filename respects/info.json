@@ -1,6 +1,6 @@
 {
     "name" : "Respects",
-    "author" : ["Injabie3#1660"],
+    "author" : ["Injabie3#1660", "quachtridat・たつ#8232"],
     "short" : "Press f to pay respects.",
     "description" : "This cog allows users to pay respects, aggregating closely paid respects into one message.",
     "install_msg" : "Thanks for installing Respects. Use `[p]f` to pay respects, and `[p]setf` to configure other settings.",
