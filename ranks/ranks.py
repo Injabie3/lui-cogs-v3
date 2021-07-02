@@ -226,7 +226,7 @@ class Ranks(commands.Cog):
 
         await ctx.send(
             ":white_check_mark: **Ranks - Max Points**: Users can gain "
-            f"up to {maxPoiunts} points per eligible message."
+            f"up to {maxPoints} points per eligible message."
         )
         self.logger.info(
             "Maximum points changed by %s#%s (%s)",
