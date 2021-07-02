@@ -14,11 +14,16 @@ Below are some of the cogs we have.
   one message, and supports replies.
 - `roleassigner`: Randomly assign roles to guild members from a pool of roles. Can
   also remove roles from guild members from a pool of roles. 
+- `servermanage`: A cog to manage a server's icon and banner images. It can schedule
+  icon and banner changes on certain days at midnight.
 - `sfu`: Access publicly available information from Simon Fraser University,
   including campus webcams, course information, and road report.
+- `spoilers`: A v3 port of our legacy v2 emoji-based spoiler cog, before Discord
+  implemented spoilers natively in the client.
 - `tags`: A v3 port of tags from Rapptz's RoboDanny bot, with additional functions
   such as limiting the number of tags per role, ability to transfer ownership of
   tags. Generic tags are disabled.
+- `triggered`: A triggered GIF image creator.
 - `welcome`: Welcome a new guild member with a custom message in a guild text
   channel. Also has the ability to send them a DM with a custom message, and logging
   member names and IDs when they join and leave a guild to a particular text channel.
