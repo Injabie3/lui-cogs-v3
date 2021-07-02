@@ -48,18 +48,24 @@ Below are some of the cogs we have.
 - `tempchannels`: Create 1 temporary channel that is automatically deleted after the
   configured duration expires.
 
-## Dependencies
-The following cogs depend on the following:
-- `birthday`: Requires `utils/paginator.py` from [Rapttz/RoboDanny](
-https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
-- `tags`: Requires `utils/paginator.py` from [Rapttz/RoboDanny](
-https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
-- `wordfilter`: Requires `utils/paginator.py` from [Rapttz/RoboDanny](
-https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
-
-## Notes
-1. `tags`
+## Important Notes
+1. `birthday`
+    - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
+      https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
+      This requirement is being removed soon.
+2. `tags`
     - Using the alias toggle requires modification to Red's Alias cog.
+    - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
+      https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
+      This requirement is being removed soon.
+3. `wordfilter`
+    - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
+      https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
+      This requirement is being removed soon.
+
 
 ## Support
-If you find any issues, please open an issue in SFUAnime/Ren.
+As this is a side project, I am not able to provide support in a particularly timely
+manner. That being said, if you find any issues, please feel free to open an issue in
+the [SFUAnime/Ren](https://github.com/SFUAnime/Ren) repo, and we can take a look into
+it.
