@@ -59,9 +59,9 @@ class Ranks(commands.Cog):
         rank = 1
         # TODO: Handle case when MySQL settings are not configured.
         database = MySQLdb.connect(
-            host=await self.config.mysqlHost(),
-            user=await self.config.mysqlUsername(),
-            passwd=await self.config.mysqlPassword(),
+            host=await self.config.get_attr(KEY_MYSQL_HOST)(),
+            user=await self.config.get_attr(KEY_MYSQL_USER)(),
+            passwd=await self.config.get_attr(KEY_MYSQL_PASS)(),
         )
         cursor = database.cursor()
         cursor.execute(
@@ -105,9 +105,9 @@ class Ranks(commands.Cog):
         # Execute a MySQL query to order and check.
         # TODO: Handle case when MySQL settings are not configured.
         database = MySQLdb.connect(
-            host=await self.config.mysqlHost(),
-            user=await self.config.mysqlUsername(),
-            passwd=await self.config.mysqlPassword(),
+            host=await self.config.get_attr(KEY_MYSQL_HOST)(),
+            user=await self.config.get_attr(KEY_MYSQL_USER)(),
+            passwd=await self.config.get_attr(KEY_MYSQL_PASS)(),
         )
         embed = discord.Embed()
         # Using query code from:
@@ -168,8 +168,8 @@ class Ranks(commands.Cog):
     @commands.guild_only()
     async def _settingsDefault(self, ctx: Context):
         """Set default for max points and cooldown."""
-        await self.config.guild(ctx.guild).cooldown.set(0)
-        await self.config.guild(ctx.guild).maxPoints.set(25)
+        await self.config.guild(ctx.guild).get_attr(KEY_COOLDOWN).set(0)
+        await self.config.guild(ctx.guild).get_attr(KEY_MAX_POINTS).set(25)
 
         await ctx.send(
             ":information_source: **Ranks - Default:** Defaults set, run "
@@ -181,8 +181,8 @@ class Ranks(commands.Cog):
     @commands.guild_only()
     async def _settingsShow(self, ctx: Context):
         """Show current settings."""
-        cooldown = await self.config.guild(ctx.guild).cooldown()
-        maxPoints = await self.config.guild(ctx.guild).maxPoints()
+        cooldown = await self.config.guild(ctx.guild).get_attr(KEY_COOLDOWN)()
+        maxPoints = await self.config.guild(ctx.guild).get_attr(KEY_MAX_POINTS)()
         msg = ":information_source: **Ranks - Current Settings**:\n```"
         msg += f"Cooldown time:  {cooldown} seconds.\n"
         msg += f"Maximum points: {maxPoints} points per eligible message```"
@@ -200,7 +200,7 @@ class Ranks(commands.Cog):
             )
             return
 
-        await self.config.guild(ctx.guild).cooldown.set(seconds)
+        await self.config.guild(ctx.guild).get_attr(KEY_COOLDOWN).set(seconds)
 
         await ctx.send(f":white_check_mark: **Ranks - Cooldown**: Set to {seconds} seconds.")
         self.logger.info(
@@ -222,7 +222,7 @@ class Ranks(commands.Cog):
             )
             return
 
-        await self.config.guild(ctx.guild).maxPoints.set(maxPoints)
+        await self.config.guild(ctx.guild).get_attr(KEY_MAX_POINTS).set(maxPoints)
 
         await ctx.send(
             ":white_check_mark: **Ranks - Max Points**: Users can gain "
@@ -266,9 +266,9 @@ class Ranks(commands.Cog):
             await ctx.send("No response received, not setting anything!")
             return
 
-        await self.config.mysqlHost.set(host.content)
-        await self.config.mysqlUsername.set(username.content)
-        await self.config.mysqlPassword.set(password.content)
+        await self.config.get_attr(KEY_MYSQL_HOST).set(host.content)
+        await self.config.get_attr(KEY_MYSQL_USER).set(username.content)
+        await self.config.get_attr(KEY_MYSQL_PASS).set(password.content)
 
         await ctx.send("Settings saved.")
         self.logger.info(
@@ -284,20 +284,20 @@ class Ranks(commands.Cog):
 
     async def addPoints(self, guild, userID):
         """Add rank points between 0 and MAX_POINTS to the user"""
-        maxPoints = await self.config.guild(guild).maxPoints()
+        maxPoints = await self.config.guild(guild).get_attr(KEY_MAX_POINTS)()
         pointsToAdd = random.randint(0, maxPoints)
         if (
-            not await self.config.mysqlHost()
-            or not await self.config.mysqlUsername()
-            or not await self.config.mysqlPassword()
+            not await self.config.get_attr(KEY_MYSQL_HOST)()
+            or not await self.config.get_attr(KEY_MYSQL_USER)()
+            or not await self.config.get_attr(KEY_MYSQL_PASS)()
         ):
             self.logger.debug("DB connection is not configured")
             return
 
         database = MySQLdb.connect(
-            host=await self.config.mysqlHost(),
-            user=await self.config.mysqlUsername(),
-            passwd=await self.config.mysqlPassword(),
+            host=await self.config.get_attr(KEY_MYSQL_HOST)(),
+            user=await self.config.get_attr(KEY_MYSQL_USER)(),
+            passwd=await self.config.get_attr(KEY_MYSQL_PASS)(),
         )
         cursor = database.cursor()
         fetch = cursor.execute(
@@ -354,7 +354,7 @@ class Ranks(commands.Cog):
 
         try:
             # If the time does not exceed COOLDOWN, return and do nothing.
-            cooldown = await self.config.guild(message.guild).cooldown()
+            cooldown = await self.config.guild(message.guild).get_attr(KEY_COOLDOWN)()
             if timestamp - self.lastspoke[sid][uid]["timestamp"] <= cooldown:
                 self.logger.debug("Haven't exceeded cooldown yet, returning")
                 return
