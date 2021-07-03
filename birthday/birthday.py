@@ -70,7 +70,7 @@ class Birthday(commands.Cog):
         """
 
         if channel:
-            await self.config.guild(ctx.message.guild).birthdayChannel.set(channel.id)
+            await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_CHANNEL).set(channel.id)
             self.logger.info(
                 "%s#%s (%s) set the birthday channel to %s",
                 ctx.message.author.name,
@@ -83,7 +83,7 @@ class Birthday(commands.Cog):
                 "as the birthday mention channel!".format(channel.name)
             )
         else:
-            await self.config.guild(ctx.message.guild).birthdayChannel.set(None)
+            await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_CHANNEL).set(None)
             await ctx.send(
                 ":white_check_mark: **Birthday - Channel**: Birthday mentions are now disabled."
             )
@@ -102,7 +102,7 @@ class Birthday(commands.Cog):
             A role (name or mention) to set as the birthday role.
         """
 
-        await self.config.guild(ctx.message.guild).birthdayRole.set(role.id)
+        await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_ROLE).set(role.id)
         self.logger.info(
             "%s#%s (%s) set the birthday role to %s",
             ctx.message.author.name,
@@ -142,7 +142,7 @@ class Birthday(commands.Cog):
         day: int (optional)
             The birthday day, range between 1 and 31 inclusive, depending on month.
         """
-        rid = await self.config.guild(ctx.message.guild).birthdayRole()
+        rid = await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_ROLE)()
 
         # Check if guild is initialized.
         if not rid:
@@ -295,7 +295,7 @@ class Birthday(commands.Cog):
         member: discord.Member
             The guild member that you want to remove the birthday role from.
         """
-        rid = await self.config.guild(ctx.message.guild).birthdayRole()
+        rid = await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_ROLE)()
         if not rid:
             await ctx.send(
                 ":negative_squared_cross_mark: **Birthday - Unassign**: This "
@@ -357,7 +357,7 @@ class Birthday(commands.Cog):
         member: discord.Member
             The guild member whose birthday role and saved birthday you want to remove.
         """
-        rid = await self.config.guild(ctx.message.guild).birthdayRole()
+        rid = await self.config.guild(ctx.message.guild).get_attr(KEY_BDAY_ROLE)()
         if not rid:
             await ctx.send(
                 ":negative_squared_cross_mark: **Birthday - Delete**: This "
@@ -439,7 +439,7 @@ class Birthday(commands.Cog):
             for guild in guilds:
                 # Make sure the guild is configured with birthday role.
                 # If it's not, skip over it.
-                bdayRoleId = await self.config.guild(guild).birthdayRole()
+                bdayRoleId = await self.config.guild(guild).get_atr(KEY_BDAY_ROLE)()
                 if not bdayRoleId:
                     continue
 
@@ -478,7 +478,7 @@ class Birthday(commands.Cog):
                             continue
 
                         # Update the list.
-                        await self.config.member(member).isAssigned.set(False)
+                        await self.config.member(member).get_attr(KEY_IS_ASSIGNED).set(False)
 
     async def _dailyAdd(self):  # pylint: disable=too-many-branches
         """Add guild members to the birthday role."""
@@ -494,8 +494,8 @@ class Birthday(commands.Cog):
             for guild in guilds:
                 # Make sure the guild is configured with birthday role.
                 # If it's not, skip over it.
-                bdayRoleId = await self.config.guild(guild).birthdayRole()
-                bdayChannelId = await self.config.guild(guild).birthdayChannel()
+                bdayRoleId = await self.config.guild(guild).get_attr(KEY_BDAY_ROLE)()
+                bdayChannelId = await self.config.guild(guild).get_attr(KEY_BDAY_CHANNEL)()
                 if not bdayRoleId:
                     continue
 
