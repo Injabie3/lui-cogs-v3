@@ -439,7 +439,7 @@ class Birthday(commands.Cog):
             for guild in guilds:
                 # Make sure the guild is configured with birthday role.
                 # If it's not, skip over it.
-                bdayRoleId = await self.config.guild(guild).get_atr(KEY_BDAY_ROLE)()
+                bdayRoleId = await self.config.guild(guild).get_attr(KEY_BDAY_ROLE)()
                 if not bdayRoleId:
                     continue
 
