@@ -60,7 +60,7 @@ class Birthday(commands.Cog):
     @_birthday.command(name="channel", aliases=["ch"])
     @commands.guild_only()
     @checks.mod_or_permissions(administrator=True)
-    async def setChannel(self, ctx, channel: discord.TextChannel = None):
+    async def setChannel(self, ctx: Context, channel: discord.TextChannel = None):
         """Set the channel to mention members on their birthday.
 
         Parameters:
@@ -91,7 +91,7 @@ class Birthday(commands.Cog):
     @_birthday.command(name="role")
     @commands.guild_only()
     @checks.mod_or_permissions(administrator=True)
-    async def setRole(self, ctx, role: discord.Role):
+    async def setRole(self, ctx: Context, role: discord.Role):
         """Set the role to assign to a birthday user. Make sure this role can
         be assigned and removed by the bot by placing it in the correct
         hierarchy location.
@@ -117,7 +117,7 @@ class Birthday(commands.Cog):
 
     @_birthday.command(name="test")
     @commands.guild_only()
-    async def test(self, ctx):
+    async def test(self, ctx: Context):
         """Test at-mentions."""
         for msg in CANNED_MESSAGES:
             await ctx.send(msg.format(ctx.author.mention))
