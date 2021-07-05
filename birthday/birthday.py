@@ -153,7 +153,7 @@ class Birthday(commands.Cog):
             return
 
         # Check if both the inputs are empty, for this case set the birthday as current day
-        # If one of the parameters are missing, then raise error
+        # If one of the parameters are missing, then send error message
         if month == None and day == None:
             day = int(time.strftime("%d"))
             month = int(time.strftime("%m"))
@@ -235,7 +235,7 @@ class Birthday(commands.Cog):
     @_birthday.command(name="list", aliases=["ls"])
     @commands.guild_only()
     @checks.mod_or_permissions(administrator=True)
-    async def list(self, ctx: Context):
+    async def listBirthdays(self, ctx: Context):
         """Lists the birthdays of users in the server."""
 
         sortedList = []  # List to sort by month, day.
@@ -327,8 +327,7 @@ class Birthday(commands.Cog):
             )
             return
 
-        async with self.config.member(member).all() as userConfig:
-            userConfig[KEY_IS_ASSIGNED] = False
+        await self.config.member(member).get_attr(KEY_IS_ASSIGNED).set(False)
 
         await ctx.send(
             ":white_check_mark: **Birthday - Unassign**: Successfully "
@@ -530,8 +529,9 @@ class Birthday(commands.Cog):
                                     member.id,
                                 )
                                 # Update the list.
-                                async with self.config.member(member).all() as memberConfig:
-                                    memberConfig[KEY_IS_ASSIGNED] = True
+                                await self.config.member(member).get_attr(KEY_IS_ASSIGNED).set(
+                                    True
+                                )
 
                             except discord.Forbidden:
                                 self.logger.error(
