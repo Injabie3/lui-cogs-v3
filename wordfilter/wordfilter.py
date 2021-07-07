@@ -13,11 +13,7 @@ import discord
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.utils import paginator
 from redbot.core.bot import Red
-
-COLOUR = discord.Colour
-COLOURS = [COLOUR.purple(), COLOUR.red(), COLOUR.blue(), COLOUR.orange(), COLOUR.green()]
-PATTERN_CHANNEL_ID = r"<#(\d+)>"
-BASE = {"channelIdsAllowed": [], "filters": [], "commandDenied": [], "toggleMod": False}
+from .constants import BASE, COLOURS
 
 
 class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
