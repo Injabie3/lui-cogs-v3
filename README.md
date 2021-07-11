@@ -49,7 +49,7 @@ Below are some of the cogs we have.
   configured duration expires.
 
 ## Important Notes
-1. `birthday`
+1. `highlight`
     - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
       https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
       This requirement is being removed soon.
