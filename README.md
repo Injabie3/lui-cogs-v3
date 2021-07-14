@@ -49,16 +49,12 @@ Below are some of the cogs we have.
   configured duration expires.
 
 ## Important Notes
-1. `highlight`
-    - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
-      https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
-      This requirement is being removed soon.
-2. `tags`
+1. `tags`
     - Using the alias toggle requires modification to Red's Alias cog.
     - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
       https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
       This requirement is being removed soon.
-3. `wordfilter`
+2. `wordfilter`
     - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
       https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
       This requirement is being removed soon.
