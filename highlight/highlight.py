@@ -190,7 +190,7 @@ class Highlight(commands.Cog):
     @highlight.command(name="list", aliases=["ls"])
     @commands.guild_only()
     async def listHighlight(self, ctx: Context):
-        """List your highighted words for the current guild."""
+        """List your highlighted words for the current guild."""
         userName = ctx.message.author.name
 
         async with self.config.member(ctx.author).words() as userWords:
