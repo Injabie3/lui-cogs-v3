@@ -11,7 +11,8 @@ import asyncio
 import random
 import discord
 from redbot.core import Config, checks, commands, data_manager
-from redbot.core.utils import paginator
+from redbot.core.utils import AsyncIter, chat_formatting, paginator
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 from redbot.core.bot import Red
 from .constants import (
     BASE,
@@ -128,21 +129,29 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
         """List the regex used to filter messages in raw format.
         NOTE: do this in a channel outside of the viewing public
         """
-        guildName = ctx.message.guild.name
         user = ctx.message.author
         filters = await self.config.guild(ctx.guild).get_attr(KEY_FILTERS)()
 
         if filters:
             display = []
-            for regex in filters:
-                display.append("`{}`".format(regex))
+            pageList = []
+            for num, regex in enumerate(filters, start=1):
+                display.append(f"{num}. `{regex}`")
+            msg = "\n".join(display)
+            pages = list(chat_formatting.pagify(msg, page_length=400))
+            totalPages = len(pages)
+            totalEntries = len(display)
 
-            page = paginator.Pages(ctx=ctx, entries=display, show_entry_count=True)
-            page.embed.title = "Filtered words for: **{}**".format(guildName)
-            page.embed.colour = discord.Colour.red()
-            await page.paginate()
+            async for pageNumber, page in AsyncIter(pages).enumerate(start=1):
+                embed = discord.Embed(
+                    title=f"Filtered words for **{ctx.guild.name}**", description=page
+                )
+                embed.set_footer(text=f"Page {pageNumber}/{totalPages} ({totalEntries} entries)")
+                embed.colour = discord.Colour.red()
+                pageList.append(embed)
+            await menu(ctx, pageList, DEFAULT_CONTROLS)
         else:
-            await user.send("Sorry you have no filtered words in **{}**".format(guildName))
+            await user.send("Sorry you have no filtered words in **{}**".format(ctx.guild.name))
 
     @wordFilter.command(name="togglemod")
     @commands.guild_only()
