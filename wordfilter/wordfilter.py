@@ -250,21 +250,28 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
         entire message is filtered and the contents of the message will be sent
         back to the user via DM.
         """
-        guildName = ctx.message.guild.name
-
         cmdDenied = await self.config.guild(ctx.guild).get_attr(KEY_CMD_DENIED)()
 
         if cmdDenied:
             display = []
-            for cmd in cmdDenied:
-                display.append("`{}`".format(cmd))
+            pageList = []
+            for num, cmd in enumerate(cmdDenied, start=1):
+                display.append(f"{num}. `{cmd}`")
+            msg = "\n".join(display)
+            pages = list(chat_formatting.pagify(msg, page_length=400))
+            totalPages = len(pages)
+            totalEntries = len(display)
 
-            page = paginator.Pages(ctx=ctx, entries=display, show_entry_count=True)
-            page.embed.title = f"Denylist commands for: **{guildName}**"
-            page.embed.colour = discord.Colour.red()
-            await page.paginate()
+            async for pageNumber, page in AsyncIter(pages).enumerate(start=1):
+                embed = discord.Embed(
+                        title=f"Denylist commands for: **{ctx.guild.name}**", description=page
+                )
+                embed.set_footer(text=f"Page {pageNumber}/{totalPages} ({totalEntries} entries)")
+                embed.colour = discord.Colour.red()
+                pageList.append(embed)
+            await menu(ctx, pageList, DEFAULT_CONTROLS)
         else:
-            await ctx.send(f"Sorry, there are no commands on the denylist for **{guildName}**")
+            await ctx.send(f"Sorry, there are no commands on the denylist for **{ctx.guild.name}**")
 
     ############################################
     # COMMANDS - CHANNEL WHITELISTING SETTINGS #
