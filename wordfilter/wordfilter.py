@@ -264,14 +264,16 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
             async for pageNumber, page in AsyncIter(pages).enumerate(start=1):
                 embed = discord.Embed(
-                        title=f"Denylist commands for: **{ctx.guild.name}**", description=page
+                    title=f"Denylist commands for: **{ctx.guild.name}**", description=page
                 )
                 embed.set_footer(text=f"Page {pageNumber}/{totalPages} ({totalEntries} entries)")
                 embed.colour = discord.Colour.red()
                 pageList.append(embed)
             await menu(ctx, pageList, DEFAULT_CONTROLS)
         else:
-            await ctx.send(f"Sorry, there are no commands on the denylist for **{ctx.guild.name}**")
+            await ctx.send(
+                f"Sorry, there are no commands on the denylist for **{ctx.guild.name}**"
+            )
 
     ############################################
     # COMMANDS - CHANNEL WHITELISTING SETTINGS #
@@ -368,14 +370,16 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
             async for pageNumber, page in AsyncIter(pages).enumerate(start=1):
                 embed = discord.Embed(
-                        title=f"Allowlist channels for: **{ctx.guild.name}**", description=page
+                    title=f"Allowlist channels for: **{ctx.guild.name}**", description=page
                 )
                 embed.set_footer(text=f"Page {pageNumber}/{totalPages} ({totalEntries} entries)")
                 embed.colour = discord.Colour.red()
                 pageList.append(embed)
             await menu(ctx, pageList, DEFAULT_CONTROLS)
         else:
-            await ctx.send(f"Sorry, there are no channels in the allowlist for **{ctx.guild.name}**")
+            await ctx.send(
+                f"Sorry, there are no channels in the allowlist for **{ctx.guild.name}**"
+            )
 
     async def checkMessageServerAndChannel(self, msg):
         """Checks to see if the message is in a server/channel eligible for
