@@ -54,11 +54,6 @@ Below are some of the cogs we have.
     - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
       https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
       This requirement is being removed soon.
-2. `wordfilter`
-    - Requires `utils/paginator.py` from [Rapttz/RoboDanny](
-      https://github.com/Rapptz/RoboDanny) to be installed in `redbot/core/utils/`.
-      This requirement is being removed soon.
-
 
 ## Support
 As this is a side project, I am not able to provide support in a particularly timely
