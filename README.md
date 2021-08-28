@@ -52,6 +52,19 @@ Below are some of the cogs we have.
 1. `tags`
     - Using the alias toggle requires modification to Red's Alias cog.
 
+## Installation
+This assumes that you have a functioning deployment of Red-DiscordBot v3, and that
+your prefix is `ren` (replace with your bot's prefix).
+
+1. Make sure the Downloader cog is loaded:
+   `renload downloader`
+2. Add the repo to your instance:
+   `renrepo add lui-cogs https://github.com/Injabie3/lui-cogs-v3`
+3. Install the cog you want:
+   `rencog install lui-cogs <cogName>`
+4. Load the newly installed cog:
+   `renload <cogName>`
+
 ## Support
 As this is a side project, I am not able to provide support in a particularly timely
 manner. That being said, if you find any issues, please feel free to open an issue in
