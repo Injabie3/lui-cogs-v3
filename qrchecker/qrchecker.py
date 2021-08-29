@@ -13,7 +13,7 @@ class QRChecker(commands.Cog):
     def __init__(self, bot: Red):
         self.bot = bot
         self.logger = logging.getLogger("red.luicogs.QRChecker")
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
 
     @commands.Cog.listener("on_message")
     async def listener(self, message: discord.Message):
