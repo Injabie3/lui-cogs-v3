@@ -32,9 +32,10 @@ class QRChecker(commands.Cog):
             if not contentType:
                 self.logger.debug("Unknown content type, continue")
                 continue
-            elif contentType and not "image" in contentType:
+            elif contentType and "image" not in contentType:
                 self.logger.debug("Not an image, continue")
                 continue
+
             # At this point we decern that it's an image.
             try:
                 fp = io.BytesIO(await attachment.read())
@@ -43,6 +44,7 @@ class QRChecker(commands.Cog):
                 self.logger.debug("Found %s codes", len(codes))
             except Exception:
                 self.logger.error("Couldn't check file.", exc_info=True)
+                return
 
             if not codes:
                 self.logger.debug("No QR codes found.")
