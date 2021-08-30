@@ -56,7 +56,9 @@ class QRChecker(commands.Cog):
             if numQrCodes == 1:
                 code = codes[0]
                 msg = f"Found a QR code, the contents are: ```{code.data.decode()}```"
-                await message.reply(msg, mention_author=False)
+                await message.reply(
+                    msg, mention_author=False, allowed_mentions=discord.AllowedMentions.none()
+                )
             else:
                 pages: List[str] = []
                 pages.append("Found several QR codes, their contents are:")
@@ -71,7 +73,11 @@ class QRChecker(commands.Cog):
                 ctx = await self.bot.get_context(message)
                 for textToSend in pagify("\n".join(pages), escape_mass_mentions=True):
                     if firstMessage:
-                        await message.reply(textToSend, mention_author=False)
+                        await message.reply(
+                            textToSend,
+                            mention_author=False,
+                            allowed_mentions=discord.AllowedMentions.none(),
+                        )
                         firstMessage = False
                     else:
-                        await ctx.send(textToSend)
+                        await ctx.send(textToSend, allowed_mentions=discord.AllowedMentions.none())
