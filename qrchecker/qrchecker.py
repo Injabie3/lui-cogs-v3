@@ -64,10 +64,9 @@ class QRChecker(commands.Cog):
                     pages.append(contents)
                 firstMessage = True
                 ctx = await self.bot.get_context(message)
-                print("\n".join(pages))
                 for textToSend in pagify("\n".join(pages)):
                     if firstMessage:
                         await message.reply(textToSend, mention_author=False)
                         firstMessage = False
                     else:
-                        await ctx.send(message)
+                        await ctx.send(textToSend)
