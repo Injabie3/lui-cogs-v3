@@ -1,3 +1,9 @@
+"""QR Code Checker
+
+Requires:
+- pyzbar from PyPI
+- libzbar0 from your distro's package repo
+"""
 import io
 from typing import List
 import logging
