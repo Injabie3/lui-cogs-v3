@@ -7,6 +7,7 @@ from pyzbar.pyzbar import Decoded, decode
 from PIL import Image
 from redbot.core import commands
 from redbot.core.bot import Red
+from redbot.core.utils.chat_formatting import pagify
 
 
 class QRChecker(commands.Cog):
@@ -37,8 +38,30 @@ class QRChecker(commands.Cog):
             except Exception:
                 self.logger.error("Couldn't check file.", exc_info=True)
 
-            for code in codes:
+            if not codes:
+                self.logger.debug("No QR codes found.")
+                return
+            numQrCodes = len(codes)
+            if numQrCodes == 1:
+                code = codes[0]
                 msg = f"Found a QR code, the contents are: ```{code.data.decode()}```"
-                if len(msg) > 2000:
-                    msg = msg[:1999]
                 await message.reply(msg, mention_author=False)
+            else:
+                pages: List[str] = []
+                pages.append("Found several QR codes, their contents are:")
+                for code in codes:
+                    data = code.data.decode()
+                    if len(data) > 1990:
+                        contents = f"```{data[:1990]}...```"
+                    else:
+                        contents = f"```{data}```"
+                    pages.append(contents)
+                firstMessage = True
+                ctx = await self.bot.get_context(message)
+                print("\n".join(pages))
+                for textToSend in pagify("\n".join(pages)):
+                    if firstMessage:
+                        await message.reply(textToSend, mention_author=False)
+                        firstMessage = False
+                    else:
+                        await ctx.send(message)
