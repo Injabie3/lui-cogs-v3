@@ -17,6 +17,8 @@ from redbot.core.utils.chat_formatting import pagify
 
 
 class QRChecker(commands.Cog):
+    """A QR code checker for attachments"""
+
     def __init__(self, bot: Red):
         self.bot = bot
         self.logger = logging.getLogger("red.luicogs.QRChecker")
@@ -24,6 +26,7 @@ class QRChecker(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def listener(self, message: discord.Message):
+        """Find QR code in message attachments"""
         if not message.attachments:
             self.logger.debug("No attachments, return early")
             return
