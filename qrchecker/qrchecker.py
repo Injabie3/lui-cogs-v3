@@ -79,7 +79,10 @@ class QRChecker(commands.Cog):
                     else:
                         contents = f"```{data}```"
                     pages.append(contents)
+
                 firstMessage = True
+                sentMessages = 0
+
                 ctx = await self.bot.get_context(message)
                 for textToSend in pagify("\n".join(pages), escape_mass_mentions=True):
                     if firstMessage:
@@ -89,5 +92,9 @@ class QRChecker(commands.Cog):
                             allowed_mentions=discord.AllowedMentions.none(),
                         )
                         firstMessage = False
+                    elif sentMessages > 10:
+                        self.logger.debug("Sent more than 10 messages, bail early")
+                        break
                     else:
                         await ctx.send(textToSend, allowed_mentions=discord.AllowedMentions.none())
+                    sentMessages += 1
