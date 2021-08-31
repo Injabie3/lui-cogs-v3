@@ -52,6 +52,16 @@ class QRChecker(commands.Cog):
             if not codes:
                 self.logger.debug("No QR codes found.")
                 return
+
+            self.logger.info(
+                "%s#%s (%s) posted some QR code(s) in #%s (%s)",
+                message.author.name,
+                message.author.discriminator,
+                message.author.id,
+                message.channel.name,
+                message.channel.id,
+            )
+
             numQrCodes = len(codes)
             if numQrCodes == 1:
                 code = codes[0]
