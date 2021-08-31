@@ -231,14 +231,15 @@ class AfterHours(commands.Cog):
 
         try:
             starboard = sbCog.starboards[ctx.guild.id]["highlights"]
+        except KeyError:
+            self.logger.error("Cannot get the starboard!")
+        else:
             if remove:
                 await ctx.invoke(
                     sbCog.blacklist_remove, starboard=starboard, channel_or_role=channel
                 )
             else:
                 await ctx.invoke(sbCog.blacklist_add, starboard=starboard, channel_or_role=channel)
-        except KeyError:
-            self.logger.error("Cannot get the starboard!")
 
     async def notifyChannel(self, ctx, remove=False):
         if remove:
