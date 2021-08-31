@@ -70,7 +70,7 @@ class QRChecker(commands.Cog):
                 else:
                     contents = data
                 msg = (
-                    f"Found a QR code from {message.author.mention},"
+                    f"Found a QR code from {message.author.mention}, "
                     f"the contents are: ```{contents}```"
                 )
                 await message.reply(
