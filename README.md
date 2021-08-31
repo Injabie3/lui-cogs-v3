@@ -10,6 +10,7 @@ Below are some of the cogs we have.
 - `goodsmileinfo`: Post updates from Good Smile Company to a guild text channel.
 - `highlight`: Get notified outside of at-mentions about words that you care about.
 - `heartbeat`: Ping an uptime checker to report that all is well with the bot.
+- `qrchecker`: Scan image attachments for QR codes, and post their contents.
 - `respects`: Press f to pay respects. Has the ability to group multiple `f`s into
   one message, and supports replies.
 - `roleassigner`: Randomly assign roles to guild members from a pool of roles. Can
