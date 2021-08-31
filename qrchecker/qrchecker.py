@@ -56,17 +56,22 @@ class QRChecker(commands.Cog):
             if numQrCodes == 1:
                 code = codes[0]
                 data = code.data.decode()
-                if len(data) > 1950:
-                    contents = data[:1950]
+                if len(data) > 1900:
+                    contents = f"{data[:1900]}..."
                 else:
                     contents = data
-                msg = f"Found a QR code, the contents are: ```{contents}```"
+                msg = (
+                    f"Found a QR code from {message.author.mention},"
+                    f"the contents are: ```{contents}```"
+                )
                 await message.reply(
                     msg, mention_author=False, allowed_mentions=discord.AllowedMentions.none()
                 )
             else:
                 pages: List[str] = []
-                pages.append("Found several QR codes, their contents are:")
+                pages.append(
+                    f"Found several QR codes from {message.author.mention}, their contents are:"
+                )
                 for code in codes:
                     data = code.data.decode()
                     if len(data) > 1990:
