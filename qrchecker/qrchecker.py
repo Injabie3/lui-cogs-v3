@@ -55,7 +55,12 @@ class QRChecker(commands.Cog):
             numQrCodes = len(codes)
             if numQrCodes == 1:
                 code = codes[0]
-                msg = f"Found a QR code, the contents are: ```{code.data.decode()}```"
+                data = code.data.decode()
+                if len(data) > 1950:
+                    contents = data[:1950]
+                else:
+                    contents = data
+                msg = f"Found a QR code, the contents are: ```{contents}```"
                 await message.reply(
                     msg, mention_author=False, allowed_mentions=discord.AllowedMentions.none()
                 )
