@@ -87,10 +87,6 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
                 "`Word Filter:` `{0}` was added to the filter in the "
                 "guild **{1}**".format(word, guildName)
             )
-            # adds word to dictionary of tracked usage words
-            filterStats = await self.config.guild(ctx.guild).get_attr(KEY_USAGE_STATS)()
-            filterStats.update({word: 0})
-            await self.config.guild(ctx.guild).get_attr(KEY_USAGE_STATS)().set(filterStats)
 
         else:
             await user.send(
@@ -125,9 +121,6 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
                 "`Word Filter:` `{0}` removed from the filter in the "
                 "guild **{1}**".format(word, guildName)
             )
-            filterStats = await self.config.guild(ctx.guild).get_attr(KEY_USAGE_STATS)()
-            del filterStats[word]
-            await self.config.guild(ctx.guild).get_attr(KEY_USAGE_STATS)().set(filterStats)
 
     @regex.command(name="list", aliases=["ls"])
     @commands.guild_only()
@@ -449,6 +442,7 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
         filteredMsg = msg.content
         filters = await self.config.guild(msg.guild).get_attr(KEY_FILTERS)()
+
         filteredMsg = _filterWord(filters, filteredMsg)
 
         if msg.content == filteredMsg:
@@ -498,7 +492,17 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
                     blacklistedCmd = True
 
         try:
+            # records which words where used and how often
+            filterStats = await self.config.guild(msg.guild).get_attr(KEY_USAGE_STATS)()
+
+            for word in filteredWords:
+                timesMatched = len(re.findall(word, _filterWord))
+                filterStats.update({word: filterStats.get(word, 0) + timesMatched})
+
+            await self.config.guild(msg.guild).get_attr(KEY_USAGE_STATS).set(filterStats)
+
             filteredMsg = _filterWord(filteredWords, filteredMsg)
+
         except re.error as error:  # pylint: disable=broad-except
             self.logger.error("Exception!")
             self.logger.error(error)
@@ -575,6 +579,11 @@ def _filterWord(words, string):
         numFilters = numWords - 1
         reFormat = r"\b(?:" + (r"{}|") * numFilters + r"{})\b"
         regex = reFormat.format(*words)
+
+        # sees how many times each filtered word appears in string and tallies them up in the config file
+        for word in words:
+            wordInstances = len(re.findall(regex, word))
+
         # Replace the offending string with the correct number of stars.
         return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
 
@@ -590,3 +599,8 @@ def _isAllFiltered(string):
         if bool(re.search("[*]+", word)):
             cnt += 1
     return cnt == len(words)
+
+
+############################################
+# COMMANDS - Usage Statistics #
+############################################
