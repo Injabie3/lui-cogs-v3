@@ -7,5 +7,5 @@
     "install_msg" : "Thanks for installing the AfterHours cog. Run [p]afterhours to configure.",
     "requirements" : [],
     "tags" : [],
-    "end_user_data_statement": "This cog does not store user-specific settings."
+    "end_user_data_statement": "This cog stores when a user last spoke in a configured channel."
 }
