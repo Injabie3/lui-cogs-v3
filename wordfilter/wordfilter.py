@@ -557,13 +557,17 @@ def _censorMatch(matchobj):
 
 
 def _filterWord(words, string):
-    # Combine all filter words into one regex
-    numFilters = len(words) - 1
-    reFormat = r"\b(?:" + (r"{}|") * numFilters + r"{})\b"
-    regex = reFormat.format(*words)
-
-    # Replace the offending string with the correct number of stars.
-    return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
+    numWords = len(words)
+    if not words:
+        # if no filters added yet, do nothing
+        return string
+    else:
+        # Combine all filter words into one regex
+        numFilters = numWords - 1
+        reFormat = r"\b(?:" + (r"{}|") * numFilters + r"{})\b"
+        regex = reFormat.format(*words)
+        # Replace the offending string with the correct number of stars.
+        return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
 
 
 def _isOneWord(string):
