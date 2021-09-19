@@ -7,7 +7,7 @@ from .config import Config
 from .constants import *
 from .data import TagAlias, TagEncoder, TagInfo
 from .exceptions import *
-from .helpers import createSimplePages, tag_decoder
+from .helpers import createSimplePages, tagDecoder
 from .rolecheck import roles_or_mod_or_permissions
 
 from collections import defaultdict
@@ -65,7 +65,7 @@ class Tags(commands.Cog):
             str(saveFolder),
             "tags.json",
             encoder=TagEncoder,
-            object_hook=tag_decoder,
+            object_hook=tagDecoder,
             loop=bot.loop,
             load_later=True,
         )

@@ -56,7 +56,7 @@ async def createSimplePages(
     return pageList
 
 
-def tag_decoder(obj):
+def tagDecoder(obj):
     if "__tag__" in obj:
         return TagInfo(**obj)
     if "__tag_alias__" in obj:
