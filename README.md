@@ -53,9 +53,6 @@ Below are some of the cogs we have.
 1. `tags`
     - Using the alias toggle requires modification to Red's Alias cog.
 2. `yourlsClient`
-    - The API the cog uses is a **blocking** API. That means if the API endpoint on
-      your configured server is slow to respond, this will negatively affect your
-      bot. I am trying to see if I can make it async, but no ETA on that.
     - The `edit` and `rename` commands requires the
       [yourls-api-edit-url](https://github.com/SFUAnime/yourls-api-edit-url) plugin
       to be installed on your YOURLS instance.
