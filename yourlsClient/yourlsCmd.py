@@ -11,12 +11,14 @@ import discord
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.bot import Red
 from redbot.core.commands.context import Context
+from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 
 from requests.exceptions import HTTPError, RequestException
 import yourls
 from yourls import YOURLSClientBase, YOURLSAPIMixin
 
 from .exceptions import *
+from .helpers import createSimplePages
 
 KEY_API = "api"
 KEY_SIGNATURE = "signature"
@@ -393,7 +395,8 @@ class YOURLS(commands.Cog):
             self.logger.error(error)
             await ctx.send(DEFAULT_ERROR)
         else:
-            await ctx.send(content=f"Found the following:\n{results}")
+            pageList = await createSimplePages(results, "Found the following keywords:")
+            await menu(ctx, pageList, DEFAULT_CONTROLS)
 
 
     @yourlsBase.command(name="info")
