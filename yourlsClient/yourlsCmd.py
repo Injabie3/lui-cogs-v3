@@ -70,8 +70,8 @@ class YOURLSEditMixin(object):
 
 
 class YOURLSSearchKeywordsMixin(object):
-    def search(self, keyword: str):
-        data = dict(action="search_keywords", keyword=keyword)
+    def search(self, searchTerm: str):
+        data = dict(action="search_keywords", search_term=searchTerm)
         results = self._api_request(params=data)
         return results["keywords"]
 
