@@ -366,8 +366,6 @@ class YOURLS(commands.Cog):
             )
             await ctx.send(f"Short URL {keyword} now points to {newLongUrl}")
 
-
-
     @yourlsBase.command(name="search")
     async def search(self, ctx: Context, searchTerm: str):
         """Find a keyword.
@@ -397,7 +395,6 @@ class YOURLS(commands.Cog):
         else:
             pageList = await createSimplePages(results, "Found the following keywords:")
             await menu(ctx, pageList, DEFAULT_CONTROLS)
-
 
     @yourlsBase.command(name="info")
     async def urlInfo(self, ctx: Context, keyword: str):
