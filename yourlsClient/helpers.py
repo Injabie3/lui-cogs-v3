@@ -15,17 +15,17 @@ async def createSimplePages(
 
     Parameters
     ----------
-    items: [ str ]
+    items: List[ str ]
         A list of strings you wish to display to the user.
     embedTitle: Optional[ str ]
         The title for all the embed pages
-    embedAuthor : Optional[ discord.Member ]
+    embedAuthor: Optional[ discord.Member ]
         The author. If passed in, it will set the footer author's name and
         avatar
 
     Returns
     -------
-    [ discord.Embed ]
+    List[ discord.Embed ]
         A list of `discord.Embed`s, which can be passed directly into Red's
         menu coroutine.
     """
