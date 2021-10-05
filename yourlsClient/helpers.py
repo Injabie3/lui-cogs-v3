@@ -1,9 +1,10 @@
+from typing import List
 import discord
 from redbot.core.utils import AsyncIter, chat_formatting
 
 
 async def createSimplePages(
-    items: [str], embedTitle: str = "", embedAuthor: discord.Member = None
+    items: List[str], embedTitle: str = "", embedAuthor: discord.Member = None
 ):
     """Create embed pages for the redbot menu coroutine.
 

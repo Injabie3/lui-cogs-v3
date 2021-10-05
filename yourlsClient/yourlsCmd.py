@@ -368,7 +368,7 @@ class YOURLS(commands.Cog):
 
     @yourlsBase.command(name="search")
     async def search(self, ctx: Context, searchTerm: str):
-        """Find a keyword.
+        """Get a list of keywords that resemble `searchTerm`.
 
         Parameters
         ----------
