@@ -1,6 +1,6 @@
 {
-    "author" : ["Injabie3#1660", "sedruk", "KaguneAstra#6000", "TheDarkBot#1677"],
+    "author" : ["Injabie3#1660", "sedruk", "KaguneAstra#6000", "TheDarkBot#1677", "quachtridat・たつ#8232"],
     "short" : "Utility cogs maintained by the SFU Anime Club",
     "description" : "A plethora of utility cogs by the SFU Anime Club. Some cogs were ported from the v2 days of Red.",
-    "install_msg" : "Thanks for adding our repo! Support these cogs are limited, but we hope you'll find them useful!"
+    "install_msg" : "Thanks for adding our repo! Support for these cogs are limited, but we hope you'll find them useful!"
 }
