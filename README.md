@@ -53,12 +53,12 @@ Below are some of the cogs we have.
 1. `tags`
     - Using the alias toggle requires modification to Red's Alias cog.
 2. `yourlsClient`
-    - The `edit` and `rename` commands requires the
-      [yourls-api-edit-url](https://github.com/SFUAnime/yourls-api-edit-url) plugin
-      to be installed on your YOURLS instance.
-    - The `delete` command requires the
-      [yourls-api-delete](https://github.com/SFUAnime/yourls-api-delete) plugin to be
+    - The `edit` and `rename` commands requires the [yourls-api-edit-url][api-edit]
+      plugin to be installed on your YOURLS instance.
+    - The `delete` command requires the [yourls-api-delete][api-delete] plugin to be
       installed on your YOURLS instance.
+    - The `search` keyword requires the [yourls-api-search-keywords][api-search]
+      plugin to be installed on your YOURLS instance.
 
 ## Installation
 This assumes that you have a functioning deployment of Red-DiscordBot v3, and that
@@ -76,5 +76,9 @@ your prefix is `ren` (replace with your bot's prefix).
 ## Support
 As this is a side project, I am not able to provide support in a particularly timely
 manner. That being said, if you find any issues, please feel free to open an issue in
-the [SFUAnime/Ren](https://github.com/SFUAnime/Ren) repo, and we can take a look into
-it.
+the [SFUAnime/Ren][SFUAnime/Ren] repo, and we can take a look into it.
+
+[SFUAnime/Ren]: https://github.com/SFUAnime/Ren
+[api-edit]: https://github.com/SFUAnime/yourls-api-edit-url
+[api-delete]: https://github.com/SFUAnime/yourls-api-delete
+[api-search]: https://github.com/SFUAnime/yourls-api-search-keywords
