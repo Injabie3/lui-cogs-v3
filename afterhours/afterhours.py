@@ -222,6 +222,31 @@ class AfterHours(commands.Cog):
             lastMessage = message
         return await self.bot.get_context(lastMessage)
 
+    async def makeHighlightChanges(
+        self, ctx: Context, channel: discord.abc.GuildChannel, remove=False
+    ):
+        """Apply Highlight changes.
+
+        Parameters
+        -----------
+        ctx: Context
+            The Context object in order to invoke commands
+        channel: discord.abc.GuildChannel
+            The channel to apply Highlight changes to.
+        remove: bool
+            Indicate whether we want to remove the changes. Defaults to False.
+        """
+        self.logger.info("Applying/removing Highlight exceptions, remove=%s", remove)
+        cog = self.bot.get_cog("Highlight")
+        if not cog:
+            self.logger.error("Highlight not loaded. skipping")
+            return
+
+        if remove:
+            await ctx.invoke(cog.guildChannelsDenyDelete, channel=channel)
+        else:
+            await ctx.invoke(cog.guildChannelsDenyAdd, channel=channel)
+
     async def makeStarboardChanges(
         self, ctx: Context, channel: discord.abc.GuildChannel, remove=False
     ):
@@ -301,6 +326,7 @@ class AfterHours(commands.Cog):
             if not ctx:
                 return
             await self.notifyChannel(ctx)
+            await self.makeHighlightChanges(ctx, channel)
             await self.makeStarboardChanges(ctx, channel)
             await self.makeWordFilterChanges(ctx, channel)
             async with self.config.guild(channel.guild).get_attr(KEY_CHANNEL_IDS)() as channelIds:
@@ -323,6 +349,7 @@ class AfterHours(commands.Cog):
                 if not ctx:
                     return
                 await self.notifyChannel(ctx, remove=True)
+                await self.makeHighlightChanges(ctx, channel, remove=True)
                 await self.makeStarboardChanges(ctx, channel, remove=True)
                 await self.makeWordFilterChanges(ctx, channel, remove=True)
                 del channelIds[str(channel.id)]
