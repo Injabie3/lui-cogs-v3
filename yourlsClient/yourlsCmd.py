@@ -17,7 +17,7 @@ from requests.exceptions import HTTPError, RequestException
 import yourls
 
 from .api import YOURLSClient
-from .exceptions import *
+from .exceptions import YOURLSNotConfigured
 from .helpers import createSimplePages
 
 KEY_API = "api"
