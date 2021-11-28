@@ -412,7 +412,7 @@ class YOURLS(commands.Cog):
 
     @settingsBase.command(name="signature", aliases=["sig"])
     async def sig(self, ctx: Context, signature: str):
-        """Configure the API endpoint for YOURLS.
+        """Configure the API signature for YOURLS.
 
         Parameters
         ----------
