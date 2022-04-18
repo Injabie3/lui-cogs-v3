@@ -674,7 +674,16 @@ class Highlight(commands.Cog):
         guildData = await self.config.all_members(msg.guild)
         for currentUserId, data in guildData.items():
             self.logger.debug("User ID: %s", currentUserId)
-            isWordIgnored = False
+
+            # Handle case where user is no longer in the guild of interest.
+            hiliteUser = msg.guild.get_member(currentUserId)
+            if not hiliteUser:
+                continue
+
+            # Handle case where user cannot see the channel.
+            perms = msg.channel.permissions_for(hiliteUser)
+            if not perms.read_messages:
+                continue
 
             # Handle case where message was sent in a user denied channel
             if msg.channel.id in data[KEY_CHANNEL_IGNORE]:
@@ -688,7 +697,8 @@ class Highlight(commands.Cog):
             if KEY_BLACKLIST in data.keys() and msg.author.id in data[KEY_BLACKLIST]:
                 continue
 
-            # Handle case where message contains words being ignored byu the user.
+            # Handle case where message contains words being ignored by the user.
+            isWordIgnored = False
             if KEY_WORDS_IGNORE in data.keys():
                 self.logger.debug("Checking for ignored words")
                 for word in data[KEY_WORDS_IGNORE]:
@@ -709,14 +719,6 @@ class Highlight(commands.Cog):
                 timeout = data[KEY_TIMEOUT] if KEY_TIMEOUT in data.keys() else DEFAULT_TIMEOUT
                 triggeredRecently = self._triggeredRecently(msg, currentUserId, timeout)
                 if match and not active and not triggeredRecently and user.id != currentUserId:
-                    hiliteUser = msg.guild.get_member(currentUserId)
-                    if not hiliteUser:
-                        # Handle case where user is no longer in the guild of interest.
-                        continue
-                    perms = msg.channel.permissions_for(hiliteUser)
-                    if not perms.read_messages:
-                        # Handle case where user cannot see the channel.
-                        break
                     self._triggeredUpdate(msg, currentUserId)
                     tasks.append(self._notifyUser(hiliteUser, msg, word))
 
