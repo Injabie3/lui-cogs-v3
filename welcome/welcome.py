@@ -412,7 +412,7 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
             await ctx.send(f"{name} removed from list")
             await self.config.guild(ctx.guild).get_attr(key).set(greetings)
         else:
-            ctx.send(f"{name} not in list of greetings")
+            await ctx.send(f"{name} not in list of greetings")
         return
 
     @checks.mod_or_permissions()
