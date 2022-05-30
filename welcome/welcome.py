@@ -324,7 +324,7 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
             "Title changed by %s#%s (%s)",
             ctx.message.author.name,
             ctx.message.author.discriminator,
-            ctx.message.author,
+            ctx.message.author.id,
         )
         LOGGER.info(title.content)
 
@@ -338,9 +338,6 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
         imageUrl: str (optional)
             The URL of the image to use in the DM embed. Leave blank to disable.
         """
-        if imageUrl == "":
-            imageUrl = None
-
         await self.config.guild(ctx.guild).get_attr(KEY_IMAGE).set(imageUrl)
         if imageUrl:
             await ctx.send(f"Welcome image set to `{imageUrl}`. Be sure to test it!")
@@ -350,7 +347,7 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
             "Image changed by %s#%s (%s)",
             ctx.message.author.name,
             ctx.message.author.discriminator,
-            ctx.message.id,
+            ctx.message.author.id,
         )
         LOGGER.info("Image set to %s", imageUrl)
 
@@ -480,7 +477,7 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
         channel: discord.TextChannel
             The text channel to set welcome's to. If not passed anything, will remove the welcome channel
         """
-        if not channel:
+        if channel is None:
             # channel == None
             await self.config.guild(ctx.guild).get_attr(KEY_WELCOME_CHANNEL_ENABLED).set(False)
             await ctx.send("Welcome channel has been removed")
