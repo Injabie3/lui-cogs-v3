@@ -33,9 +33,7 @@ class ServerManage(ServerManageCommands, commands.Cog, metaclass=ServerManageMet
         # Initialize logger, and save to cog folder.
         self.dataFolder = data_manager.cog_data_path(cog_instance=self)
         self.logger = logging.getLogger("red.luicogs.ServerManage")
-        if self.logger.level == 0:
-            # Prevents the self.logger from being loaded again in case of module reload.
-            self.logger.setLevel(logging.INFO)
+        if not self.logger.handlers:
             logPath = pathJoin(self.dataFolder, "info.log")
             handler = logging.FileHandler(filename=logPath, encoding="utf-8", mode="a")
             handler.setFormatter(
