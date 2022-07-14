@@ -136,7 +136,7 @@ class QRChecker(commands.Cog):
                         await ctx.send(textToSend, allowed_mentions=discord.AllowedMentions.none())
                     sentMessages += 1
 
-    @commands.group(name="qrchecker", aliases=["qr"])
+    @commands.group(name="qrchecker")
     @commands.guild_only()
     @commands.admin_or_permissions(manage_guild=True)
     async def qrchecker(self, ctx: commands.Context):
