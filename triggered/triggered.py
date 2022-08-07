@@ -26,13 +26,8 @@ class Triggered(commands.Cog):
         self.bot = bot
         self.logger = logging.getLogger("red.luicogs.Triggered")
         self.saveFolder = data_manager.cog_data_path(cog_instance=self)
-        self.session = aiohttp.ClientSession()
         # We need a custom header or else we get a HTTP 403 Unauthorized
         self.headers = {"User-agent": "Mozilla/5.0"}
-
-    def cog_unload(self):
-        self.logger.info("Closing session")
-        self.bot.loop.run_until_complete(self.session.close())
 
     @commands.command(name="triggered")
     async def triggered(self, ctx: Context, user: discord.Member = None):
@@ -87,12 +82,8 @@ class Triggered(commands.Cog):
         """
         avatarData: bytes
 
-        try:
-            async with self.session.get(AVATAR_URL.format(user), headers=self.headers) as resp:
-                avatarData = await resp.read()
-        except aiohttp.ClientResponseError:
-            self.logger.error("Reading user avatar response failed!", exc_info=True)
-            return
+        avatar = user.display_avatar.with_size(512)
+        avatarData = await avatar.read()
 
         if not avatarData:
             self.logger.error("No avatar data received!")
