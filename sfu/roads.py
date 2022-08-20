@@ -127,7 +127,6 @@ class SFURoads(SFUBase):
             token, _ = process.communicate()
             token.decode()
             headers.update({"cf-access-token": token})
-            print("token %s" % token)
 
         try:
             fetchedData = requests.get(camera, headers=headers)
