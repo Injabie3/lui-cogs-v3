@@ -6,6 +6,7 @@
 from io import BytesIO
 import datetime
 import json
+import subprocess
 import requests
 from bs4 import BeautifulSoup
 import discord
@@ -14,6 +15,7 @@ from redbot.core.bot import Red
 from redbot.core.commands.context import Context
 
 from .base import SFUBase
+
 
 WEBCAM_AQPOND = (
     "http://ns-webcams.its.sfu.ca/public/images/aqn-current.jpg"
@@ -50,6 +52,7 @@ WEBCAM_WMC = (
     "http://ns-webcams.its.sfu.ca/public/images/wmcroof-current.jpg"
     "?nocache=1&update=15000&timeout=1800000"
 )
+WEBCAM_FEST = "https://sfu-apuri.injabie3.moe/cam/summerfest"
 
 ROAD_API = "http://www.sfu.ca/security/sfuroadconditions/api/3/current"
 
@@ -79,6 +82,7 @@ class SFURoads(SFUBase):
             "trs": WEBCAM_TRS,
             "udn": WEBCAM_UDN,
             "wmc": WEBCAM_WMC,
+            "fest": WEBCAM_FEST,
         }
         # We need a custom header or else we get a HTTP 403 Unauthorized
         self.headers = {"User-agent": "Mozilla/5.0"}
@@ -115,8 +119,18 @@ class SFURoads(SFUBase):
             await self.bot.send_help_for(ctx, self.cam)
             return
 
+        headers = self.headers
+        if cam.lower() == "fest":
+            process = subprocess.Popen(["cloudflared", "access", "token",
+                                        "-app", "https://sfu-apuri.injabie3.moe"],
+                                        stdout=subprocess.PIPE)
+            token, _ = process.communicate()
+            token.decode()
+            headers.update({"cf-access-token": token})
+            print("token %s" % token)
+
         try:
-            fetchedData = requests.get(camera, headers=self.headers)
+            fetchedData = requests.get(camera, headers=headers)
             fetchedData.raise_for_status()
         except requests.exceptions.HTTPError:
             await ctx.send(":warning: This webcam is currently unavailable!")
