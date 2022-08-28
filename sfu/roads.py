@@ -102,7 +102,6 @@ class SFURoads(SFUBase):
             One of the following short strings:
             aqpond: AQ Pond
             brh:    Barbara Rae Housing (Burnaby Residence)
-            fest:   SFU Summer Festival 2022 area
             gag:    Gaglardi intersection
             sbh:    Shadbolt Housing (Burnaby Residence)
             sub:    AQ overlooking student union building
