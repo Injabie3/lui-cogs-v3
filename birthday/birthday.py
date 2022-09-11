@@ -141,6 +141,7 @@ class Birthday(commands.Cog):
 
         birthday: (optional)
             The user's birthday, with the year omitted. If entering only numbers, specify the month first.
+            For example: Feb 29, February 29, 2/29.
         """
         rid = await self.config.guild(ctx.guild).get_attr(KEY_BDAY_ROLE)()
 
@@ -464,6 +465,7 @@ class Birthday(commands.Cog):
         ----------
         birthday:
             Your birthday, with the year omitted. If entering only numbers, specify the month first.
+            For example: Feb 29, February 29, 2/29.
         """
         fnTitle = "Birthday - Set Self's Birthday"
         headerBad = f":negative_squared_cross_mark: {bold(fnTitle)}"
