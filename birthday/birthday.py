@@ -451,23 +451,19 @@ class Birthday(commands.Cog):
 
     @me.command("set", aliases=["add"])
     @commands.guild_only()
-    async def setSelfBirthday(self, ctx: Context, month: int, day: int):
+    async def setSelfBirthday(self, ctx: Context, *, birthday: MonthDayConverter):
         """Set your birthday.
 
         If this function is enabled, you can set your birthday ONCE, and ONLY IF your
         birthday were not already set. Otherwise, if not enabled, you need to contact an
         administrator or a moderator in case you want to have your birthday erased and/or set.
 
-        Specify your birth month and birth day in numbers.
-
         For your privacy, you can delete the command message right away after sending it.
 
         Parameters
         ----------
-        month: int
-            Birth month.
-        day: int
-            Birth day.
+        birthday:
+            Your birthday, with the year omitted. If entering only numbers, specify the month first.
         """
         fnTitle = "Birthday - Set Self's Birthday"
         headerBad = f":negative_squared_cross_mark: {bold(fnTitle)}"
@@ -505,16 +501,7 @@ class Birthday(commands.Cog):
             )
             return
 
-        if not month and not day:
-            today = date.today()
-            month, day = today.month, today.day
-
-        try:
-            birthday = date(2020, month, day)
-            birthdayStr = "{0:%B} {0:%d}".format(birthday)
-        except ValueError:
-            await ctx.send(f"{headerBad}: Please enter a valid birthday!")
-            return
+        birthdayStr = "{0:%B} {0:%d}".format(birthday)
 
         if birthdayConfig:
             confirmationStr = (
@@ -542,8 +529,8 @@ class Birthday(commands.Cog):
                 await ctx.author.send(f"{headerBad}: Declined. Not setting your birthday.")
                 return
 
-            await birthdayConfig.get_attr(KEY_BDAY_MONTH).set(month)
-            await birthdayConfig.get_attr(KEY_BDAY_DAY).set(day)
+            await birthdayConfig.get_attr(KEY_BDAY_MONTH).set(birthday.month)
+            await birthdayConfig.get_attr(KEY_BDAY_DAY).set(birthday.day)
             await birthdayConfig.get_attr(KEY_ADDED_BEFORE).set(True)
 
             await ctx.author.send(
