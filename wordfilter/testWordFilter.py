@@ -1,6 +1,6 @@
 import pytest
 from .wordfilter import (
-    _censorMatch,
+    _filterWord,
     _isAllFiltered,
     _isOneWord,
 )
@@ -24,9 +24,14 @@ class TestHelperFunctions:
             ),
         ],
     )
-    def testCensorMatch(self, inputPhrase, toFilter, result):
-        filteredPhrase = re.sub(toFilter, _censorMatch, inputPhrase, flags=re.IGNORECASE)
+    def testFilterWordSingle(self, inputPhrase, toFilter, result):
+        filteredPhrase = _filterWord([toFilter], inputPhrase)
         assert result == filteredPhrase
+
+    @pytest.mark.parametrize("inputPhrase", ["https://discord.gg/testing123"])
+    def testFilterWordNoRegexFilter(self, inputPhrase):
+        filteredPhrase = _filterWord([], inputPhrase)
+        assert filteredPhrase == inputPhrase
 
     @pytest.mark.parametrize(
         ["inputStr", "result"],
