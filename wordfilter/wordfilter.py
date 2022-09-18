@@ -623,7 +623,7 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
 def _censorMatch(matchobj: re.Match):
     matchLength = len(matchobj.group(0))
-    return "`" + ("*" * matchLength) + "`"
+    return f"`{'*' * matchLength}`"
 
 
 def _filterWord(words: List, string: str):
