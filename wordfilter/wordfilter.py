@@ -4,6 +4,7 @@ deleting a message.
 """
 import re
 from threading import Lock
+from typing import List
 import logging
 import os
 import asyncio
@@ -620,12 +621,12 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
             await ctx.send("Sorry you have no filtered words in **{}**".format(ctx.guild.name))
 
 
-def _censorMatch(matchobj):
+def _censorMatch(matchobj: re.Match):
     matchLength = len(matchobj.group(0))
     return "`" + ("*" * matchLength) + "`"
 
 
-def _filterWord(words, string):
+def _filterWord(words: List, string: str):
     numWords = len(words)
     if not words:
         # if no filters added yet, do nothing
@@ -639,11 +640,11 @@ def _filterWord(words, string):
         return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
 
 
-def _isOneWord(string):
+def _isOneWord(string: str):
     return len(string.split()) == 1
 
 
-def _isAllFiltered(string):
+def _isAllFiltered(string: str):
     words = string.split()
     cnt = 0
     for word in words:
