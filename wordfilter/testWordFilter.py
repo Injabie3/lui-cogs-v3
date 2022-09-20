@@ -1,10 +1,12 @@
+import re
+
 import pytest
+
 from .wordfilter import (
     _filterWord,
     _isAllFiltered,
     _isOneWord,
 )
-import re
 
 
 class TestHelperFunctions:
