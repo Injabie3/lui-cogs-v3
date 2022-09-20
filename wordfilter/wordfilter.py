@@ -647,6 +647,6 @@ def _isAllFiltered(string: str):
     words = string.split()
     cnt = 0
     for word in words:
-        if bool(re.search(r"^\*+$", word, flags=re.MULTILINE)):
+        if all(map(lambda c: c == "*", word)):
             cnt += 1
     return cnt == len(words)
