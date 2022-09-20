@@ -21,7 +21,7 @@ class TestHelperFunctions:
             ),
             (
                 "https://discord.gg/YcW3AtX",
-                r"(discord.gg\/)(?!YcW3AtX)(?!MmpqtqD)[a-z,A-Z,0-9]*",
+                r"(discord.gg\/)(?!YcW3AtX)(?!MmpqtqD)[A-Za-z0-9,]*",
                 "https://discord.gg/YcW3AtX",
             ),
         ],
