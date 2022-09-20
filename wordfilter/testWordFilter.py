@@ -14,7 +14,7 @@ class TestHelperFunctions:
             ("I am cool", "am", "I `**` cool"),
             (
                 "https://discord.gg/testing123",
-                r"(discord.gg\/)(?!YcW3AtX)(?!MmpqtqD)[a-z,A-Z,0-9]*",
+                r"(discord.gg\/)(?!YcW3AtX)(?!MmpqtqD)[a-zA-Z0-9]*",
                 "https://`*********************`",
             ),
             (
