@@ -621,7 +621,7 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
             await ctx.send("Sorry you have no filtered words in **{}**".format(ctx.guild.name))
 
 
-def _filterWord(words: List, string: str):
+def _filterWord(words: List[str], string: str):
     def _censorMatch(matchobj: re.Match):
         matchLength = len(matchobj.group(0))
         return f"`{'*' * matchLength}`"
