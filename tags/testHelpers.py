@@ -1,4 +1,5 @@
 import random
+import typing
 
 import pytest
 
@@ -12,8 +13,11 @@ class Utils:
         return "".join(random.choice(digits) for _ in range(len))
 
     @classmethod
-    def insertStringIntoString(cls, str1: str, str2: str, pos: int):
-        """Returns the result of inserting str1 into str2 at position pos."""
+    def insertStringIntoString(cls, str1: str, str2: str, pos: typing.Optional[int] = None):
+        """Returns the result of inserting str1 into str2 at position pos.
+        If pos is not specified, a random position in str2 will be chosen."""
+        if pos is None:
+            return Utils.insertStringIntoString(str1, str2, random.randint(0, len(str2)))
         return "".join((str2[:pos], str1, str2[pos:]))
 
 
@@ -31,43 +35,74 @@ class TestCheckLengthInRaw:
                 "~~**__`test`__**~~",
                 "~~**__```test```__**~~",
                 Utils.randomNumberString(constants.MAX_MSG_LEN),
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 4) + "test",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 12) + "**test**",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 32) + "~~**__`test`__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 64) + "~~**__`test`__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 40) + "~~**__```test```__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 64) + "~~**__```test```__**~~",
+                Utils.insertStringIntoString(
+                    "test",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 4),
+                ),
+                Utils.insertStringIntoString(
+                    "**test**",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 12),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__`test`__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 32),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__`test`__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 64),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__```test```__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 40),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__```test```__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 64),
+                ),
                 # cases with non-effective block-quotes
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 42) + ">~~**__```test```__**~~<",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 46)
-                + ">>>~~**__```test```__**~~<<<",
+                Utils.insertStringIntoString(
+                    ">~~**__```test```__**~~<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 42),
+                ),
+                Utils.insertStringIntoString(
+                    ">>>~~**__```test```__**~~<<<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 46),
+                ),
                 # cases with effective block-quotes
-                "> ~~**__```test```__**~~ <"
-                + Utils.randomNumberString(constants.MAX_MSG_LEN - 45),
-                ">>> ~~**__```test```__**~~ <<<"
-                + Utils.randomNumberString(constants.MAX_MSG_LEN - 49),
+                Utils.insertStringIntoString(
+                    "> ~~**__```test```__**~~ <",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 45),
+                    0,  # single-line block-quotes are only effective preceded by nothing and followed by something
+                ),
+                Utils.insertStringIntoString(
+                    ">>> ~~**__```test```__**~~ <<<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 49),
+                    0,  # single-line block-quotes are only effective preceded by nothing and followed by something
+                ),
                 # cases with non-ASCII characters
                 Utils.insertStringIntoString(
                     "~*_`ネコミミ大好き`_*~",
                     Utils.randomNumberString(constants.MAX_MSG_LEN - 23),
-                    random.randint(0, constants.MAX_MSG_LEN - 23),
                 ),
                 Utils.insertStringIntoString(
                     "~*_`ねこみみだいすき`_*~",
                     Utils.randomNumberString(constants.MAX_MSG_LEN - 24),
-                    random.randint(0, constants.MAX_MSG_LEN - 24),
                 ),
                 # cases with markdown-lookalike characters
                 Utils.insertStringIntoString(
-                    "~*_`バーバラ☆いっくよ！～`_*~",
-                    Utils.randomNumberString(constants.MAX_MSG_LEN - 27),
-                    random.randint(0, constants.MAX_MSG_LEN - 27),
+                    "‘＊＿~*_`バーバラ＊いっくよ！～`_*~＿＊‘",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 33),
                 ),
                 # cases with markdown effective block-quote lookalike characters
                 Utils.insertStringIntoString(
-                    "＞＞ ~*_`バーバラ☆いっくよ！～`_*~ ＜＜",
-                    Utils.randomNumberString(constants.MAX_MSG_LEN - 33),
-                    random.randint(0, constants.MAX_MSG_LEN - 33),
+                    "＞ ~*_`バーバラ＊いっくよ！～`_*~ ＜",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 31),
+                    0,
+                ),
+                Utils.insertStringIntoString(
+                    "＞＞＞ ~*_`バーバラ＊いっくよ！～`_*~ ＜＜＜",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 35),
+                    0,
                 ),
             ),
         ),
@@ -83,44 +118,78 @@ class TestCheckLengthInRaw:
             (
                 Utils.randomNumberString(constants.MAX_MSG_LEN * 2),
                 Utils.randomNumberString(constants.MAX_MSG_LEN + 1),
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 8) + "**test**",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 10) + "**test**",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 11) + "**test**",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 14) + "~~**__`test`__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 31) + "~~**__`test`__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 20) + "~~**__```test```__**~~",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 39) + "~~**__```test```__**~~",
+                Utils.insertStringIntoString(
+                    "**test**",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 8),
+                ),
+                Utils.insertStringIntoString(
+                    "**test**",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 10),
+                ),
+                Utils.insertStringIntoString(
+                    "**test**",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 11),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__`test`__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 14),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__`test`__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 31),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__```test```__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 20),
+                ),
+                Utils.insertStringIntoString(
+                    "~~**__```test```__**~~",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 39),
+                ),
                 # cases with non-effective block-quotes
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 41) + ">~~**__```test```__**~~<",
-                Utils.randomNumberString(constants.MAX_MSG_LEN - 45)
-                + ">>>~~**__```test```__**~~<<<",
+                Utils.insertStringIntoString(
+                    ">~~**__```test```__**~~<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 41),
+                ),
+                Utils.insertStringIntoString(
+                    ">>>~~**__```test```__**~~<<<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 45),
+                ),
                 # cases with effective block-quotes
-                "> ~~**__```test```__**~~ <"
-                + Utils.randomNumberString(constants.MAX_MSG_LEN - 44),
-                ">>> ~~**__```test```__**~~ <<<"
-                + Utils.randomNumberString(constants.MAX_MSG_LEN - 48),
+                Utils.insertStringIntoString(
+                    "> ~~**__```test```__**~~ <",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 44),
+                    0,
+                ),
+                Utils.insertStringIntoString(
+                    ">>> ~~**__```test```__**~~ <<<",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 48),
+                    0,
+                ),
                 # cases with non-ASCII characters
                 Utils.insertStringIntoString(
                     "~*_`ネコミミ大好き`_*~",
                     Utils.randomNumberString(constants.MAX_MSG_LEN - 22),
-                    random.randint(0, constants.MAX_MSG_LEN - 22),
                 ),
                 Utils.insertStringIntoString(
                     "~*_`ねこみみだいすき`_*~",
                     Utils.randomNumberString(constants.MAX_MSG_LEN - 23),
-                    random.randint(0, constants.MAX_MSG_LEN - 23),
                 ),
                 # cases with markdown-lookalike characters
                 Utils.insertStringIntoString(
-                    "~*_`バーバラ☆いっくよ！～`_*~",
-                    Utils.randomNumberString(constants.MAX_MSG_LEN - 26),
-                    random.randint(0, constants.MAX_MSG_LEN - 26),
+                    "‘＊＿~*_`バーバラ＊いっくよ！～`_*~＿＊‘",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 32),
                 ),
                 # cases with markdown effective block-quote lookalike characters
                 Utils.insertStringIntoString(
-                    "＞＞ ~*_`バーバラ☆いっくよ！～`_*~ ＜＜",
-                    Utils.randomNumberString(constants.MAX_MSG_LEN - 32),
-                    random.randint(0, constants.MAX_MSG_LEN - 32),
+                    "＞ ~*_`バーバラ＊いっくよ！～`_*~ ＜",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 30),
+                    0,
+                ),
+                Utils.insertStringIntoString(
+                    "＞＞＞ ~*_`バーバラ＊いっくよ！～`_*~ ＜＜＜",
+                    Utils.randomNumberString(constants.MAX_MSG_LEN - 34),
+                    0,
                 ),
             ),
         ),
