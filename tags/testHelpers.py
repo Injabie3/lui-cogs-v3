@@ -108,7 +108,7 @@ class TestCheckLengthInRaw:
         ),
     )
     def testGoodCases(self, content: str):
-        assert helpers.checkLengthInRaw(content) == True
+        assert helpers.checkLengthInRaw(content)
 
     # bad cases
     @pytest.mark.parametrize(
@@ -195,4 +195,4 @@ class TestCheckLengthInRaw:
         ),
     )
     def testBadCases(self, content: str):
-        assert helpers.checkLengthInRaw(content) == False
+        assert not helpers.checkLengthInRaw(content)
