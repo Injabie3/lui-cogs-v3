@@ -153,14 +153,10 @@ class Birthday(commands.Cog):
             )
             return
 
-        # Check if both the inputs are empty, for this case set the birthday as current day
-        # If one of the parameters are missing, then send error message
         if not birthday:
-            day = int(time.strftime("%d"))
-            month = int(time.strftime("%m"))
-        else:
-            day = birthday.day
-            month = birthday.month
+            birthday = datetime.today()
+        day = birthday.day
+        month = birthday.month
 
         def check(msg: discord.Message):
             return msg.author == ctx.author and msg.channel == ctx.channel
