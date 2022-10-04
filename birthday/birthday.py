@@ -589,6 +589,9 @@ class Birthday(commands.Cog):
 
     async def birthdayLoop(self):
         """The main event loop that will call the add and sweep methods."""
+        self.logger.info("Waiting for bot to be ready")
+        await self.bot.wait_until_red_ready()
+        self.logger.info("Bot is ready")
         while self == self.bot.get_cog("Birthday"):
             if self.lastChecked.day != datetime.now().day:
                 self.lastChecked = datetime.now()
