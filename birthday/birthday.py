@@ -592,6 +592,23 @@ class Birthday(commands.Cog):
             await allowSelfBirthdayConfig.set(True)
             await ctx.send(msgAllow)
 
+    def getBirthdayMessage(self, member: discord.Member) -> str:
+        """Get the birthday message.
+
+        Parameters
+        ----------
+        member: discord.Member
+            The member that we want the birthday message for.
+
+        Returns
+        -------
+        str
+            The birthday message, already formatted.
+        """
+        if self.bot.user.id == member.id:
+            return "Wow! It's my own birthday! Happy birthday to myself!"
+        return choice(CANNED_MESSAGES).format(member.mention)
+
     async def checkBirthday(self):
         """Check birthday list once."""
         await self._dailySweep()
@@ -729,7 +746,8 @@ class Birthday(commands.Cog):
                                 continue
                             try:
                                 msg = choice(CANNED_MESSAGES)
-                                await channel.send(msg.format(member.mention))
+                                msg = self.getBirthdayMessage(member)
+                                await channel.send(msg)
                             except discord.Forbidden:
                                 self.logger.error(
                                     "Could not send message!", exc_info=True,
