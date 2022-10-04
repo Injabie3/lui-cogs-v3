@@ -606,7 +606,7 @@ class Birthday(commands.Cog):
             The birthday message, already formatted.
         """
         if self.bot.user.id == member.id:
-            return "Wow! It's my own birthday! Happy birthday to myself!"
+            return BOT_BIRTHDAY
         return choice(CANNED_MESSAGES).format(member.mention)
 
     async def checkBirthday(self):
