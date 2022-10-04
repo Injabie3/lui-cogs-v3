@@ -4,9 +4,7 @@ import pytest
 
 
 from .birthday import Birthday
-from .constants import CANNED_MESSAGES
-
-BOT_BIRTHDAY = "Wow! It's my own birthday! Happy birthday to myself!"
+from .constants import BOT_BIRTHDAY_MSG, CANNED_MESSAGES
 
 
 class MockUser:
@@ -53,4 +51,4 @@ class TestBirthdayHelpers:
         mockUser = MockUser(1234, "Ren")
 
         msg = birthday.getBirthdayMessage(mockUser)
-        assert msg == BOT_BIRTHDAY
+        assert msg == BOT_BIRTHDAY_MSG

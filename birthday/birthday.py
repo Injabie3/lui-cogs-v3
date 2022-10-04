@@ -48,8 +48,8 @@ class Birthday(commands.Cog):
     def __init__(self, bot: Red):
         self.bot = bot
         self.bgTask: asyncio.Task = None
-        self.config = None
-        self.lastChecked = None
+        self.config: Config = None
+        self.lastChecked: datetime = None
         self.logger: logging.Logger = None
 
         self.initializeConfigAndLogger()
@@ -606,7 +606,7 @@ class Birthday(commands.Cog):
             The birthday message, already formatted.
         """
         if self.bot.user.id == member.id:
-            return BOT_BIRTHDAY
+            return BOT_BIRTHDAY_MSG
         return choice(CANNED_MESSAGES).format(member.mention)
 
     async def checkBirthday(self):
@@ -745,7 +745,6 @@ class Birthday(commands.Cog):
                             if not channel:
                                 continue
                             try:
-                                msg = choice(CANNED_MESSAGES)
                                 msg = self.getBirthdayMessage(member)
                                 await channel.send(msg)
                             except discord.Forbidden:
