@@ -22,9 +22,7 @@ class Birthday(commands.Cog):
     """Adds a role to someone on their birthday, and automatically remove them
     from this role after the day is over."""
 
-    # Class constructor
-    def __init__(self, bot: Red):
-        self.bot = bot
+    def initializeConfigAndLogger(self):
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         # Register default (empty) settings.
         self.config.register_guild(**BASE_GUILD)
@@ -41,9 +39,21 @@ class Birthday(commands.Cog):
             )
             self.logger.addHandler(handler)
 
+    def initializeBgTask(self):
         # On cog load, we want the loop to run once.
         self.lastChecked = datetime.now() - timedelta(days=1)
         self.bgTask = self.bot.loop.create_task(self.birthdayLoop())
+
+    # Class constructor
+    def __init__(self, bot: Red):
+        self.bot = bot
+        self.bgTask: asyncio.Task = None
+        self.config = None
+        self.lastChecked = None
+        self.logger: logging.Logger = None
+
+        self.initializeConfigAndLogger()
+        self.initializeBgTask()
 
     # Cancel the background task on cog unload.
     def __unload(self):  # pylint: disable=invalid-name
