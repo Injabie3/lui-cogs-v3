@@ -5,24 +5,24 @@ import os
 from random import choice
 import time  # To auto remove birthday role on the next day.
 import asyncio
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import discord
+import typing
 from redbot.core import Config, checks, commands, data_manager
 from redbot.core.commands.context import Context
 from redbot.core.utils import AsyncIter
 from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
-from redbot.core.utils.chat_formatting import pagify, warning
+from redbot.core.utils.chat_formatting import bold, pagify, spoiler, warning
 from redbot.core.bot import Red
 from .constants import *
+from .converters import MonthDayConverter
 
 
 class Birthday(commands.Cog):
     """Adds a role to someone on their birthday, and automatically remove them
     from this role after the day is over."""
 
-    # Class constructor
-    def __init__(self, bot: Red):
-        self.bot = bot
+    def initializeConfigAndLogger(self):
         self.config = Config.get_conf(self, identifier=5842647, force_registration=True)
         # Register default (empty) settings.
         self.config.register_guild(**BASE_GUILD)
@@ -39,9 +39,21 @@ class Birthday(commands.Cog):
             )
             self.logger.addHandler(handler)
 
+    def initializeBgTask(self):
         # On cog load, we want the loop to run once.
         self.lastChecked = datetime.now() - timedelta(days=1)
         self.bgTask = self.bot.loop.create_task(self.birthdayLoop())
+
+    # Class constructor
+    def __init__(self, bot: Red):
+        self.bot = bot
+        self.bgTask: asyncio.Task = None
+        self.config: Config = None
+        self.lastChecked: datetime = None
+        self.logger: logging.Logger = None
+
+        self.initializeConfigAndLogger()
+        self.initializeBgTask()
 
     # Cancel the background task on cog unload.
     def __unload(self):  # pylint: disable=invalid-name
@@ -52,7 +64,6 @@ class Birthday(commands.Cog):
 
     @commands.group(name="birthday")
     @commands.guild_only()
-    @checks.mod_or_permissions(administrator=True)
     async def _birthday(self, ctx: Context):
         """Birthday role assignment settings."""
 
@@ -116,6 +127,7 @@ class Birthday(commands.Cog):
 
     @_birthday.command(name="test")
     @commands.guild_only()
+    @checks.mod_or_permissions(administrator=True)
     async def test(self, ctx: Context):
         """Test at-mentions."""
         for msg in CANNED_MESSAGES:
@@ -125,9 +137,11 @@ class Birthday(commands.Cog):
     @commands.guild_only()
     @checks.mod_or_permissions(administrator=True)
     async def addMemberBirthday(
-        self, ctx: Context, member: discord.Member, month: int = None, day: int = None
+        self, ctx: Context, member: discord.Member, *, birthday: MonthDayConverter = None
     ):
-        """Add a user's birthday to the list. If date is not specified, it will default to the current day.
+        """Add a user's birthday to the list.
+
+        If the birthday is not specified, it defaults to today.
         On the day, the bot will automatically add the user to the birthday role.
 
         Parameters:
@@ -135,11 +149,9 @@ class Birthday(commands.Cog):
         member: discord.Member
             The member whose birthday is being assigned.
 
-        month: int (optional)
-            The birthday month, between 1 and 12 inclusive.
-
-        day: int (optional)
-            The birthday day, range between 1 and 31 inclusive, depending on month.
+        birthday: (optional)
+            The user's birthday, with the year omitted. If entering only numbers, specify the month first.
+            For example: Feb 29, February 29, 2/29.
         """
         rid = await self.config.guild(ctx.guild).get_attr(KEY_BDAY_ROLE)()
 
@@ -151,28 +163,10 @@ class Birthday(commands.Cog):
             )
             return
 
-        # Check if both the inputs are empty, for this case set the birthday as current day
-        # If one of the parameters are missing, then send error message
-        if month == None and day == None:
-            day = int(time.strftime("%d"))
-            month = int(time.strftime("%m"))
-
-        elif month == None or day == None:
-            await ctx.send(
-                ":negative_squared_cross_mark: **Birthday - Add**: "
-                "Please enter a valid birthday!"
-            )
-            return
-
-        # Check inputs here.
-        try:
-            userBirthday = datetime(2020, month, day)
-        except ValueError:
-            await ctx.send(
-                ":negative_squared_cross_mark: **Birthday - Add**: "
-                "Please enter a valid birthday!"
-            )
-            return
+        if not birthday:
+            birthday = datetime.today()
+        day = birthday.day
+        month = birthday.month
 
         def check(msg: discord.Message):
             return msg.author == ctx.author and msg.channel == ctx.channel
@@ -203,7 +197,7 @@ class Birthday(commands.Cog):
         confMsg = await ctx.send(
             ":white_check_mark: **Birthday - Add**: Successfully {0} **{1}**'s birthday "
             "as **{2:%B} {2:%d}**. The role will be assigned automatically on this "
-            "day.".format("updated" if birthdayExists else "added", member.name, userBirthday)
+            "day.".format("updated" if birthdayExists else "added", member.name, birthday)
         )
 
         # Explicitly check to see if user should be added to role, if the month
@@ -227,7 +221,7 @@ class Birthday(commands.Cog):
             member.name,
             member.discriminator,
             member.id,
-            userBirthday.strftime("%B %d"),
+            birthday.strftime("%B %d"),
         )
         return
 
@@ -416,6 +410,205 @@ class Birthday(commands.Cog):
         )
         return
 
+    @_birthday.group(name="self", aliases=["me"])
+    @commands.guild_only()
+    async def me(self, ctx: Context):
+        """Manage your birthday."""
+        # this method is not named "self" because it is a Python reserved keyword
+
+    @me.command("get", aliases=["display", "show"])
+    @commands.guild_only()
+    async def getSelfBirthday(self, ctx: Context):
+        """Display your birthday."""
+        fnTitle = "Birthday - Get Self's Birthday"
+        headerBad = f":negative_squared_cross_mark: {bold(fnTitle)}"
+        headerGood = f":white_check_mark: {bold(fnTitle)}"
+
+        birthdayConfig = self.config.member(ctx.author)
+        if birthdayConfig:
+            details: typing.Dict = await birthdayConfig.all()
+            if details:
+                month: int = details.get(KEY_BDAY_MONTH)
+                day: int = details.get(KEY_BDAY_DAY)
+                if month and day:
+                    birthday = date(2020, month, day)
+                    birthdayStr = "{0:%B} {0:%d}".format(birthday)
+                    await ctx.author.send(
+                        f"{headerGood}: Your birthday is "
+                        f"{spoiler(bold(birthdayStr, escape_formatting=False), escape_formatting=False)}."
+                    )
+                    return
+
+        setSelfBirthdayCmd: commands.Command = self.setSelfBirthday
+        helpSetSelfBirthdayCmdStr = (
+            # pylint: disable=no-member
+            f"`{ctx.clean_prefix}help {setSelfBirthdayCmd.qualified_name}`"
+            # pylint: enable=no-member
+        )
+
+        replyMsg = (
+            f"{headerBad}: "
+            "Your birthday in this server has not been set. "
+            "Please contact an administrator/moderator, or, "
+            "if it is allowed by the server's admins and/or "
+            "moderators, try setting it yourself. Reference "
+            f"{helpSetSelfBirthdayCmdStr} for the command syntax."
+        )
+        await ctx.send(replyMsg)
+
+    @me.command("set", aliases=["add"])
+    @commands.guild_only()
+    async def setSelfBirthday(self, ctx: Context, *, birthday: MonthDayConverter):
+        """Set your birthday.
+
+        If this function is enabled, you can set your birthday ONCE, and ONLY IF your
+        birthday were not already set. Otherwise, if not enabled, you need to contact an
+        administrator or a moderator in case you want to have your birthday erased and/or set.
+
+        For your privacy, you can delete the command message right away after sending it.
+
+        Parameters
+        ----------
+        birthday:
+            Your birthday, with the year omitted. If entering only numbers, specify the month first.
+            For example: Feb 29, February 29, 2/29.
+        """
+        fnTitle = "Birthday - Set Self's Birthday"
+        headerBad = f":negative_squared_cross_mark: {bold(fnTitle)}"
+        headerGood = f":white_check_mark: {bold(fnTitle)}"
+        headerWarn = warning(bold(fnTitle))
+
+        if not await self.config.guild(ctx.guild).get_attr(KEY_ALLOW_SELF_BDAY)():
+            await ctx.send(
+                f"{headerBad}: "
+                "This function is not enabled. You cannot set your birthday. "
+                "Please let an administrator or a moderator know if you "
+                "believe this function should be enabled."
+            )
+            return
+
+        birthdayConfig = self.config.member(ctx.author)
+        if birthdayConfig:
+            birthMonth = birthdayConfig.get_attr(KEY_BDAY_MONTH)
+            birthDay = birthdayConfig.get_attr(KEY_BDAY_DAY)
+            if birthMonth and birthDay and await birthMonth() and await birthDay():
+                await ctx.send(
+                    f"{headerBad}: "
+                    "Your birthday is already set. If you believe it is "
+                    "incorrect, please contact an admin or a moderator."
+                )
+                return
+
+        birthdayRoleId = await self.config.guild(ctx.guild).get_attr(KEY_BDAY_ROLE)()
+
+        if not birthdayRoleId:
+            await ctx.send(
+                f"{headerBad}: "
+                "This server is not configured, please let a server "
+                "administrator or moderator know."
+            )
+            return
+
+        birthdayStr = "{0:%B} {0:%d}".format(birthday)
+
+        if birthdayConfig:
+            confirmationStr = (
+                f"Are you sure you want to set your birthday to "
+                f"{spoiler(bold(birthdayStr, escape_formatting=False), escape_formatting=False)}? "
+                "Only administrators and moderators can reset your birthday afterwards. "
+                f"Type {bold('`yes`', escape_formatting=False)} to confirm."
+            )
+
+            await ctx.author.send(f"{headerWarn}: {confirmationStr}")
+
+            def check(msg: discord.Message):
+                return msg.author == ctx.author and msg.channel == ctx.author.dm_channel
+
+            try:
+                response = await self.bot.wait_for("message", timeout=30.0, check=check)
+            except asyncio.TimeoutError:
+                # hide the birthday portion within the previous message
+                await ctx.author.send(
+                    f"{headerBad}: You took too long. Not setting your birthday."
+                )
+                return
+
+            if response.content.lower() != "yes":
+                await ctx.author.send(f"{headerBad}: Declined. Not setting your birthday.")
+                return
+
+            await birthdayConfig.get_attr(KEY_BDAY_MONTH).set(birthday.month)
+            await birthdayConfig.get_attr(KEY_BDAY_DAY).set(birthday.day)
+            await birthdayConfig.get_attr(KEY_ADDED_BEFORE).set(True)
+
+            await ctx.author.send(
+                f"{headerGood}: Successfully set your birthday to "
+                f"{spoiler(bold(birthdayStr, escape_formatting=False), escape_formatting=False)}."
+            )
+
+            self.logger.info(
+                "%s#%s (%s) added their birthday as %s",
+                ctx.author.name,
+                ctx.author.discriminator,
+                ctx.author.id,
+                birthdayStr,
+            )
+
+            # explicitly check to see if user should be added to role, if the month
+            # and day just so happen to be the same as it is now.
+            await self.checkBirthday()
+            return
+
+        raise Exception("Error while accessing member's birthday config. This should not happen!")
+
+    @_birthday.command(name="selfbirthday")
+    @commands.guild_only()
+    @checks.mod_or_permissions(administrator=True)
+    async def toggleSelfBirthday(self, ctx: Context):
+        """Allow or disallow members to set their birthdays themselves.
+
+        If allowed, members can set their birthdays themselves ONCE, and
+        ONLY IF their birthdays were not already set. Otherwise, if not
+        allowed, members need to contact an administrator or a moderator
+        in case they want to have their birthdays erased and/or set.
+        """
+        fnTitle = "Birthday - Toggle Self Birthday"
+        headerGood = f":white_check_mark: {bold(fnTitle)}"
+
+        msgAllow = (
+            f"{headerGood}: "
+            f"{bold('Enabled')}. Members can set their birthdays themselves "
+            f"{bold('ONCE')} and {bold('ONLY IF')} their birthdays were not already set."
+        )
+        msgNotAllow = (
+            f"{headerGood}: {bold('Disabled')}. Members cannot set their birthdays themselves."
+        )
+        guildConfig = self.config.guild(ctx.guild)
+        allowSelfBirthdayConfig = guildConfig.get_attr(KEY_ALLOW_SELF_BDAY)
+        if await allowSelfBirthdayConfig():
+            await allowSelfBirthdayConfig.set(False)
+            await ctx.send(msgNotAllow)
+        else:
+            await allowSelfBirthdayConfig.set(True)
+            await ctx.send(msgAllow)
+
+    def getBirthdayMessage(self, member: discord.Member) -> str:
+        """Get the birthday message.
+
+        Parameters
+        ----------
+        member: discord.Member
+            The member that we want the birthday message for.
+
+        Returns
+        -------
+        str
+            The birthday message, already formatted.
+        """
+        if self.bot.user.id == member.id:
+            return BOT_BIRTHDAY_MSG
+        return choice(CANNED_MESSAGES).format(member.mention)
+
     async def checkBirthday(self):
         """Check birthday list once."""
         await self._dailySweep()
@@ -423,6 +616,9 @@ class Birthday(commands.Cog):
 
     async def birthdayLoop(self):
         """The main event loop that will call the add and sweep methods."""
+        self.logger.info("Waiting for bot to be ready")
+        await self.bot.wait_until_red_ready()
+        self.logger.info("Bot is ready")
         while self == self.bot.get_cog("Birthday"):
             if self.lastChecked.day != datetime.now().day:
                 self.lastChecked = datetime.now()
@@ -549,8 +745,8 @@ class Birthday(commands.Cog):
                             if not channel:
                                 continue
                             try:
-                                msg = choice(CANNED_MESSAGES)
-                                await channel.send(msg.format(member.mention))
+                                msg = self.getBirthdayMessage(member)
+                                await channel.send(msg)
                             except discord.Forbidden:
                                 self.logger.error(
                                     "Could not send message!", exc_info=True,
