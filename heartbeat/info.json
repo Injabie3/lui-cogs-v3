@@ -4,6 +4,7 @@
     "short" : "Punch a heartbeat to an uptime checker",
     "description" : "This cog allows you to punch a heartbeat to an uptime checker like StatusCake.",
     "install_msg" : "Thanks for installing Heartbeat. Please run [p]heartbeatset to configure your heartbeat.",
+    "min_bot_version" : "3.5.0",
     "requirements" : ["requests"],
     "tags" : ["heartbeat", "uptime"],
     "permissions" : [],
