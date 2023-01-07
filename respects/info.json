@@ -4,6 +4,7 @@
     "short" : "Press f to pay respects.",
     "description" : "This cog allows users to pay respects, aggregating closely paid respects into one message. It supports replies.",
     "install_msg" : "Thanks for installing Respects. Use `[p]f` to pay respects, and `[p]setf` to configure other settings.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : [],
     "permissions" : [],
