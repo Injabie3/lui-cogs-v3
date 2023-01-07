@@ -4,6 +4,7 @@
     "short" : "Automatically react to messages with emojis.",
     "description" : "A v2 port of flapjax's SmartReact cog, with the ability to refresh custom emojis.",
     "install_msg" : "Thanks for installing SmartReact. Run [p]smartreact to configure.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : ["reactions"],
     "permissions" : ["add_reactions"],
