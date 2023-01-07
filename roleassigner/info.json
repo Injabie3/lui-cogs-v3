@@ -5,6 +5,7 @@
     "description": "This cog allows you to assign random roles from a pool to all users or users of a particular role.",
     "end_user_data_statement": "This cog does not store user data.",
     "install_msg": "Thanks for installing RoleAssigner. Please run [p]roleassigner or [p]ra to see all the relevant commands.",
+    "min_bot_version" : "3.5.0",
     "requirements": [],
     "tags": ["roles"]
 }
