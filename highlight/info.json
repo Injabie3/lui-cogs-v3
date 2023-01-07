@@ -4,6 +4,7 @@
     "short" : "DM a user on words they care about.",
     "description" : "This cog is a Slack-like feature that allows users to be notified based on specific words outside of at-mentions",
     "install_msg" : "Thanks for installing Highlight. Please run [p]highlight to see all the relevant commands.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : ["notifications", "dm"],
     "permissions" : [],
