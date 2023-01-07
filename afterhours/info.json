@@ -5,6 +5,7 @@
     "description" : "This cog applies cog-specific exceptions for the #after-hours channel in SAD. Its use is limited outside of the club.",
     "hidden": true,
     "install_msg" : "Thanks for installing the AfterHours cog. Run [p]afterhours to configure.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : [],
     "end_user_data_statement": "This cog stores when a user last spoke in a configured channel."
