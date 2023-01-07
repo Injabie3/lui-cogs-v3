@@ -4,6 +4,7 @@
     "short" : "Manage your YOURLS instance from Discord!",
     "description" : "This cog allows you to manage a YOURLS instance on a per-guild basis. It requires the `yourls-api-delete`, `yourls-api-edit-url`, and `yourls-api-search-keywords` plugins to be installed on your YOURLS instance.",
     "install_msg" : "Thanks for installing the YOURLS client. Before using this cog, be sure to install the `yourls-api-delete`, `yourls-api-edit-url`, and `yourls-api-search-keywords` plugins on your YOURLS instance, otherwise `[p]yourls delete`, `[p]yourls edit`, `[p]yourls rename`, and `[p]yourls search` will not work. To configure, please see the commands under `[p]yourls settings`.",
+    "min_bot_version" : "3.5.0",
     "requirements" : ["git+https://github.com/Injabie3/yourls-python.git"],
     "tags" : ["url-shortener"],
     "permissions" : [],
