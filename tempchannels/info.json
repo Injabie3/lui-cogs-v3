@@ -4,6 +4,7 @@
     "short" : "Create a temporary text channel.",
     "description" : "This cog helps create a temporary text channel for a certain duration, and is automatically deleted afterwards. Supports role locking and more",
     "install_msg" : "Thanks for installing TempChannels. Please run `[p]tempchannels` to configure its settings.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : ["temporary"],
     "permissions" : [],
