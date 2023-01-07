@@ -4,6 +4,7 @@
     "short" : "Save repetitive messages in a short tag for later access.",
     "description" : "This cog is a port of the Danny bot's tags module by Rapptz from the async branch days, with addition modifications.",
     "install_msg" : "Thanks for installing Tags. Please run `[p]tag` to see commands, and `[p]tag settings` to configure additional settings.",
+    "min_bot_version" : "3.5.0",
     "requirements" : [],
     "tags" : ["fun", "tags"],
     "permissions" : [],
