@@ -4,6 +4,7 @@
     "short" : "Feeling triggered? Say no more, fam.",
     "description" : "This cog is a custom rework of spoopy's triggered command, except with more :)",
     "install_msg" : "Thanks for installing Triggered.",
+    "min_bot_version" : "3.5.0",
     "requirements" : ["Pillow"],
     "tags" : ["fun"],
     "permissions" : [],
