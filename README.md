@@ -1,16 +1,12 @@
 # lui-cogs-v3
 Custom cogs for Red-DiscordBot v3, used by the SFU Anime Club.
 
-## Red-DiscordBot v3.5.x / discord.py v2.x Notes
-We are aware of the move towards discord.py v2.x. This will introduce breaking
-changes to our cogs, and as such, we have been migrating them over in the `dpy2`
-branch.
+## Red-DiscordBot v3.4.x / discord.py v1.7.3 Only!
+This branch contains cogs suitable for Red-DiscordBot v3.4.x/discord.py v1.7.3 only.
+For Red-DiscordBot v3.5.x/discord.py v2.x, please use the `dpy2` branch!
 
-This task is being tracked in [Injabie3/lui-cogs-v3#3][1]. Should you be using a cog
-that hasn't been migrated yet, please leave a comment there and we will do our best
-to expedite the changes. Otherwise, you are welcome to open a PR.
-
-[1]: https://github.com/Injabie3/lui-cogs-v3/issues/3
+Since we have migrated to discord.py v2.x, we will not be adding new features to
+these cogs.
 
 ## Cogs
 Below are some of the cogs we have. 
