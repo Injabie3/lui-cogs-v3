@@ -42,16 +42,20 @@ Below are some of the cogs we have.
 - `afterhours`: An SFU Anime Discord-specific cog used to add special exceptions. It
   is used in tandem with the `tempchannels` cog. Its usage is limited outside the
   scope of this guild.
+- `smartreact`: A v3 port of smartreact from flapjax/FlapJack-Cogs. There is probably
+  a v3 port from the original author.
+- `tempchannels`: Create 1 temporary channel that is automatically deleted after the
+  configured duration expires.
+
+
+### Unsupported
+The following cogs are currently not supported with discord.py v2.x:
 - `avatar`: Save avatar images of all users when they change, which is useful for
   making videos for the server. Requires backend console access.
 - `catgirl`: A v3 port of my previous catgirl cog on v2. Needs refactoring. Adding
   new images requires backend console access.
 - `rss`: An RSS feed poster. Requires backend console access.
-- `smartreact`: A v3 port of smartreact from flapjax/FlapJack-Cogs. There is probably
-  a v3 port from the original author.
 - `stats`: WIP.
-- `tempchannels`: Create 1 temporary channel that is automatically deleted after the
-  configured duration expires.
 
 ## Important Notes
 1. `tags`
@@ -80,7 +84,7 @@ your prefix is `ren` (replace with your bot's prefix).
 ## Support
 As this is a side project, I am not able to provide support in a particularly timely
 manner. That being said, if you find any issues, please feel free to open an issue in
-the [SFUAnime/Ren][SFUAnime/Ren] repo, and we can take a look into it.
+this repo or the [SFUAnime/Ren][SFUAnime/Ren] repo, and we can take a look into it.
 
 [SFUAnime/Ren]: https://github.com/SFUAnime/Ren
 [api-edit]: https://github.com/SFUAnime/yourls-api-edit-url
