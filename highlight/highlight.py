@@ -220,8 +220,7 @@ class Highlight(commands.Cog):
                 embed = discord.Embed(description=msg, colour=discord.Colour.red())
                 if ctx.message.author.avatar:
                     embed.set_author(
-                        name=ctx.message.author.name,
-                        icon_url=ctx.message.author.avatar.url
+                        name=ctx.message.author.name, icon_url=ctx.message.author.avatar.url
                     )
                 try:
                     await ctx.message.author.send(embed=embed)
@@ -338,10 +337,7 @@ class Highlight(commands.Cog):
                 embed = discord.Embed(description=msg, colour=discord.Colour.red())
                 embed.title = "Blacklisted users on {}".format(ctx.message.guild.name)
                 if ctx.message.author.avatar:
-                    embed.set_author(
-                        name=userName,
-                        icon_url=ctx.message.author.avatar.url
-                    )
+                    embed.set_author(name=userName, icon_url=ctx.message.author.avatar.url)
                 try:
                     await ctx.message.author.send(embed=embed)
                 except discord.Forbidden:
@@ -432,8 +428,7 @@ class Highlight(commands.Cog):
                 embed = discord.Embed(description=msg, colour=discord.Colour.red())
                 if ctx.message.author.avatar:
                     embed.set_author(
-                        name=ctx.message.author.name,
-                        icon_url=ctx.message.author.avatar.url
+                        name=ctx.message.author.name, icon_url=ctx.message.author.avatar.url
                     )
                 try:
                     await ctx.message.author.send(embed=embed)
@@ -557,8 +552,7 @@ class Highlight(commands.Cog):
                 embed = discord.Embed(description=msg, colour=discord.Colour.red())
                 if ctx.message.author.avatar:
                     embed.set_author(
-                        name=ctx.message.author.name,
-                        icon_url=ctx.message.author.avatar.url
+                        name=ctx.message.author.name, icon_url=ctx.message.author.avatar.url
                     )
                 try:
                     await ctx.message.author.send(embed=embed)
