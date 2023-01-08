@@ -42,6 +42,7 @@ Below are some of the cogs we have.
 - `afterhours`: An SFU Anime Discord-specific cog used to add special exceptions. It
   is used in tandem with the `tempchannels` cog. Its usage is limited outside the
   scope of this guild.
+- `rss`: An RSS feed poster. Requires backend console access.
 - `smartreact`: A v3 port of smartreact from flapjax/FlapJack-Cogs. There is probably
   a v3 port from the original author.
 - `tempchannels`: Create 1 temporary channel that is automatically deleted after the
@@ -54,7 +55,6 @@ The following cogs are currently not supported with discord.py v2.x:
   making videos for the server. Requires backend console access.
 - `catgirl`: A v3 port of my previous catgirl cog on v2. Needs refactoring. Adding
   new images requires backend console access.
-- `rss`: An RSS feed poster. Requires backend console access.
 - `stats`: WIP.
 
 ## Important Notes
