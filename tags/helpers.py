@@ -64,7 +64,7 @@ async def createSimplePages(
         if embedAuthor:
             embed.set_author(
                 name=embedAuthor.display_name,
-                icon_url=embedAuthor.avatar_url or embedAuthor.default_avatar_url,
+                icon_url=embedAuthor.display_avatar.url,
             )
         pageList.append(embed)
 
