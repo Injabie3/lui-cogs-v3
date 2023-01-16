@@ -70,8 +70,8 @@ class Respects(commands.Cog):
                 # Respects exists, user has not paid their respects yet.
                 await self.payRespects(ctx)
             else:
-                # Respects already paid by user!
-                pass
+                await ctx.send("You have already paid your respects!", ephemeral=True)
+
             try:
                 await ctx.message.delete()
             except NotFound:
