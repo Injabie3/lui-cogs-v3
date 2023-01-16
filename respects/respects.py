@@ -57,7 +57,7 @@ class Respects(commands.Cog):
             self.logger.addHandler(handler)
 
     @commands.bot_has_permissions(send_messages=True, manage_messages=True)
-    @commands.command(name="f")
+    @commands.hybrid_command(name="f")
     @commands.guild_only()
     async def plusF(self, ctx: Context):
         """Pay your respects."""
