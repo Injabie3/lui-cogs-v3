@@ -69,15 +69,16 @@ class Respects(commands.Cog):
             elif not await self.checkIfUserPaidRespect(ctx):
                 # Respects exists, user has not paid their respects yet.
                 await self.payRespects(ctx)
-            else:
+            elif ctx.interaction is not None:
                 await ctx.send("You have already paid your respects!", ephemeral=True)
+                return
 
-            try:
-                await ctx.message.delete()
-            except NotFound:
-                self.logger.debug("Could not find the old respect")
-            except HTTPException:
-                self.logger.error("Could not retrieve the old respect", exc_info=True)
+        try:
+            await ctx.message.delete()
+        except NotFound:
+            self.logger.debug("Could not find the old respect")
+        except HTTPException:
+            self.logger.error("Could not retrieve the old respect", exc_info=True)
 
     @checks.mod_or_permissions(manage_messages=True)
     @commands.group(name="setf")
