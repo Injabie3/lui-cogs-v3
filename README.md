@@ -23,6 +23,8 @@ Below are some of the cogs we have.
   icon and banner changes on certain days at midnight.
 - `sfu`: Access publicly available information from Simon Fraser University,
   including campus webcams, course information, and road report.
+- `slashsync`: Automatically sync slash commands when the bot starts up, and exposes
+  a `[p]sync` command to sync commands on demand after loading or unloading a cog.
 - `spoilers`: A v3 port of our legacy v2 emoji-based spoiler cog, before Discord
   implemented spoilers natively in the client.
 - `tags`: A v3 port of tags from Rapptz's RoboDanny bot, with additional functions
