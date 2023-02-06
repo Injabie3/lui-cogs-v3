@@ -17,6 +17,11 @@ class CommandHandlers(CommandsCore):
     async def _cmdQrCheckerToggle(self, ctx: Context):
         await self.cmdQrCheckerToggle(ctx=ctx)
 
+    @_grpQrChecker.command("show")
+    async def _cmdQrCheckerShow(self, ctx: Context):
+        """Show current settings"""
+        await self.cmdQrCheckerShow(ctx=ctx)
+
     @_grpQrChecker.command(name="size")
     async def _cmdQrCheckerSize(self, ctx: Context, *, pixels: Optional[int]):
         """Set the maximum image pixels to check.

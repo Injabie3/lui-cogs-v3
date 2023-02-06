@@ -24,6 +24,16 @@ class CommandsCore(Core):
             await guildConfig.get_attr(KEY_ENABLED).set(True)
             await ctx.send("QR code checking is now **enabled** for this guild.")
 
+    async def cmdQrCheckerShow(self, ctx: Context):
+        """Show current settings"""
+        pixels = await self.config.get_attr(KEY_MAX_IMAGE_DIMENSIONS)()
+        enabled = await self.config.guild(ctx.guild).get_attr(KEY_ENABLED)()
+        msg = "**__Global settings:__**\n"
+        msg += f"Max pixels: **{'Unlimited' if not pixels else pixels} pixels**\n\n"
+        msg += "**__Guild settings:__**\n"
+        msg += f"Enabled: **{'Yes' if enabled else 'No'}**"
+        await ctx.send(msg)
+
     async def cmdQrCheckerMaxSize(self, ctx: Context, *, pixels: Optional[int]):
         """Set the maximum image pixels to check.
 
