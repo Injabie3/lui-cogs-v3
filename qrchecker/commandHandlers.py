@@ -15,6 +15,7 @@ class CommandHandlers(CommandsCore):
 
     @_grpQrChecker.command(name="toggle")
     async def _cmdQrCheckerToggle(self, ctx: Context):
+        """Toggle QR code checking"""
         await self.cmdQrCheckerToggle(ctx=ctx)
 
     @_grpQrChecker.command("show")
