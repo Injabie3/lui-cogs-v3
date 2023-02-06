@@ -51,7 +51,7 @@ class CommandsCore(Core):
             return
         elif not pixels:
             await ctx.send(
-                success("Disabled max pixels. The bot will check images of " "any size.")
+                success("Disabled max pixels. The bot will check images of any size.")
             )
         else:
             await ctx.send(success(f"Max image pixels set to: **{pixels} pixels**."))
