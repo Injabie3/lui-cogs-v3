@@ -56,5 +56,4 @@ class CommandsCore(Core):
         else:
             await ctx.send(success(f"Max image pixels set to: **{pixels} pixels**."))
 
-        await self.config.get_attr(KEY_MAX_IMAGE_PIXELS).set(pixels)
-        Image.MAX_IMAGE_PIXELS = pixels
+        await self.setMaxImagePixels(value=pixels)
