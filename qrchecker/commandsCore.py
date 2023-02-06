@@ -4,7 +4,7 @@ from PIL import Image
 from redbot.core.commands import Context
 from redbot.core.utils.chat_formatting import success
 
-from .constants import KEY_ENABLED, KEY_MAX_IMAGE_DIMENSIONS
+from .constants import KEY_ENABLED, KEY_MAX_IMAGE_PIXELS
 from .core import Core
 
 
@@ -26,7 +26,7 @@ class CommandsCore(Core):
 
     async def cmdQrCheckerShow(self, ctx: Context):
         """Show current settings"""
-        pixels = await self.config.get_attr(KEY_MAX_IMAGE_DIMENSIONS)()
+        pixels = await self.config.get_attr(KEY_MAX_IMAGE_PIXELS)()
         enabled = await self.config.guild(ctx.guild).get_attr(KEY_ENABLED)()
         msg = "**__Global settings:__**\n"
         msg += f"Max pixels: **{'Unlimited' if not pixels else pixels} pixels**\n\n"
@@ -56,5 +56,5 @@ class CommandsCore(Core):
         else:
             await ctx.send(success(f"Max image pixels set to: **{pixels} pixels**."))
 
-        await self.config.get_attr(KEY_MAX_IMAGE_DIMENSIONS).set(pixels)
+        await self.config.get_attr(KEY_MAX_IMAGE_PIXELS).set(pixels)
         Image.MAX_IMAGE_PIXELS = pixels

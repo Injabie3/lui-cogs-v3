@@ -5,7 +5,7 @@ from PIL import Image
 from redbot.core import Config
 from redbot.core.bot import Red
 
-from .constants import BASE_GLOBAL, BASE_GUILD, KEY_MAX_IMAGE_DIMENSIONS
+from .constants import BASE_GLOBAL, BASE_GUILD, KEY_MAX_IMAGE_PIXELS
 
 
 class Core:
@@ -20,7 +20,7 @@ class Core:
         self.bgTask = self.bot.loop.create_task(self.setMaxImagePixels())
 
     async def setMaxImagePixels(self):
-        pixels = await self.config.get_attr(KEY_MAX_IMAGE_DIMENSIONS)()
+        pixels = await self.config.get_attr(KEY_MAX_IMAGE_PIXELS)()
         self.logger.debug("Setting max pixels to %s", pixels)
         Image.MAX_IMAGE_PIXELS = pixels
         self.initialized = True
