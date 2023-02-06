@@ -35,5 +35,5 @@ class Core:
             value = await self.config.get_attr(KEY_MAX_IMAGE_PIXELS)()
         else:
             await self.config.get_attr(KEY_MAX_IMAGE_PIXELS).set(value)
-        Image.MAX_IMAGE_PIXELS = value
+        Image.MAX_IMAGE_PIXELS = value // 2
         self.logger.debug("Set max pixels to %s.", value)
