@@ -42,7 +42,7 @@ class CommandsCore(Core):
 
         await ctx.send(msg)
 
-    async def cmdQrCheckerMaxSize(self, ctx: Context, *, pixels: Optional[int]):
+    async def cmdQrCheckerMaxPixels(self, ctx: Context, *, pixels: Optional[int]):
         """Set the maximum image pixels to check.
 
         Binary images are loaded into RAM in Pillow, which uses RAM. If your bot is
@@ -51,7 +51,7 @@ class CommandsCore(Core):
 
         Parameters
         ----------
-        size: Optional[int]
+        pixels: Optional[int]
             The maximum number of pixels in an image to check.
         """
         if pixels and pixels < 0:
