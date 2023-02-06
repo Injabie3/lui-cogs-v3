@@ -28,10 +28,18 @@ class CommandsCore(Core):
         """Show current settings"""
         pixels = await self.config.get_attr(KEY_MAX_IMAGE_PIXELS)()
         enabled = await self.config.guild(ctx.guild).get_attr(KEY_ENABLED)()
-        msg = "**__Global settings:__**\n"
-        msg += f"Max pixels: **{'Unlimited' if not pixels else pixels} pixels**\n\n"
-        msg += "**__Guild settings:__**\n"
-        msg += f"Enabled: **{'Yes' if enabled else 'No'}**"
+        pixelsStr = f"{pixels or 'Unlimited'} pixels"
+        enabledStr = "Yes" if enabled else "No"
+        globalSettingsStr = "\n".join((
+            "**__Global settings__**",
+            f"Max pixels: **{pixelsStr}**",
+        ))
+        guildSettingsStr = "\n".join((
+            "**__Guild settings__**",
+            f"Enabled: **{enabledStr}**",
+        ))
+        msg = "\n\n".join((globalSettingsStr, guildSettingsStr))
+
         await ctx.send(msg)
 
     async def cmdQrCheckerMaxSize(self, ctx: Context, *, pixels: Optional[int]):
