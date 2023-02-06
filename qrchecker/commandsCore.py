@@ -30,14 +30,18 @@ class CommandsCore(Core):
         enabled = await self.config.guild(ctx.guild).get_attr(KEY_ENABLED)()
         pixelsStr = f"{pixels or 'Unlimited'} pixels"
         enabledStr = "Yes" if enabled else "No"
-        globalSettingsStr = "\n".join((
-            "**__Global settings__**",
-            f"Max pixels: **{pixelsStr}**",
-        ))
-        guildSettingsStr = "\n".join((
-            "**__Guild settings__**",
-            f"Enabled: **{enabledStr}**",
-        ))
+        globalSettingsStr = "\n".join(
+            (
+                "**__Global settings__**",
+                f"Max pixels: **{pixelsStr}**",
+            )
+        )
+        guildSettingsStr = "\n".join(
+            (
+                "**__Guild settings__**",
+                f"Enabled: **{enabledStr}**",
+            )
+        )
         msg = "\n\n".join((globalSettingsStr, guildSettingsStr))
 
         await ctx.send(msg)
@@ -58,9 +62,7 @@ class CommandsCore(Core):
             await ctx.send("Please enter a positive number")
             return
         elif not pixels:
-            await ctx.send(
-                success("Disabled max pixels. The bot will check images of any size.")
-            )
+            await ctx.send(success("Disabled max pixels. The bot will check images of any size."))
         else:
             await ctx.send(success(f"Max image pixels set to: **{pixels} pixels**."))
 
