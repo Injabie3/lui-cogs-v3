@@ -59,7 +59,7 @@ class CommandsCore(Core):
             The maximum number of pixels in an image to check.
         """
         if pixels and pixels < 0:
-            await ctx.send("Please enter a positive number")
+            await ctx.send("Please enter a positive number!")
             return
         elif not pixels:
             await ctx.send(success("Disabled max pixels. The bot will check images of any size."))
