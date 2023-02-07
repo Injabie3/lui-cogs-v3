@@ -28,12 +28,19 @@ class Core:
         self.initialized = True
 
     async def setMaxImagePixels(self, value: Optional[int] = None):
-        """Set PIL/Pillow's max image pixels to prevent `DecompressionBombWarning`.
-        If `value` is `None`, the max image pixels value from config will be used."""
+        """Set PIL/Pillow's max image pixels.
+
+        If `value` is `None`, the max image pixels value from config will be used.
+
+        If an image is loaded where the pixel count exceeds the configured value, then
+        `DecompressionBombError` will be raised by Pillow.
+        """
 
         if value is None:
             value = await self.config.get_attr(KEY_MAX_IMAGE_PIXELS)()
         else:
             await self.config.get_attr(KEY_MAX_IMAGE_PIXELS).set(value)
+        # At MAX_IMAGE_PIXELS, `DecompressionBombWarning` is triggered.
+        # `DecompressionBombError` is triggered at twice this value, hence we divide by 2.
         Image.MAX_IMAGE_PIXELS = value // 2
         self.logger.debug("Set max pixels to %s.", value)
