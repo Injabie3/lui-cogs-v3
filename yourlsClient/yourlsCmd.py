@@ -9,4 +9,4 @@ from .commandHandlers import CommandHandlers
 
 
 class YOURLS(commands.Cog, CommandHandlers):
-    pass
+    """Manage Your Own URL Shortener (YOURLS) from Discord."""
