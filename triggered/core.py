@@ -63,6 +63,9 @@ class Core:
                 avatar = Image.composite(avatar, red_overlay, mask)
 
             elif mode == Modes.HYPER_TRIGGERED:
+                if avatar.mode == "P":
+                    # for Discord default avatars
+                    avatar = avatar.convert(mode="RGBA")
                 avatar = ImageEnhance.Color(avatar).enhance(5)
                 avatar = ImageEnhance.Sharpness(avatar).enhance(24)
                 avatar = ImageEnhance.Contrast(avatar).enhance(4)
