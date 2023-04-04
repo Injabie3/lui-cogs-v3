@@ -1,21 +1,48 @@
-from datetime import timedelta
+from typing import Final, List, Optional, Tuple, TypedDict
 
 
-KEY_USERS = "users"
-KEY_TIME = "time"
-KEY_MSG = "msg"
-KEY_TIME_BETWEEN = "timeSinceLastRespect"
-KEY_MSGS_BETWEEN = "msgsSinceLastRespect"
-HEARTS = [
+HEARTS: Final[Tuple[str, ...]] = (
     ":green_heart:",
     ":heart:",
     ":black_heart:",
     ":yellow_heart:",
     ":purple_heart:",
     ":blue_heart:",
-]
-DEFAULT_TIME_BETWEEN = timedelta(seconds=30)  # Time between paid respects.
-DEFAULT_MSGS_BETWEEN = 20  # The number of messages in between
+)
 
-BASE_GUILD = {KEY_TIME_BETWEEN: 30, KEY_MSGS_BETWEEN: 20}
-BASE_CHANNEL = {KEY_MSG: None, KEY_TIME: None, KEY_USERS: []}
+
+# Guild-related
+KEY_TIME_BETWEEN: Final[str] = "timeSinceLastRespect"
+KEY_MSGS_BETWEEN: Final[str] = "msgsSinceLastRespect"
+DEFAULT_TIME_BETWEEN: Final[float] = 30.0  # Time between paid respects in seconds
+DEFAULT_MSGS_BETWEEN: Final[int] = 20  # The number of messages in between
+
+
+class BaseGuild(TypedDict):
+    timeSinceLastRespect: float
+    msgsSinceLastRespect: int
+
+
+BASE_GUILD: Final[BaseGuild] = {
+    KEY_TIME_BETWEEN: DEFAULT_TIME_BETWEEN,
+    KEY_MSGS_BETWEEN: DEFAULT_MSGS_BETWEEN,
+}
+
+
+# Channel-related
+KEY_MSG: Final[str] = "msg"
+KEY_TIME: Final[str] = "time"
+KEY_USERS: Final[str] = "users"
+
+
+class BaseChannel(TypedDict):
+    msg: Optional[int]
+    time: Optional[float]
+    users: List[int]
+
+
+BASE_CHANNEL: Final[BaseChannel] = {
+    KEY_MSG: None,
+    KEY_TIME: None,
+    KEY_USERS: [],
+}
