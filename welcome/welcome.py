@@ -288,10 +288,12 @@ class Welcome(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
     async def logServerJoin(self, joinUser: discord.Member):
         """Logs the server join to a channel, if enabled."""
-        async with self.config.guild(joinUser.guild).all() as guildData:
-            if guildData[KEY_LOG_JOIN_ENABLED]:
-                channel = discord.utils.get(
-                    joinUser.guild.text_channels, id=guildData[KEY_LOG_JOIN_CHANNEL]
+        guildConfig: Group = self.config.guild(joinUser.guild)
+        if await guildConfig.get_attr(KEY_LOG_JOIN_ENABLED)():
+            logJoinChannelId: Optional[int] = await guildConfig.get_attr(KEY_LOG_JOIN_CHANNEL)()
+            if logJoinChannelId:
+                channel: Optional[TextChannel] = discord.utils.get(
+                    joinUser.guild.text_channels, id=logJoinChannelId
                 )
                 if channel:
                     await channel.send(
