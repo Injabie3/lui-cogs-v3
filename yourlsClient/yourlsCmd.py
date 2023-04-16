@@ -409,6 +409,7 @@ class YOURLS(commands.Cog):
         await ctx.send(f"API endpoint set to {apiEndpoint}")
 
     @settingsBase.command(name="signature", aliases=["sig"])
+    @checks.bot_has_permissions(manage_messages=True)
     async def sig(self, ctx: Context, signature: str):
         """Configure the API signature for YOURLS.
 
