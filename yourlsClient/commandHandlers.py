@@ -106,6 +106,7 @@ class CommandHandlers(CommandsCore):
         await self.cmdApi(ctx=ctx, apiEndpoint=apiEndpoint)
 
     @_grpSettingsBase.command(name="signature", aliases=["sig"])
+    @checks.bot_has_permissions(manage_messages=True)
     async def _cmdSig(self, ctx: Context, signature: str):
         """Configure the API signature for YOURLS.
 
