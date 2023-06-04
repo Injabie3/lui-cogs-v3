@@ -49,7 +49,6 @@ class Core:
             return
 
         with Image.open(io.BytesIO(avatarData)) as avatar:
-
             if not avatar:
                 return
 
