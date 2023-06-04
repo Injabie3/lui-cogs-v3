@@ -18,7 +18,8 @@ async def cogHeartbeat(
     event_loop: asyncio.AbstractEventLoop,
 ):
     """A fixture of `Heartbeat` loaded by a Red instance.
-    Note that the background loop of the cog provided by this fixture will not run upon cog instantiation."""
+    Note that the background loop of the cog provided by this fixture will not run upon cog instantiation.
+    """
 
     red.loop = event_loop
 
