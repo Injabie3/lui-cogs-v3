@@ -729,7 +729,6 @@ class Birthday(commands.Cog):
                     if memberDetails[KEY_IS_ASSIGNED] and memberDetails[KEY_BDAY_DAY] != int(
                         time.strftime("%d")
                     ):
-
                         role = discord.utils.get(guild.roles, id=bdayRoleId)
                         member = discord.utils.get(guild.members, id=memberId)
 
