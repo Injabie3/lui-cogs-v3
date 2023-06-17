@@ -1,6 +1,7 @@
 from discord import Message, channel
 from urlextract import URLExtract
 
+from .constants import KEY_ENABLED
 from .core import Core
 
 
@@ -12,6 +13,12 @@ class EventsCore(Core):
 
         # skips if message is in dm
         if isinstance(message.channel, channel.DMChannel):
+            return
+
+        if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
+            self.logger.debug(
+                "VxTwit disabled for guild %s (%s), skipping", message.guild.name, message.guild.id
+            )
             return
 
         # skips if the message has no embeds
