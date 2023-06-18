@@ -1,7 +1,7 @@
 from redbot.core.commands.context import Context
 
-from .core import Core
 from .constants import KEY_ENABLED
+from .core import Core
 
 
 class CommandsCore(Core):
