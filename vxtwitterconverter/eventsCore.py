@@ -1,5 +1,4 @@
-import discord
-from discord import Message, channel
+from discord import Embed, Message, channel
 
 from .constants import KEY_ENABLED
 from .core import Core
@@ -7,7 +6,7 @@ from .core import Core
 
 class EventsCore(Core):
     @staticmethod
-    def _convert_to_vx_twitter_url(embeds: list[discord.Embed]):
+    def _convert_to_vx_twitter_url(embeds: list[Embed]):
         """
         Parameters
         ----------
@@ -78,13 +77,11 @@ class EventsCore(Core):
         return True
 
     async def _on_message_twit_replacer(self, message: Message):
-        self.logger.info("message")
-
         if not self._valid(message):
             return
 
         if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
-            self.logger.info(
+            self.logger.debug(
                 "VxTwit disabled for guild %s (%s), skipping", message.guild.name, message.guild.id
             )
             return
@@ -104,7 +101,6 @@ class EventsCore(Core):
             await message.edit(suppress=True)
 
     async def _on_edit_twit_replacer(self, message_before: Message, message_after: Message):
-        self.logger.info("edit")
         # skips if the message is sent by any bot
         if not self._valid(message_after):
             return
