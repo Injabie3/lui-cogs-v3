@@ -756,9 +756,7 @@ class Highlight(commands.Cog):
             # with <<spoilers>>
             if len(escapedMsg.split("\\|\\|")) > 2:
                 escapedMsg = "<<spoilers>>"
-            embedMsg += "[{0}] {1.author.name}#{1.author.discriminator}: {2}" "\n".format(
-                time, msg, escapedMsg
-            )
+            embedMsg += "`[{0}] {1}`: {2}\n".format(time, msg.author.name, escapedMsg)
             if self._isWordMatch(word, msg.content):
                 msgStillThere = True
         if not msgStillThere:
