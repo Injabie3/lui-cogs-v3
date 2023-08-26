@@ -546,7 +546,7 @@ class Birthday(commands.Cog):
         birthdayStr = "{0:%B} {0:%d}".format(birthday)
         if birthdayConfig:
 
-            async def mainFlow(channel: discord.TextChannel, carefree: bool = False):
+            async def mainFlow(channel: discord.abc.Messageable, carefree: bool = False):
                 confirmationStr = "\n".join(
                     (
                         f"Are you sure you want to set your birthday to "
@@ -558,7 +558,7 @@ class Birthday(commands.Cog):
                 # define the time for sensitive messages to live for
                 SENSITIVE_MSG_TTL = None if carefree else 5.0
                 try:
-                    await channel.send(
+                    confirmation = await channel.send(
                         f"{headerWarn}: {confirmationStr}",
                         delete_after=SENSITIVE_MSG_TTL,
                     )
@@ -570,7 +570,7 @@ class Birthday(commands.Cog):
 
                 # wait for answer
                 def check(msg: discord.Message):
-                    return msg.author == ctx.author and msg.channel == channel
+                    return msg.author == ctx.author and msg.channel == confirmation.channel
 
                 # define response wait time
                 responseTimeout = SENSITIVE_MSG_TTL + 1 if SENSITIVE_MSG_TTL else 30
@@ -621,7 +621,7 @@ class Birthday(commands.Cog):
                 )
             )
             try:
-                await mainFlow(ctx.author.dm_channel, carefree=True)
+                await mainFlow(ctx.author, carefree=True)
                 return
             except discord.Forbidden:
                 await ctx.send(noDmStr)
