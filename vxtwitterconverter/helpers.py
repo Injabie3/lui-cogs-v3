@@ -2,6 +2,8 @@ import re
 
 from discord import Embed, Message, channel
 
+from .constants import SocialMedia
+
 
 def convert_to_ddinsta_url(embeds: list[Embed]):
     """
@@ -50,25 +52,23 @@ def convert_to_vx_twitter_url(embeds: list[Embed]):
     return vxtwitter_urls
 
 
-def urls_to_string(links: list[str], urlType: str = "Twitter"):
+def urls_to_string(links: list[str], socialMedia: SocialMedia):
     """
     Parameters
     ----------
     links: List[str]
         A list of urls
-    urlType: str
-        The URL type. Either Instagram or Twitter.
+    socialMedia: SocialMedia
+        The social media to replace.
 
     Returns
     -------
         Formatted output
     """
-    assert urlType in ["Twitter", "Instagram"]
-
     return "".join(
         [
             "OwO what's this?\n",
-            f"*notices your terrible {urlType} embeds*\n",
+            f"*notices your terrible {socialMedia.value} embeds*\n",
             "Here's a better alternative:\n",
             "\n".join(links),
         ]

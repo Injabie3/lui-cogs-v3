@@ -1,6 +1,6 @@
 from discord import Message
 
-from .constants import KEY_ENABLED
+from .constants import KEY_ENABLED, SocialMedia
 from .core import Core
 from .helpers import convert_to_vx_twitter_url, convert_to_ddinsta_url, urls_to_string, valid
 
@@ -23,7 +23,7 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message.reply(urls_to_string(ddinsta_urls, "Instagram"))
+        ok = await message.reply(urls_to_string(ddinsta_urls, SocialMedia.INSTAGRAM))
 
         # Remove embeds from user message if reply is successful
         if ok:
@@ -55,7 +55,7 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(urls_to_string(ddinsta_urls, "Instagram"))
+        ok = await message_after.reply(urls_to_string(ddinsta_urls, SocialMedia.INSTAGRAM))
 
         # Remove embeds from user message if reply is successful
         if ok:
@@ -79,7 +79,7 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message.reply(urls_to_string(vx_twtter_urls))
+        ok = await message.reply(urls_to_string(vx_twtter_urls, SocialMedia.TWITTER))
 
         # Remove embeds from user message if reply is successful
         if ok:
@@ -115,7 +115,7 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(urls_to_string(vx_twtter_urls))
+        ok = await message_after.reply(urls_to_string(vx_twtter_urls, SocialMedia.TWITTER))
 
         # Remove embeds from user message if reply is successful
         if ok:
