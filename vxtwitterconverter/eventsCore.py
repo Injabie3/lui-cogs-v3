@@ -17,7 +17,6 @@ class EventsCore(Core):
             return
 
         ddinsta_urls = convert_to_ddinsta_url(message.embeds)
-        self.logger.debug("what is this %s", ddinsta_urls)
 
         if not ddinsta_urls:
             return
