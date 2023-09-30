@@ -2,7 +2,7 @@ from discord import Message
 
 from .constants import KEY_ENABLED, SocialMedia
 from .core import Core
-from .helpers import convert_to_vx_twitter_url, convert_to_ddinsta_url, urls_to_string, valid
+from .helpers import convert_to_ddinsta_url, convert_to_vx_twitter_url, urls_to_string, valid
 
 
 class EventsCore(Core):
