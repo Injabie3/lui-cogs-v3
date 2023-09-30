@@ -2,10 +2,65 @@ from discord import Message
 
 from .constants import KEY_ENABLED
 from .core import Core
-from .helpers import convert_to_vx_twitter_url, urls_to_string, valid
+from .helpers import convert_to_vx_twitter_url, convert_to_ddinsta_url, urls_to_string, valid
 
 
 class EventsCore(Core):
+    async def _on_message_insta_replacer(self, message: Message):
+        if not valid(message):
+            return
+
+        if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
+            self.logger.debug(
+                "VxTwit disabled for guild %s (%s), skipping", message.guild.name, message.guild.id
+            )
+            return
+
+        ddinsta_urls = convert_to_ddinsta_url(message.embeds)
+        self.logger.debug("what is this %s", ddinsta_urls)
+
+        if not ddinsta_urls:
+            return
+
+        # constructs the message and replies with a mention
+        ok = await message.reply(urls_to_string(ddinsta_urls, "Instagram"))
+
+        # Remove embeds from user message if reply is successful
+        if ok:
+            await message.edit(suppress=True)
+
+    async def _on_edit_insta_replacer(self, message_before: Message, message_after: Message):
+        if not valid(message_after):
+            return
+
+        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+            self.logger.debug(
+                "VxTwit disabled for guild %s (%s), skipping",
+                message_after.guild.name,
+                message_after.guild.id,
+            )
+            return
+
+        new_embeds = [
+            embed for embed in message_after.embeds if embed not in message_before.embeds
+        ]
+
+        # skips if the message has no new embeds
+        if not new_embeds:
+            return
+
+        ddinsta_urls = convert_to_ddinsta_url(new_embeds)
+
+        if not ddinsta_urls:
+            return
+
+        # constructs the message and replies with a mention
+        ok = await message_after.reply(urls_to_string(ddinsta_urls, "Instagram"))
+
+        # Remove embeds from user message if reply is successful
+        if ok:
+            await message_after.edit(suppress=True)
+
     async def _on_message_twit_replacer(self, message: Message):
         if not valid(message):
             return

@@ -1,4 +1,30 @@
+import re
+
 from discord import Embed, Message, channel
+
+
+def convert_to_ddinsta_url(embeds: list[Embed]):
+    """
+    Parameters
+    ----------
+    embeds: list of discord embeds
+
+    Returns
+    -------
+        filtered list of Instagram URLs that have been converted to ddinstagram
+    """
+
+    # pulls only video embeds from list of embeds
+    urls = [entry.url for entry in embeds]
+
+    INSTA_REGEX_MATCH = r"https://(?:www\.)?(instagram.com)"
+    ddinsta_urls = [
+        re.sub(INSTA_REGEX_MATCH, r"https://dd\1", result)
+        for result in urls
+        if re.match(INSTA_REGEX_MATCH, result)
+    ]
+
+    return ddinsta_urls
 
 
 def convert_to_vx_twitter_url(embeds: list[Embed]):
@@ -24,23 +50,27 @@ def convert_to_vx_twitter_url(embeds: list[Embed]):
     return vxtwitter_urls
 
 
-def urls_to_string(vx_twit_links: list[str]):
+def urls_to_string(links: list[str], urlType: str = "Twitter"):
     """
     Parameters
     ----------
-    vx_twit_links: list of urls
+    links: List[str]
+        A list of urls
+    urlType: str
+        The URL type. Either Instagram or Twitter.
 
     Returns
     -------
         Formatted output
     """
+    assert urlType in ["Twitter", "Instagram"]
 
     return "".join(
         [
             "OwO what's this?\n",
-            "*notices your terrible twitter embeds*\n",
+            f"*notices your terrible {urlType} embeds*\n",
             "Here's a better alternative:\n",
-            "\n".join(vx_twit_links),
+            "\n".join(links),
         ]
     )
 
@@ -53,7 +83,7 @@ def valid(message: Message):
 
     Returns
     -------
-        True if the message is from a human in a guild and contains video embeds
+        True if the message is from a human in a guild and contains embeds
         False otherwise
     """
 
@@ -66,7 +96,7 @@ def valid(message: Message):
         return False
 
     # skips if the message has no embeds
-    if not any(embed.video for embed in message.embeds):
+    if not message.embeds:
         return False
 
     return True
