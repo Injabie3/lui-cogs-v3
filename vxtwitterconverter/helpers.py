@@ -55,7 +55,7 @@ def urls_to_string(links: list[str], socialMedia: SocialMedia):
     """
     Parameters
     ----------
-    links: List[str]
+    links: list[str]
         A list of urls
     socialMedia: SocialMedia
         The social media to replace.
@@ -64,12 +64,12 @@ def urls_to_string(links: list[str], socialMedia: SocialMedia):
     -------
         Formatted output
     """
-    return "".join(
+    return "\n".join(
         [
-            "OwO what's this?\n",
-            f"*notices your terrible {socialMedia.value} embeds*\n",
-            "Here's a better alternative:\n",
-            "\n".join(links),
+            "OwO what's this?",
+            f"*notices your terrible {socialMedia.value} embeds*",
+            "Here's a better alternative:",
+            *links,
         ]
     )
 
