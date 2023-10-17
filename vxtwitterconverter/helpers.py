@@ -2,7 +2,7 @@ import re
 
 from discord import Embed, Message, channel
 
-from .constants import SocialMedia
+from .constants import INSTA_REGEX_MATCH, SocialMedia
 
 
 def convert_to_ddinsta_url(embeds: list[Embed]):
@@ -19,7 +19,6 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     # pulls only video embeds from list of embeds
     urls = [entry.url for entry in embeds]
 
-    INSTA_REGEX_MATCH = r"https://(?:www\.)?(instagram.com)"
     ddinsta_urls = [
         re.sub(INSTA_REGEX_MATCH, r"https://dd\1", result)
         for result in urls
