@@ -9,7 +9,7 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     """
     Parameters
     ----------
-    embeds: list of discord embeds
+    embeds: list of Discord embeds
 
     Returns
     -------
@@ -32,7 +32,7 @@ def convert_to_vx_twitter_url(embeds: list[Embed]):
     """
     Parameters
     ----------
-    embeds: list of discord embeds
+    embeds: list of Discord embeds
 
     Returns
     -------
