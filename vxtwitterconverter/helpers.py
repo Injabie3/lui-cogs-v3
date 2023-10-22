@@ -2,7 +2,7 @@ import re
 
 from discord import Embed, Message, channel
 
-from .constants import INSTA_REGEX_MATCH, SocialMedia
+from .constants import INSTA_REGEX_PATTERN, SocialMedia
 
 
 def convert_to_ddinsta_url(embeds: list[Embed]):
@@ -20,9 +20,9 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     urls = [entry.url for entry in embeds]
 
     ddinsta_urls = [
-        re.sub(INSTA_REGEX_MATCH, r"https://dd\1", result)
+        re.sub(INSTA_REGEX_PATTERN, r"https://dd\1", result)
         for result in urls
-        if re.match(INSTA_REGEX_MATCH, result)
+        if re.match(INSTA_REGEX_PATTERN, result)
     ]
 
     return ddinsta_urls
