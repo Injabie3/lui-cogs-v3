@@ -12,7 +12,9 @@ class EventsCore(Core):
 
         if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
             self.logger.debug(
-                "SNSConverter disabled for guild %s (%s), skipping", message.guild.name, message.guild.id
+                "SNSConverter disabled for guild %s (%s), skipping",
+                message.guild.name,
+                message.guild.id,
             )
             return
 
@@ -66,7 +68,9 @@ class EventsCore(Core):
 
         if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
             self.logger.debug(
-                "SNSConverter disabled for guild %s (%s), skipping", message.guild.name, message.guild.id
+                "SNSConverter disabled for guild %s (%s), skipping",
+                message.guild.name,
+                message.guild.id,
             )
             return
 
