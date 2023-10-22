@@ -1,9 +1,9 @@
 {
-    "name" : "VxTwitConverter",
+    "name" : "SNSConverter",
     "author" : ["JadeRabbit#9310"],
     "short" : "twitter embed fix when?",
-    "description" : "Converts Twitter link to VxTwitter for better video embeds",
-    "install_msg" : "VxTwitConverter installed",
+    "description" : "Converts Twitter link to SNSConverter for better video embeds",
+    "install_msg" : "SNSConverter installed",
     "requirements" : [],
     "tags" : ["server"],
     "permissions" : ["manage_messages"],

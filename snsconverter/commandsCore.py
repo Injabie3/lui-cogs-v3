@@ -11,4 +11,4 @@ class CommandsCore(Core):
         await enabledCfg.set(enabled)
 
         status = "enabled" if enabled else "disabled"
-        await ctx.send(f"VxTwitter replacements are now {status}.")
+        await ctx.send(f"SNSConverter replacements are now {status}.")

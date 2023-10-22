@@ -17,7 +17,7 @@ class Core:
 
         # Initialize logger, and save to cog folder.
         save_folder = data_manager.cog_data_path(cog_instance=self)
-        self.logger = logging.getLogger("red.luicogs.vxtwitconverter")
+        self.logger = logging.getLogger("red.luicogs.snsconverter")
         if not self.logger.handlers:
             log_path = os.path.join(save_folder, "info.log")
             handler = logging.FileHandler(filename=log_path, encoding="utf-8", mode="a")

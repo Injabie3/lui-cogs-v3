@@ -8,13 +8,13 @@ class CommandHandlers(CommandsCore):
     @commands.group(name="vxtwitter", aliases=["vxtwit"])
     @checks.is_owner()
     async def _grpVxTwit(self, ctx: Context):
-        """VxTwitter settings"""
+        """SNSConverter settings"""
 
     @_grpVxTwit.command(name="toggle")
     async def _cmdToggle(self, ctx: Context):
-        """Toggle VxTwitter replacements on the server
+        """Toggle SNSConverter replacements on the server
 
         This will toggle the auto-reply of any Twitter links with embeds, and
-        replace them with VxTwitter.
+        replace them with SNSConverter.
         """
         await self.cmdToggle(ctx)
