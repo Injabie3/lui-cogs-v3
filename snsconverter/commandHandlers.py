@@ -5,16 +5,16 @@ from .commandsCore import CommandsCore
 
 
 class CommandHandlers(CommandsCore):
-    @commands.group(name="vxtwitter", aliases=["vxtwit"])
+    @commands.group(name="snsconverter", aliases=["sns"])
     @checks.is_owner()
-    async def _grpVxTwit(self, ctx: Context):
+    async def _grpSns(self, ctx: Context):
         """SNSConverter settings"""
 
-    @_grpVxTwit.command(name="toggle")
+    @_grpSns.command(name="toggle")
     async def _cmdToggle(self, ctx: Context):
         """Toggle SNSConverter replacements on the server
 
-        This will toggle the auto-reply of any Twitter links with embeds, and
-        replace them with SNSConverter.
+        This will toggle the auto-reply of any Twitter or Instagram links with
+        embeds, and replace them with vxtwitter or ddinstagram, respectively.
         """
         await self.cmdToggle(ctx)
