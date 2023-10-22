@@ -1,8 +1,8 @@
 {
     "name" : "SNSConverter",
-    "author" : ["JadeRabbit#9310"],
-    "short" : "twitter embed fix when?",
-    "description" : "Converts Twitter link to SNSConverter for better video embeds",
+    "author" : ["j4d3r48817", "injabie3", "quachtridat"],
+    "short" : "Replace Twitter/Instagram embeds with better embeds",
+    "description" : "Converts Twitter/Instagram links to vxtwitter/ddinstagram for better video embeds",
     "install_msg" : "SNSConverter installed",
     "requirements" : [],
     "tags" : ["server"],
