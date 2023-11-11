@@ -2,7 +2,7 @@ import re
 
 from discord import Embed, Message, channel
 
-from .constants import INSTA_REGEX_PATTERN, SocialMedia
+from .constants import INSTA_REGEX_PATTERN, TIKTOK_REGEX_PATTERN, SocialMedia
 
 
 def convert_to_ddinsta_url(embeds: list[Embed]):
@@ -26,6 +26,29 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     ]
 
     return ddinsta_urls
+
+
+def convert_to_vx_tiktok_url(embeds: list[Embed]):
+    """
+    Parameters
+    ----------
+    embeds: list of Discord embeds
+
+    Returns
+    -------
+        filtered list of TikTok URLs that have been converted to vxtiktok
+    """
+
+    # pulls only video embeds from list of embeds
+    urls = [entry.url for entry in embeds]
+
+    vxtiktok_urls = [
+        re.sub(TIKTOK_REGEX_PATTERN, r"https://\1vx\2", result)
+        for result in urls
+        if re.match(TIKTOK_REGEX_PATTERN, result)
+    ]
+
+    return vxtiktok_urls
 
 
 def convert_to_vx_twitter_url(embeds: list[Embed]):
