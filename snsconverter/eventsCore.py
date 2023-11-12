@@ -1,4 +1,4 @@
-from discord import Message
+from discord import Message, RawMessageUpdateEvent
 
 from .constants import KEY_ENABLED, SocialMedia
 from .core import Core
@@ -42,28 +42,28 @@ class EventsCore(Core):
         if ok:
             await message.edit(suppress=True)
 
-    async def _on_edit_insta_replacer(
-        self, message_before: Message, message_after: Message
-    ):
-        if not valid(message_after):
+    async def _on_edit_insta_replacer(self, payload: RawMessageUpdateEvent):
+        if not valid(payload.cached_message):
             return
 
         # skips if the message has no embeds
-        if not message_after.embeds:
+        if not payload.data["embeds"]:
             return
 
-        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+        if not await self.config.guild(payload.cached_message.guild).get_attr(
+            KEY_ENABLED
+        )():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
-                message_after.guild.name,
-                message_after.guild.id,
+                payload.cached_message.guild.name,
+                payload.cached_message.guild.id,
             )
             return
 
         new_embeds = [
             embed
-            for embed in message_after.embeds
-            if embed not in message_before.embeds
+            for embed in payload.data["embeds"]
+            if embed not in payload.cached_message.embeds
         ]
 
         # skips if the message has no new embeds
@@ -76,13 +76,13 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(
+        ok = await payload.cached_message.reply(
             urls_to_string(ddinsta_urls, SocialMedia.INSTAGRAM)
         )
 
         # Remove embeds from user message if reply is successful
         if ok:
-            await message_after.edit(suppress=True)
+            await payload.cached_message.edit(suppress=True)
 
     async def _on_message_twit_replacer(self, message: Message):
         if not valid(message):
@@ -106,18 +106,18 @@ class EventsCore(Core):
         # constructs the message and replies with a mention
         await message.reply(urls_to_string(fx_twtter_urls, SocialMedia.TWITTER))
 
-    async def _on_edit_twit_replacer(
-        self, message_before: Message, message_after: Message
-    ):
+    async def _on_edit_twit_replacer(self, payload: RawMessageUpdateEvent):
         # skips if the message is sent by any bot
-        if not valid(message_after):
+        if not valid(payload.cached_message):
             return
 
-        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+        if not await self.config.guild(payload.cached_message.guild).get_attr(
+            KEY_ENABLED
+        )():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
-                message_after.guild.name,
-                message_after.guild.id,
+                payload.cached_message.guild.name,
+                payload.cached_message.guild.id,
             )
             return
 
@@ -128,7 +128,9 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        await message_after.reply(urls_to_string(fx_twtter_urls, SocialMedia.TWITTER))
+        await payload.cached_message.reply(
+            urls_to_string(fx_twtter_urls, SocialMedia.TWITTER)
+        )
 
     async def _on_message_tik_replacer(self, message: Message):
         if not valid(message):
@@ -159,27 +161,29 @@ class EventsCore(Core):
         if ok:
             await message.edit(suppress=True)
 
-    async def _on_edit_tik_replacer(
-        self, message_before: Message, message_after: Message
-    ):
+    async def _on_edit_tik_replacer(self, payload: RawMessageUpdateEvent):
         # skips if the message is sent by any bot
-        if not valid(message_after):
+        if not valid(payload.cached_message):
             return
 
         # skips if the message has no embeds
-        if not message_after.embeds:
+        if not payload.data["embeds"]:
             return
 
-        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+        if not await self.config.guild(payload.cached_message.guild).get_attr(
+            KEY_ENABLED
+        )():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
-                message_after.guild.name,
-                message_after.guild.id,
+                payload.cached_message.guild.name,
+                payload.cached_message.guild.id,
             )
             return
 
-        video_embed_before = [embed for embed in message_before.embeds if embed.video]
-        video_embed_after = [embed for embed in message_after.embeds if embed.video]
+        video_embed_before = [
+            embed for embed in payload.cached_message.embeds if embed.video
+        ]
+        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
         new_video_embeds = [
             embed for embed in video_embed_after if embed not in video_embed_before
         ]
@@ -195,13 +199,13 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(
+        ok = await payload.cached_message.reply(
             urls_to_string(vx_tiktok_urls, SocialMedia.TIKTOK)
         )
 
         # Remove embeds from user message if reply is successful
         if ok:
-            await message_after.edit(suppress=True)
+            await payload.cached_message.edit(suppress=True)
 
     async def _on_message_reddit_replacer(self, message: Message):
         if not valid(message):
@@ -232,27 +236,29 @@ class EventsCore(Core):
         if ok:
             await message.edit(suppress=True)
 
-    async def _on_edit_reddit_replacer(
-        self, message_before: Message, message_after: Message
-    ):
+    async def _on_edit_reddit_replacer(self, payload: RawMessageUpdateEvent):
         # skips if the message is sent by any bot
-        if not valid(message_after):
+        if not valid(payload.cached_message):
             return
 
         # skips if the message has no embeds
-        if not message_after.embeds:
+        if not payload.data["embeds"]:
             return
 
-        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+        if not await self.config.guild(payload.cached_message.guild).get_attr(
+            KEY_ENABLED
+        )():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
-                message_after.guild.name,
-                message_after.guild.id,
+                payload.cached_message.guild.name,
+                payload.cached_message.guild.id,
             )
             return
 
-        video_embed_before = [embed for embed in message_before.embeds if embed.video]
-        video_embed_after = [embed for embed in message_after.embeds if embed.video]
+        video_embed_before = [
+            embed for embed in payload.cached_message.embeds if embed.video
+        ]
+        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
         new_video_embeds = [
             embed for embed in video_embed_after if embed not in video_embed_before
         ]
@@ -268,11 +274,13 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(urls_to_string(rxddit_urls, SocialMedia.REDDIT))
+        ok = await payload.cached_message.reply(
+            urls_to_string(rxddit_urls, SocialMedia.REDDIT)
+        )
 
         # Remove embeds from user message if reply is successful
         if ok:
-            await message_after.edit(suppress=True)
+            await payload.cached_message.edit(suppress=True)
 
     async def _on_message_threads_replacer(self, message: Message):
         if not valid(message):
@@ -303,27 +311,29 @@ class EventsCore(Core):
         if ok:
             await message.edit(suppress=True)
 
-    async def _on_edit_threads_replacer(
-        self, message_before: Message, message_after: Message
-    ):
+    async def _on_edit_threads_replacer(self, payload: RawMessageUpdateEvent):
         # skips if the message is sent by any bot
-        if not valid(message_after):
+        if not valid(payload.cached_message):
             return
 
         # skips if the message has no embeds
-        if not message_after.embeds:
+        if not payload.data["embeds"]:
             return
 
-        if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
+        if not await self.config.guild(payload.cached_message.guild).get_attr(
+            KEY_ENABLED
+        )():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
-                message_after.guild.name,
-                message_after.guild.id,
+                payload.cached_message.guild.name,
+                payload.cached_message.guild.id,
             )
             return
 
-        video_embed_before = [embed for embed in message_before.embeds if embed.video]
-        video_embed_after = [embed for embed in message_after.embeds if embed.video]
+        video_embed_before = [
+            embed for embed in payload.cached_message.embeds if embed.video
+        ]
+        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
         new_video_embeds = [
             embed for embed in video_embed_after if embed not in video_embed_before
         ]
@@ -339,10 +349,10 @@ class EventsCore(Core):
             return
 
         # constructs the message and replies with a mention
-        ok = await message_after.reply(
+        ok = await payload.cached_message.reply(
             urls_to_string(vx_threads_urls, SocialMedia.THREADS)
         )
 
         # Remove embeds from user message if reply is successful
         if ok:
-            await message_after.edit(suppress=True)
+            await payload.cached_message.edit(suppress=True)
