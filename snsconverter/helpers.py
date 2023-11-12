@@ -4,6 +4,8 @@ from discord import Embed, Message, channel
 
 from .constants import (
     INSTA_REGEX_PATTERN,
+    REDDIT_REGEX_PATTERN,
+    THREADS_REGEX_PATTERN,
     TIKTOK_REGEX_PATTERN,
     TWITTER_REGEX_PATTERN,
     X_REGEX_PATTERN,
@@ -72,7 +74,6 @@ def convert_to_fx_twitter_url(message_content: str):
 
     fixed_urls = []
 
-    # Extracts all twitter urls from message content, and converts them to fxtwitter, returning a list of urls
     for word in message_split:
         # I don't think @everyone will work anyway, but just incase...
         if "@" in word:
@@ -85,6 +86,52 @@ def convert_to_fx_twitter_url(message_content: str):
             fixed_urls.append(re.sub(X_REGEX_PATTERN, r"https://fixupx.com\1", word))
 
     return fixed_urls
+
+
+def convert_to_rxddit_url(embeds: list[Embed]):
+    """
+    Parameters
+    ----------
+    embeds: list of Discord embeds
+
+    Returns
+    -------
+        filtered list of Reddit URLs that have been converted to rxddit
+    """
+
+    # pulls only video embeds from list of embeds
+    urls = [entry.url for entry in embeds]
+
+    rxddit_urls = [
+        re.sub(REDDIT_REGEX_PATTERN, r"https://rxddit.com", result)
+        for result in urls
+        if re.match(REDDIT_REGEX_PATTERN, result)
+    ]
+
+    return rxddit_urls
+
+
+def convert_to_vx_threads_url(embeds: list[Embed]):
+    """
+    Parameters
+    ----------
+    embeds: list of Discord embeds
+
+    Returns
+    -------
+        filtered list of Threads URLs that have been converted to vxthreads
+    """
+
+    # pulls only video embeds from list of embeds
+    urls = [entry.url for entry in embeds]
+
+    vxthreads_urls = [
+        re.sub(THREADS_REGEX_PATTERN, r"https://vx\1", result)
+        for result in urls
+        if re.match(THREADS_REGEX_PATTERN, result)
+    ]
+
+    return vxthreads_urls
 
 
 def urls_to_string(links: list[str], socialMedia: SocialMedia):
