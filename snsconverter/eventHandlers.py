@@ -13,9 +13,14 @@ class EventHandlers(EventsCore):
         await self._on_message_reddit_replacer(message)
         await self._on_message_threads_replacer(message)
 
+    @commands.Cog.listener("on_message_edit")
+    async def twit_raw_edit_replacer(
+        self, message_before: Message, message_after: Message
+    ):
+        await self._on_edit_twit_replacer(message_before, message_after)
+
     @commands.Cog.listener("on_raw_message_edit")
-    async def twit_edit_replacer(self, payload: RawMessageUpdateEvent):
-        await self._on_edit_twit_replacer(payload)
+    async def twit_raw_edit_replacer(self, payload: RawMessageUpdateEvent):
         await self._on_edit_insta_replacer(payload)
         await self._on_edit_tik_replacer(payload)
         await self._on_edit_reddit_replacer(payload)
