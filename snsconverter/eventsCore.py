@@ -121,7 +121,7 @@ class EventsCore(Core):
             )
             return
 
-        fx_twtter_urls = convert_to_fx_twitter_url(message_after.content)
+        fx_twtter_urls = convert_to_fx_twitter_url(payload.data["content"])
 
         # no changed urls detected
         if not fx_twtter_urls:
