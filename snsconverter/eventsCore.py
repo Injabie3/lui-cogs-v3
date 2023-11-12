@@ -1,4 +1,4 @@
-from discord import Message, RawMessageUpdateEvent
+from discord import Embed, Message, RawMessageUpdateEvent
 
 from .constants import KEY_ENABLED, SocialMedia
 from .core import Core
@@ -61,9 +61,9 @@ class EventsCore(Core):
             return
 
         new_embeds = [
-            embed
+            Embed.from_dict(embed)
             for embed in payload.data["embeds"]
-            if embed not in payload.cached_message.embeds
+            if Embed.from_dict(embed) not in payload.cached_message.embeds
         ]
 
         # skips if the message has no new embeds
@@ -180,19 +180,17 @@ class EventsCore(Core):
             )
             return
 
-        video_embed_before = [
-            embed for embed in payload.cached_message.embeds if embed.video
-        ]
-        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
-        new_video_embeds = [
-            embed for embed in video_embed_after if embed not in video_embed_before
+        new_embeds = [
+            Embed.from_dict(embed)
+            for embed in payload.data["embeds"]
+            if Embed.from_dict(embed) not in payload.cached_message.embeds
         ]
 
         # skips if the message has no new embeds
-        if not new_video_embeds:
+        if not new_embeds:
             return
 
-        vx_tiktok_urls = convert_to_vx_tiktok_url(new_video_embeds)
+        vx_tiktok_urls = convert_to_vx_tiktok_url(new_embeds)
 
         # no changed urls detected
         if not vx_tiktok_urls:
@@ -255,19 +253,17 @@ class EventsCore(Core):
             )
             return
 
-        video_embed_before = [
-            embed for embed in payload.cached_message.embeds if embed.video
-        ]
-        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
-        new_video_embeds = [
-            embed for embed in video_embed_after if embed not in video_embed_before
+        new_embeds = [
+            Embed.from_dict(embed)
+            for embed in payload.data["embeds"]
+            if Embed.from_dict(embed) not in payload.cached_message.embeds
         ]
 
         # skips if the message has no new embeds
-        if not new_video_embeds:
+        if not new_embeds:
             return
 
-        rxddit_urls = convert_to_rxddit_url(new_video_embeds)
+        rxddit_urls = convert_to_rxddit_url(new_embeds)
 
         # no changed urls detected
         if not rxddit_urls:
@@ -330,19 +326,17 @@ class EventsCore(Core):
             )
             return
 
-        video_embed_before = [
-            embed for embed in payload.cached_message.embeds if embed.video
-        ]
-        video_embed_after = [embed for embed in payload.data["embeds"] if embed.video]
-        new_video_embeds = [
-            embed for embed in video_embed_after if embed not in video_embed_before
+        new_embeds = [
+            Embed.from_dict(embed)
+            for embed in payload.data["embeds"]
+            if Embed.from_dict(embed) not in payload.cached_message.embeds
         ]
 
         # skips if the message has no new embeds
-        if not new_video_embeds:
+        if not new_embeds:
             return
 
-        vx_threads_urls = convert_to_vx_threads_url(new_video_embeds)
+        vx_threads_urls = convert_to_vx_threads_url(new_embeds)
 
         # no changed urls detected
         if not vx_threads_urls:
