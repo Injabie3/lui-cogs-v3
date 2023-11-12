@@ -14,9 +14,7 @@ class EventHandlers(EventsCore):
         await self._on_message_threads_replacer(message)
 
     @commands.Cog.listener("on_message_edit")
-    async def twit_raw_edit_replacer(
-        self, message_before: Message, message_after: Message
-    ):
+    async def twit_edit_replacer(self, message_before: Message, message_after: Message):
         await self._on_edit_twit_replacer(message_before, message_after)
 
     @commands.Cog.listener("on_raw_message_edit")
