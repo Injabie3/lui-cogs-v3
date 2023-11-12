@@ -118,7 +118,7 @@ def valid(message: Message):
 
     Returns
     -------
-        True if the message is from a human in a guild and contains embeds
+        True if the message is from a human in a guild
         False otherwise
     """
 
@@ -129,9 +129,4 @@ def valid(message: Message):
     # skips if message is in dm
     if isinstance(message.channel, channel.DMChannel):
         return False
-
-    # skips if the message has no embeds
-    if not message.embeds:
-        return False
-
     return True

@@ -16,6 +16,10 @@ class EventsCore(Core):
         if not valid(message):
             return
 
+        # skips if the message has no embeds
+        if not message.embeds:
+            return
+
         if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
@@ -40,6 +44,10 @@ class EventsCore(Core):
         self, message_before: Message, message_after: Message
     ):
         if not valid(message_after):
+            return
+
+        # skips if the message has no embeds
+        if not message_after.embeds:
             return
 
         if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
@@ -124,6 +132,9 @@ class EventsCore(Core):
         if not valid(message):
             return
 
+        if not message.embeds:
+            return
+
         if not await self.config.guild(message.guild).get_attr(KEY_ENABLED)():
             self.logger.debug(
                 "SNSConverter disabled for guild %s (%s), skipping",
@@ -151,6 +162,10 @@ class EventsCore(Core):
     ):
         # skips if the message is sent by any bot
         if not valid(message_after):
+            return
+
+        # skips if the message has no embeds
+        if not message_after.embeds:
             return
 
         if not await self.config.guild(message_after.guild).get_attr(KEY_ENABLED)():
