@@ -103,8 +103,7 @@ def urls_to_string(links: list[str], socialMedia: SocialMedia):
     return "\n".join(
         [
             "OwO what's this?",
-            f"*notices your terrible {socialMedia.value} embeds*",
-            "Here's a better alternative:",
+            f"*fixes your {socialMedia.value} embeds:*",
             *links,
         ]
     )
