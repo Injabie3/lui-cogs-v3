@@ -503,7 +503,7 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
 
             for word in filteredWords:
                 timesMatched = len(
-                    re.findall(word, originalMsg, flags=re.IGNORECASE)
+                    re.findall(r"\b" + word + r"\b", originalMsg, flags=re.IGNORECASE)
                 )
                 filterStats.update({word: filterStats.get(word, 0) + timesMatched})
 
