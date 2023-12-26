@@ -543,7 +543,7 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
                 self.logger.error(error)
             await asyncio.sleep(3)
             await notifyMsg.delete()
-        elif (filteredMsg != originalMsg and oneWord) or allFiltered:
+        elif (filteredMsg != originalMsg) or allFiltered:
             filterNotify = "{0.author.mention} wasn't jolly enough!".format(msg)
             notifyMsg = await msg.channel.send(filterNotify)
             await asyncio.sleep(3)
