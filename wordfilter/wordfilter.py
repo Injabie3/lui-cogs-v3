@@ -633,7 +633,7 @@ def _filterWord(words: List[str], string: str):
     else:
         # Combine all filter words into one regex
         numFilters = numWords - 1
-        reFormat = r"\b(?:" + (r"{}|") * numFilters + r"{})\b"
+        reFormat = r"(?:" + (r"{}|") * numFilters + r"{})"
         regex = reFormat.format(*words)
         # Replace the offending string with the correct number of stars.
         return re.sub(regex, _censorMatch, string, flags=re.IGNORECASE)
