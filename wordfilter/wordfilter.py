@@ -528,9 +528,9 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
             # - Delete the message,
             # - Notify on the channel that the message was filtered without showing context
             # - DM user with the filtered context as per what we see usually.
-            filterNotify = "{0.author.mention} wasn't jolly enough!".format(msg)
+            filterNotify = "{0.author.mention} was filtered!".format(msg)
             notifyMsg = await msg.channel.send(filterNotify)
-            filterNotify = "You weren't jolly enough! Your message was: \n"
+            filterNotify = "You were filtered! Your message was: \n"
             embed = discord.Embed(
                 colour=random.choice(COLOURS),
                 description="{0.author.name}#{0.author.discriminator}: "
@@ -544,12 +544,12 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
             await asyncio.sleep(3)
             await notifyMsg.delete()
         elif (filteredMsg != originalMsg and oneWord) or allFiltered:
-            filterNotify = "{0.author.mention} wasn't jolly enough!".format(msg)
+            filterNotify = "{0.author.mention} was filtered!".format(msg)
             notifyMsg = await msg.channel.send(filterNotify)
             await asyncio.sleep(3)
             await notifyMsg.delete()
         else:
-            filterNotify = "{0.author.mention} wasn't jolly enough! Message was: \n".format(msg)
+            filterNotify = "{0.author.mention} was filtered! Message was: \n".format(msg)
             embed = discord.Embed(
                 colour=random.choice(COLOURS),
                 description="{0.author.name}#{0.author.discriminator}: "
