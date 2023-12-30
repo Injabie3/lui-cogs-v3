@@ -5,6 +5,6 @@ from .eventHandlers import EventHandlers
 
 
 class SNSConverter(commands.Cog, CommandHandlers, EventHandlers):
-    """Converts Twitter link to SNSConverter for better video embeds"""
+    """Converts Twitter, Instagram, Threads, Tiktok & Reddit links for better embeds"""
 
     pass
