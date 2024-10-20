@@ -85,6 +85,15 @@ class WordFilter(commands.Cog):  # pylint: disable=too-many-instance-attributes
         filters = await self.config.guild(ctx.guild).get_attr(KEY_FILTERS)()
 
         if word not in filters:
+            try:
+                re.compile(word, flags=re.IGNORECASE)
+            except re.error as e:
+                await ctx.send(
+                    f"`Word Filter:` The word `{word}` is invalid: {e}."
+                    "Please make sure the input is a valid RegEx before adding."
+                )
+                return
+
             filters.append(word)
             await self.config.guild(ctx.guild).get_attr(KEY_FILTERS).set(filters)
             await ctx.send(
