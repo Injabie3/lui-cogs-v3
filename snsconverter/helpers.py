@@ -20,9 +20,9 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     urls = [entry.url for entry in embeds]
 
     ddinsta_urls = [
-        re.sub(INSTA_REGEX_PATTERN, r"https://dd\1", result)
+        result.replace("https://instagram.com", "https://instagramez.com")
         for result in urls
-        if re.match(INSTA_REGEX_PATTERN, result)
+        if "https://instagram.com" in result
     ]
 
     return ddinsta_urls
@@ -66,9 +66,7 @@ def urls_to_string(links: list[str], socialMedia: SocialMedia):
     """
     return "\n".join(
         [
-            "OwO what's this?",
-            f"*notices your terrible {socialMedia.value} embeds*",
-            "Here's a better alternative:",
+            "That embed looks broken? Let me fix that:",
             *links,
         ]
     )

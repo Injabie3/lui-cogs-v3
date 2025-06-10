@@ -1,2 +1,0 @@
-class YOURLSNotConfigured(RuntimeError):
-    pass

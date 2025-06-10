@@ -1,6 +1,6 @@
 {
-    "author" : ["Injabie3#1660", "sedruk", "KaguneAstra#6000", "TheDarkBot#1677", "quachtridat・たつ#8232"],
-    "short" : "Utility cogs maintained by the SFU Anime Club",
-    "description" : "A plethora of utility cogs by the SFU Anime Club. Some cogs were ported from the v2 days of Red.",
-    "install_msg" : "Thanks for adding our repo! Support for these cogs are limited, but we hope you'll find them useful!"
+    "author" : ["Nyko"],
+    "short" : "Link Conversion fork",
+    "description" : "A fork updating lui-cogs link converter to working versions",
+    "install_msg" : "Thanks for trying this out! Submit issues to the github fork: https://github.com/Nykoload/link-conversion"
 }
