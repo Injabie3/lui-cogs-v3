@@ -30,7 +30,7 @@ WEBCAM_GAGLARDI = (
 )
 WEBCAM_SUB = (
     "http://ns-webcams.its.sfu.ca/public/images/aqsw-current.jpg"
-    "?nocache=0.3346598630889852&update=15000&timeout=1800000"
+    "?nocache=1&update=15000&timeout=1800000"
 )
 WEBCAM_SUR = "https://cosmos.surrey.ca/TrafficCameraImages/enc_102_cityparkway_cam1.jpg"
 WEBCAM_OBS = (
@@ -43,7 +43,7 @@ WEBCAM_TRN = (
 )
 WEBCAM_TRS = (
     "https://ns-webcams.its.sfu.ca/public/images/towers-current.jpg"
-    "?nocache=0.9550930672504077&update=15000&timeout=1800000"
+    "?nocache=1&update=15000&timeout=1800000"
 )
 WEBCAM_UDN = (
     "https://ns-webcams.its.sfu.ca/public/images/udn-current.jpg"
