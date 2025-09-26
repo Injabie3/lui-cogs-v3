@@ -20,7 +20,7 @@ def convert_to_ddinsta_url(embeds: list[Embed]):
     urls = [entry.url for entry in embeds]
 
     ddinsta_urls = [
-        re.sub(INSTA_REGEX_PATTERN, r"https://dd\1", result)
+        re.sub(INSTA_REGEX_PATTERN, r"https://uu\1", result)
         for result in urls
         if re.match(INSTA_REGEX_PATTERN, result)
     ]
