@@ -1,0 +1,106 @@
+name: Cog Unit Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  COGS_REL_PATH: "."
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      cogs: ${{ steps.collect-testful-cogs.outputs.cogs }}
+      red-version: ${{ steps.extract-red-version.outputs.version }}
+    env:
+      # Keep this in sync with Red-DiscordBot's minimum supported version.
+      # This is defined in various places, but extracting it from any of them is non-trivial.
+      PYTHON_VERSION: "3.8"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Red version
+        id: extract-red-version
+        run: |
+          version=$(python "${{ github.workspace }}/setup.py" --version 2> /dev/null)
+          echo "version=${version}" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip + tox
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .tox
+          key: "${{ runner.os }}-py${{ env.PYTHON_VERSION }}-red${{ steps.extract-red-version.outputs.version }}"
+
+      - name: Install tox
+        run: pip install "tox"
+
+      - name: Collect testful cogs
+        id: collect-testful-cogs
+        env:
+          COGS_PATH: "${{ github.workspace }}/${{ env.COGS_REL_PATH }}"
+          OUTPUT_FILE: "/tmp/cog_unit_test_collect.json"
+          PYTEST_INI: "${{ github.workspace }}/.github/workflows/configs/cog_unit_test_pytest.ini"
+          SCRIPT_PY: "${{ github.workspace }}/.github/workflows/scripts/collect_testful_cogs.py"
+        run: |
+          tox run -c "${{ github.workspace }}/.github/workflows/configs/cog_unit_test_tox.ini" -e "collect"
+          echo "cogs=$(jq -c '.' '/tmp/cog_unit_test_collect.json')" >> $GITHUB_OUTPUT
+
+  test:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Keep this in sync with Red-DiscordBot's supported versions.
+        # They are defined in setup.py and pyproject.toml, but extracting them is non-trivial.
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        cog: ${{ fromJson(needs.discover.outputs.cogs) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract cog requirements
+        env:
+          COG_PATH: "${{ github.workspace }}/${{ env.COGS_REL_PATH }}/${{ matrix.cog }}"
+        run: |
+          if [ -f "${COG_PATH}/info.json" ]; then
+            jq -r ".requirements[]?" "${COG_PATH}/info.json" > "${COG_PATH}/.requirements.txt"
+          else
+            touch "${COG_PATH}/.requirements.txt"
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip + tox
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .tox
+          key: "${{ runner.os }}-py${{ matrix.python-version }}-red${{ needs.discover.outputs.red-version }}-${{ matrix.cog }}-${{ hashFiles(format('{0}/{1}/.requirements.txt', env.COGS_REL_PATH, matrix.cog)) }}"
+          restore-keys: "${{ runner.os }}-py${{ matrix.python-version }}-red${{ needs.discover.outputs.red-version }}-${{ matrix.cog }}-"
+
+      - name: Install tox
+        run: pip install "tox"
+
+      - name: Run tox
+        env:
+          COG_PATH: "${{ github.workspace }}/${{ env.COGS_REL_PATH }}/${{ matrix.cog }}"
+          COG_REQUIREMENTS_TXT: "${{ github.workspace }}/${{ env.COGS_REL_PATH }}/${{ matrix.cog }}/.requirements.txt"
+          PYTEST_INI: "${{ github.workspace }}/.github/workflows/configs/cog_unit_test_pytest.ini"
+          RED_DISCORDBOT_BRANCH: "${{ needs.discover.outputs.red-version }}"
+        run: tox run -c "${{ github.workspace }}/.github/workflows/configs/cog_unit_test_tox.ini" -e "test"
