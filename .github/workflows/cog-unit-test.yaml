@@ -3,10 +3,10 @@ name: Cog Unit Tests
 on:
   push:
     branches:
-      - master
+      - dpy2
   pull_request:
     branches:
-      - master
+      - dpy2
   workflow_dispatch:
 
 env:
