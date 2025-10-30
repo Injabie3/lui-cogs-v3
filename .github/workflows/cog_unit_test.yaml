@@ -27,9 +27,10 @@ jobs:
 
       - name: Extract Red version
         id: extract-red-version
+        env:
+          FALLBACK_BOT_VERSION: "3.4.0"
         run: |
-          version=$(python "${{ github.workspace }}/setup.py" --version 2> /dev/null)
-          echo "version=${version}" >> $GITHUB_OUTPUT
+          jq -r ".min_bot_version // \"$FALLBACK_BOT_VERSION\"" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v5
