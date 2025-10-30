@@ -28,7 +28,7 @@ jobs:
       - name: Extract Red version
         id: extract-red-version
         env:
-          FALLBACK_BOT_VERSION: "3.4.0"
+          FALLBACK_BOT_VERSION: "3.5.0"
         run: |
           version=$(jq -r ".min_bot_version // \"$FALLBACK_BOT_VERSION\"" "info.json")
           echo "version=${version}" >> $GITHUB_OUTPUT
