@@ -30,7 +30,7 @@ jobs:
         env:
           FALLBACK_BOT_VERSION: "3.4.0"
         run: |
-          jq -r ".min_bot_version // \"$FALLBACK_BOT_VERSION\"" >> $GITHUB_OUTPUT
+          jq -r ".min_bot_version // \"$FALLBACK_BOT_VERSION\"" "info.json" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v5
