@@ -14,7 +14,7 @@ class CommandHandlers(CommandsCore):
     async def _cmdToggle(self, ctx: Context):
         """Toggle SNSConverter replacements on the server
 
-        This will toggle the auto-reply of any Twitter or Instagram links with
-        embeds, and replace them with vxtwitter or ddinstagram, respectively.
+        This will toggle the auto-reply of any Twitter, Instagram, Threads, Tiktok, or Reddit links with
+        embeds, and replace them with vxtwitter, ddinstagram, vxthreads, vxtiktok, or fxreddit respectively.
         """
         await self.cmdToggle(ctx)
