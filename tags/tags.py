@@ -87,6 +87,14 @@ class Tags(commands.Cog):
         guildIds = await self.configV3.all_guilds()
         for guildId in guildIds.keys():
             guild = discord.utils.get(self.bot.guilds, id=guildId)
+
+            if guild is None:
+                self.logger.info(
+                    "Could not find guild for guild ID %s, skipping role sync",
+                    guildId,
+                )
+                continue
+
             async with self.configV3.guild(guild).get_attr(KEY_TIERS)() as tiers:
                 self.allowed_roles[guildId] = set(tiers.keys())
                 self.logger.debug(
